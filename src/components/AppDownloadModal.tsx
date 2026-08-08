@@ -51,9 +51,9 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({
   const [phoneSent, setPhoneSent] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"apk" | "custom" | "qr" | "store" | "pwa">("apk");
 
-  // Real App URL State (persisted in localStorage)
+  // Real App URL State (persisted in localStorage, defaults to hosted APK)
   const [customApkUrl, setCustomApkUrl] = useState<string>(() => {
-    return localStorage.getItem("meezan_custom_apk_url") || "";
+    return localStorage.getItem("meezan_custom_apk_url") || "/MeezanApp.apk";
   });
   const [customAppName, setCustomAppName] = useState<string>(() => {
     return localStorage.getItem("meezan_custom_app_name") || "تطبيق ميزان المحاسبي";
@@ -73,7 +73,6 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({
     const savedUrl = localStorage.getItem("meezan_custom_apk_url");
     if (savedUrl) setCustomApkUrl(savedUrl);
   }, []);
-
   if (!isOpen) return null;
 
   const handleSaveCustomSettings = (e: React.FormEvent) => {

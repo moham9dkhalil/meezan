@@ -93,7 +93,7 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
   };
 
   const handleDirectDownload = () => {
-    const finalUrl = getDirectDownloadUrl(customApkUrl);
+    const finalUrl = getDirectDownloadUrl(customApkUrl || "/MeezanApp.apk");
     if (finalUrl) {
       const a = document.createElement("a");
       a.href = finalUrl;
@@ -228,15 +228,13 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
                 <span>مسح رمز QR أو تعديل الرابط</span>
               </button>
 
-              {customApkUrl ? (
-                <button
-                  onClick={handleDirectDownload}
-                  className="px-6 py-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-emerald-300 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer text-sm"
-                >
-                  <Download className="w-5 h-5 text-emerald-400" />
-                  <span>تحميل APK مباشر</span>
-                </button>
-              ) : null}
+              <button
+                onClick={handleDirectDownload}
+                className="px-6 py-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-emerald-300 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer text-sm"
+              >
+                <Download className="w-5 h-5 text-emerald-400" />
+                <span>تحميل APK مباشر</span>
+              </button>
             </div>
 
             {installSupported ? (

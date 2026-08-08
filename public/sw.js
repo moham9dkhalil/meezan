@@ -23,6 +23,9 @@ self.addEventListener("fetch", (event) => {
   // Never cache API responses
   if (url.pathname.startsWith("/api/")) return;
 
+  // Never cache large downloadable files (APK, archives, etc.)
+  if (/\.(apk|zip|rar|7z|exe|pdf)$/i.test(url.pathname)) return;
+
   // Network-first for navigations (always fresh HTML, fallback to cache when offline)
   if (event.request.mode === "navigate") {
     event.respondWith(
