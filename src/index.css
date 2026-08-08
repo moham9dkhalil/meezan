@@ -1,0 +1,457 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg: #080c1c;
+    --bg-soft: #0b1120;
+    --card: #0d1424;
+    --card-2: #101a30;
+    --line: rgba(255, 255, 255, 0.08);
+    --text: #f3f4f6;
+    --muted: #9ca3af;
+    --dim: #6b7280;
+
+    --indigo: #6366f1;
+    --blue: #3b82f6;
+    --blue-light: #60a5fa;
+    --purple: #8b5cf6;
+    --purple-light: #a78bfa;
+    --emerald: #10b981;
+    --emerald-light: #34d399;
+    --amber: #f59e0b;
+    --pink: #ec4899;
+    --red: #ef4444;
+    --orange: #ff8040;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    overflow-x: hidden;
+    max-width: 100vw;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  /* Universal Box Sizing & Element Constraint */
+  *, ::before, ::after {
+    box-sizing: border-box;
+  }
+
+  /* Media & Canvas Responsiveness */
+  img, svg, video, canvas, audio, iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Text & Code Wrapping Safety */
+  p, h1, h2, h3, h4, h5, h6, span, div, a, label, button, td, th {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  pre, code, kbd, samp {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(120, 130, 160, 0.25);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.5);
+  }
+}
+
+/* ==========================================================================
+   LANGUAGE DIRECTION ENGINE (RTL / LTR)
+   ========================================================================== */
+
+html[dir="ltr"] body, html.dir-ltr body {
+  direction: ltr;
+  text-align: left;
+}
+
+html[dir="ltr"] .text-right, html.dir-ltr .text-right {
+  text-align: left !important;
+}
+
+html[dir="rtl"] body, html.dir-rtl body {
+  direction: rtl;
+  text-align: right;
+}
+
+/* ==========================================================================
+   LIGHT MODE THEME ENGINE & COMPONENT ADAPTATIONS
+   ========================================================================== */
+
+html.light, body.light, [data-theme="light"] {
+  --bg: #f8fafc;
+  --bg-soft: #f1f5f9;
+  --card: #ffffff;
+  --card-2: #ffffff;
+  --line: #e2e8f0;
+  --text: #0f172a;
+  --muted: #334155;
+  --dim: #64748b;
+  color-scheme: light;
+}
+
+html.light body, body.light {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Universal Light mode card & panel backgrounds targeting dark hexes & slate backgrounds */
+html.light [class*="bg-[#0"],
+html.light [class*="bg-[#1"],
+html.light [class*="bg-[#2"],
+html.light [class*="bg-slate-9"],
+html.light [class*="bg-slate-8"],
+html.light [class*="bg-gray-9"],
+html.light [class*="bg-gray-8"],
+html.light [class*="bg-zinc-9"] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+}
+
+/* Light mode header, nav, and fixed bars */
+html.light header,
+html.light nav,
+html.light .glass-nav {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Light mode typography text colors */
+html.light h1:not([class*="text-transparent"]),
+html.light h2:not([class*="text-transparent"]),
+html.light h3:not([class*="text-transparent"]),
+html.light h4:not([class*="text-transparent"]) {
+  color: #0f172a !important;
+}
+
+html.light p,
+html.light .text-slate-200,
+html.light .text-slate-300,
+html.light .text-gray-200,
+html.light .text-gray-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-400,
+html.light .text-gray-400 {
+  color: #64748b !important;
+}
+
+/* Preserve solid white text on buttons & gradients in light mode */
+html.light [class*="bg-gradient-to"],
+html.light button.bg-indigo-600,
+html.light button.bg-indigo-700,
+html.light button.bg-purple-600,
+html.light button.bg-emerald-600,
+html.light button.bg-rose-600,
+html.light .bg-indigo-600,
+html.light .bg-indigo-700,
+html.light .bg-emerald-600,
+html.light .bg-rose-600 {
+  color: #ffffff !important;
+}
+
+html.light [class*="bg-gradient-to"] *,
+html.light button.bg-indigo-600 *,
+html.light button.bg-indigo-700 *,
+html.light button.bg-purple-600 *,
+html.light button.bg-emerald-600 *,
+html.light button.bg-rose-600 * {
+  color: #ffffff !important;
+}
+
+/* Light mode badge adaptation */
+html.light [class*="bg-indigo-500/"],
+html.light [class*="bg-indigo-600/"] {
+  background-color: #e0e7ff !important;
+  color: #3730a3 !important;
+  border-color: #c7d2fe !important;
+}
+html.light [class*="bg-indigo-500/"] *,
+html.light [class*="bg-indigo-600/"] * {
+  color: #3730a3 !important;
+}
+
+html.light [class*="bg-emerald-500/"],
+html.light [class*="bg-emerald-600/"] {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+  border-color: #a7f3d0 !important;
+}
+html.light [class*="bg-emerald-500/"] *,
+html.light [class*="bg-emerald-600/"] * {
+  color: #065f46 !important;
+}
+
+html.light [class*="bg-amber-500/"],
+html.light [class*="bg-amber-600/"] {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fde68a !important;
+}
+html.light [class*="bg-amber-500/"] *,
+html.light [class*="bg-amber-600/"] * {
+  color: #92400e !important;
+}
+
+html.light [class*="bg-purple-500/"],
+html.light [class*="bg-purple-600/"] {
+  background-color: #f3e8ff !important;
+  color: #6b21a8 !important;
+  border-color: #e9d5ff !important;
+}
+html.light [class*="bg-purple-500/"] *,
+html.light [class*="bg-purple-600/"] * {
+  color: #6b21a8 !important;
+}
+
+/* Light mode form controls */
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Light mode borders */
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20,
+html.light .border-white\/30 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Light mode translucent fills inside cards */
+html.light .bg-white\/5 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .bg-white\/10 {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .bg-white\/20 {
+  background-color: #cbd5e1 !important;
+}
+
+html.light .bg-black\/40,
+html.light .bg-black\/50,
+html.light .bg-black\/60,
+html.light .bg-black\/70,
+html.light .bg-black\/80 {
+  background-color: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Light mode tables */
+html.light thead,
+html.light tfoot,
+html.light th {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Light mode ambient background glow */
+html.light .bg-ambient-gradient {
+  background:
+    radial-gradient(600px 400px at 85% -5%, rgba(99, 102, 241, 0.08), transparent 60%),
+    radial-gradient(500px 400px at 5% 15%, rgba(236, 72, 153, 0.06), transparent 60%),
+    radial-gradient(700px 500px at 50% 100%, rgba(16, 185, 129, 0.05), transparent 60%) !important;
+}
+
+/* Light mode glass panel */
+html.light .glass-panel {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* ==========================================================================
+   Responsive Auto-Scaling Media Queries (Mobile, Tablet, Desktop)
+   ========================================================================== */
+
+/* 1. Mobile Smartphones (Up to 640px) */
+@media screen and (max-width: 640px) {
+  /* Auto-scale card inner paddings to fit phone screens without truncation */
+  .p-6, .p-8, .p-10, .p-12 {
+    padding: 1rem !important;
+  }
+
+  .px-6, .px-8, .px-10, .px-12 {
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+  }
+
+  .py-6, .py-8, .py-10, .py-12 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .gap-6, .gap-8, .gap-10 {
+    gap: 0.875rem !important;
+  }
+
+  /* Auto-scale headline typography to prevent clipping on small displays */
+  h1, .text-4xl, .text-5xl, .text-6xl {
+    font-size: 1.65rem !important;
+    line-height: 1.3 !important;
+  }
+
+  h2, .text-3xl {
+    font-size: 1.35rem !important;
+    line-height: 1.35 !important;
+  }
+
+  h3, .text-2xl {
+    font-size: 1.15rem !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Modals auto-adjust to screen width */
+  .max-w-xl, .max-w-2xl, .max-w-3xl, .max-w-4xl, .max-w-5xl {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+
+  /* Table responsive auto-scrolling */
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent button touch truncation */
+  button, input, select {
+    min-height: 40px;
+  }
+}
+
+/* 2. Tablets & Small Laptops (641px to 1024px) */
+@media screen and (min-width: 641px) and (max-width: 1024px) {
+  .p-8, .p-10, .p-12 {
+    padding: 1.5rem !important;
+  }
+
+  h1, .text-5xl, .text-6xl {
+    font-size: 2.2rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .max-w-4xl, .max-w-5xl {
+    max-width: 92vw !important;
+  }
+}
+
+/* 3. Utility helper classes for screen bounds protection */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.min-w-0 {
+  min-width: 0 !important;
+}
+
+@keyframes glowPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.35); }
+}
+
+@keyframes pulseSoftGlow {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.15), inset 0 0 8px rgba(99, 102, 241, 0.05);
+    border-color: rgba(99, 102, 241, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(168, 85, 247, 0.38), inset 0 0 16px rgba(236, 72, 153, 0.15);
+    border-color: rgba(236, 72, 153, 0.6);
+  }
+}
+
+@keyframes pulseCardAura {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(129, 140, 248, 0.15), 0 0 25px rgba(99, 102, 241, 0.10);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(168, 85, 247, 0.35), 0 0 50px rgba(236, 72, 153, 0.22);
+  }
+}
+
+.animate-pulse-glow {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.animate-pulse-light {
+  animation: pulseSoftGlow 3s ease-in-out infinite;
+}
+
+.animate-pulse-aura {
+  animation: pulseCardAura 3.5s ease-in-out infinite;
+}
+
+.animate-floaty {
+  animation: floaty 6s ease-in-out infinite;
+}
+
+.bg-ambient-gradient {
+  background:
+    radial-gradient(600px 400px at 85% -5%, rgba(99, 102, 241, 0.16), transparent 60%),
+    radial-gradient(500px 400px at 5% 15%, rgba(236, 72, 153, 0.10), transparent 60%),
+    radial-gradient(700px 500px at 50% 100%, rgba(16, 185, 129, 0.08), transparent 60%);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.glass-nav {
+  background: linear-gradient(180deg, rgba(16, 31, 61, 0.85), rgba(5, 11, 24, 0.95));
+  border: 1px solid rgba(207, 224, 255, 0.12);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ميزان - منصة تعلم المحاسبة",
+  "description": "منصة ميزان التفاعلية لتعليم المحاسبة والمالية باللغة العربية من الصفر حتى الاحتراف، مع معمل قيود عملي، قارئ كتب، حاسبات مالية ومساعد محاسبي ذكي.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
