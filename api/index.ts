@@ -281,4 +281,8 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", app: "Meezan" });
 });
 
-export default app;
+const handler = (req: express.Request, res: express.Response) => {
+  app(req, res);
+};
+
+export default handler;
