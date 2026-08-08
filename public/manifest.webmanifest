@@ -1,0 +1,31 @@
+{
+  "name": "ميزان | منصة تعلم المحاسبة",
+  "short_name": "ميزان",
+  "description": "منصة ميزان لتعلم المحاسبة المالية بالعربي: دروس، معمل القيود، مساعد ذكي، وحاسبات احترافية.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#080C1C",
+  "theme_color": "#080C1C",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

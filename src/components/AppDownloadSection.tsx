@@ -16,7 +16,8 @@ import {
   Lock,
   Edit3,
   Link,
-  Check
+  Check,
+  MonitorSmartphone
 } from "lucide-react";
 
 interface AppDownloadSectionProps {
@@ -36,6 +37,8 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
   const [inlineLinkInput, setInlineLinkInput] = useState("");
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [installEvent, setInstallEvent] = useState<any>(null);
+  const [installSupported, setInstallSupported] = useState(true);
 
   useEffect(() => {
     const saved = localStorage.getItem("meezan_custom_apk_url");
@@ -43,6 +46,38 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
     if (saved) setCustomApkUrl(saved);
     if (name) setCustomAppName(name);
   }, []);
+
+  useEffect(() => {
+    const onBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setInstallEvent(e);
+    };
+    window.addEventListener("beforeinstallprompt", onBeforeInstall);
+    const onInstalled = () => {
+      setInstallEvent(null);
+      setInstallSupported(false);
+    };
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (installEvent) {
+      try {
+        (installEvent as any).prompt();
+        const choice = await (installEvent as any).userChoice;
+        if (choice && choice.outcome === "accepted") setInstallSupported(false);
+      } catch {
+        /* noop */
+      }
+      setInstallEvent(null);
+    } else {
+      onOpenDownloadModal();
+    }
+  };
 
   const handleSaveInlineLink = (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,11 +213,11 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
             {/* Main Download Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <button
-                onClick={handleDirectDownload}
+                onClick={handleInstall}
                 className="px-8 py-4 bg-gradient-to-r from-emerald-500 via-teal-600 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all flex items-center justify-center gap-3 cursor-pointer text-base group"
               >
-                <Download className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span>تحميل البرنامج (APK مباشر)</span>
+                <MonitorSmartphone className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <span>تثبيت تطبيق ميزان على جهازك</span>
               </button>
 
               <button
@@ -192,7 +227,28 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
                 <QrCode className="w-5 h-5 text-indigo-400" />
                 <span>مسح رمز QR أو تعديل الرابط</span>
               </button>
+
+              {customApkUrl ? (
+                <button
+                  onClick={handleDirectDownload}
+                  className="px-6 py-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-emerald-300 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer text-sm"
+                >
+                  <Download className="w-5 h-5 text-emerald-400" />
+                  <span>تحميل APK مباشر</span>
+                </button>
+              ) : null}
             </div>
+
+            {installSupported ? (
+              <p className="text-[11px] text-slate-400 pt-1">
+                زر "تثبيت تطبيق ميزان" يُثبّت التطبيق مباشرة على موبايلك أو كمبيوترك مثل أي تطبيق عادي (آندرويد/آيفون/ويندوز/ماك). على آيفون: افتح الموقع في Safari ثم اضغط Share ← Add to Home Screen.
+              </p>
+            ) : (
+              <p className="text-[11px] text-emerald-400 pt-1 flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                تم تثبيت تطبيق ميزان بنجاح! ابحث عن أيقونته في شاشتك الرئيسية.
+              </p>
+            )}
 
             {/* Feature Bullets */}
             <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 pt-4">
