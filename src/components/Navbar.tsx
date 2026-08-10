@@ -201,8 +201,10 @@ export function Navbar({
     <>
       {/* Floating Modern Header */}
       <header className="sticky top-0 z-50 w-full px-2 sm:px-4 py-2 transition-all">
-        <div className="max-w-7xl mx-auto bg-[#070b1a]/90 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl shadow-indigo-950/40 px-3 sm:px-4 min-h-16 py-1.5 sm:py-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 sm:gap-3 transition-all relative">
-          
+        <div className="max-w-7xl mx-auto bg-[#070b1a]/90 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl shadow-indigo-950/40 px-3 sm:px-4 py-1.5 sm:py-2 flex flex-col gap-1.5 sm:gap-2 transition-all relative">
+
+          {/* ROW A: BRAND + DESKTOP NAV + MOBILE HAMBURGER */}
+          <div className="flex items-center justify-between gap-2">
             {/* BRAND LOGO */}
             <div
               onClick={() => handleTabClick("hero")}
@@ -275,7 +277,7 @@ export function Navbar({
 
               {/* MEGA DROPDOWN MENU */}
               {moreMenuOpen && (
-                <div className="fixed top-[76px] lg:top-[122px] 2xl:top-[76px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4">
+                <div className="fixed top-[105px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4">
                   <div className="flex items-center justify-between border-b border-white/10 pb-3">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-amber-400" />
@@ -355,7 +357,19 @@ export function Navbar({
             </div>
           </nav>
 
-          {/* RIGHT CONTROLS / UTILITIES */}
+            {/* MOBILE HAMBURGER (ROW A) */}
+            <div className="lg:hidden flex items-center gap-1.5">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center justify-center"
+                aria-label={isEn ? "Menu" : "القائمة"}
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5 text-pink-400" /> : <Menu className="w-5 h-5 text-indigo-300" />}
+              </button>
+            </div>
+          </div>
+
+          {/* ROW B: UTILITIES */}
           <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
             
             {/* QUICK SEARCH BUTTON */}
@@ -453,15 +467,6 @@ export function Navbar({
                 </button>
               </div>
             )}
-
-            {/* MOBILE HAMBURGER BUTTON */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center justify-center"
-              aria-label={isEn ? "Menu" : "القائمة"}
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5 text-pink-400" /> : <Menu className="w-5 h-5 text-indigo-300" />}
-            </button>
           </div>
         </div>
 
