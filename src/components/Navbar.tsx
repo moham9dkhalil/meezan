@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { ActiveTab, UserProfile } from "../types";
 import { PomodoroTimer } from "./PomodoroTimer";
 import {
@@ -30,7 +30,8 @@ import {
   Search,
   Grid,
   Zap,
-  Briefcase
+  Briefcase,
+  MessageCircleQuestion
 } from "lucide-react";
 import { Language } from "../data/translations";
 
@@ -102,6 +103,7 @@ export function Navbar({
       categoryEn: "🌱 Learning Path & Exams",
       items: [
         { id: "sectors" as ActiveTab, label: isEn ? "Accounting Sectors & Fields" : "تخصصات وقطاعات المحاسبة (المقاولات، المصانع، العقارات...)", icon: Briefcase, desc: "خريطة التعلم والقيود وشجرة الحسابات لكل مجال قطاعي" },
+        { id: "interviewQuestions" as ActiveTab, label: isEn ? "Accounting Job Interviews Q&A" : "أسئلة مقابلات المحاسبة (من حديث التخرج لـ CFO)", icon: MessageCircleQuestion, badge: "جديد", desc: "كل الأسئلة والإجابات النموذجية لجميع المستويات الوظيفية" },
         { id: "path" as ActiveTab, label: isEn ? "32 Learning Stages" : "المراحل التعليمية (32 مرحلة)", icon: Layers, desc: "دروس تفاعلية مع أسئلة وحالات عمل" },
         { id: "smartQuizzes" as ActiveTab, label: isEn ? "Smart Quizzes" : "الاختبارات والتطبيقات الذكية", icon: Brain, desc: "اختبر مستواك المحاسبي مع التغذية الراجعة" },
         { id: "socpaExam" as ActiveTab, label: isEn ? "SOCPA Exam Simulator" : "محاكي اختبار زمالة SOCPA", icon: ShieldCheck, desc: "أسئلة وتمارين الزمالة السعودية للمحاسبين" },
@@ -149,6 +151,7 @@ export function Navbar({
   const mobileAllItems = [
     { id: "hero" as ActiveTab, label: isEn ? "Home" : "الرئيسية", icon: Scale },
     { id: "path" as ActiveTab, label: isEn ? "Stages (32)" : "المراحل (32)", icon: Layers, badge: "32" },
+    { id: "interviewQuestions" as ActiveTab, label: isEn ? "Interview Q&A" : "مقابلات العمل", icon: MessageCircleQuestion },
     { id: "smartQuizzes" as ActiveTab, label: isEn ? "Smart Quizzes" : "الاختبارات الذكية", icon: Brain },
     { id: "socpaExam" as ActiveTab, label: isEn ? "SOCPA Exam" : "اختبار SOCPA", icon: ShieldCheck },
     { id: "lab" as ActiveTab, label: isEn ? "Accounting Lab" : "المعمل المحاسبي", icon: Calculator },
@@ -218,7 +221,8 @@ export function Navbar({
               const isActive =
                 activeTab === item.id ||
                 (item.id === "path" && activeTab === "lessonView") ||
-                (item.id === "hero" && (activeTab === "features" || activeTab === "testimonials"));
+                (item.id === "hero" && (activeTab === "features" || activeTab === "testimonials")) ||
+                (item.id === "sectors" && activeTab === "sectorDetail");
 
               return (
                 <button

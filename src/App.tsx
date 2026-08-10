@@ -8,6 +8,7 @@ import { FeaturesSection } from "./components/FeaturesSection";
 import { PathSection } from "./components/PathSection";
 import { AccountingSectorsSection } from "./components/AccountingSectorsSection";
 import { SectorDetailSection } from "./components/SectorDetailSection";
+import { InterviewQuestionsSection } from "./components/InterviewQuestionsSection";
 import { CoursesSection } from "./components/CoursesSection";
 import { FlashcardsSection } from "./components/FlashcardsSection";
 import { GlossarySection } from "./components/GlossarySection";
@@ -430,6 +431,15 @@ export default function App() {
               onSelectTab={handleSelectTab}
               onOpenOdooWithEntry={() => handleSelectTab("odooJournal")}
               onChangeSector={setSelectedSectorId}
+              appLanguage={language}
+            />
+          </div>
+        )}
+
+        {activeTab === "interviewQuestions" && (
+          <div className="max-w-7xl mx-auto px-4 pt-4">
+            <InterviewQuestionsSection
+              onSelectTab={handleSelectTab}
               appLanguage={language}
             />
           </div>

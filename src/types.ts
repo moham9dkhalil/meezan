@@ -4,6 +4,7 @@ export type ActiveTab =
   | "path"
   | "sectors"
   | "sectorDetail"
+  | "interviewQuestions"
   | "lessonView"
   | "smartQuizzes"
   | "socpaExam"
