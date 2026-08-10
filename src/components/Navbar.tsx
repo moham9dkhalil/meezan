@@ -102,6 +102,7 @@ export function Navbar({
       items: [
         { id: "sectors" as ActiveTab, label: isEn ? "Accounting Sectors & Fields" : "تخصصات وقطاعات المحاسبة (المقاولات، المصانع، العقارات...)", icon: Briefcase, desc: "خريطة التعلم والقيود وشجرة الحسابات لكل مجال قطاعي" },
         { id: "interviewQuestions" as ActiveTab, label: isEn ? "Accounting Job Interviews Q&A" : "أسئلة مقابلات المحاسبة (من حديث التخرج لـ CFO)", icon: MessageCircleQuestion, badge: "جديد", desc: "كل الأسئلة والإجابات النموذجية لجميع المستويات الوظيفية" },
+        { id: "accountingStandards" as ActiveTab, label: isEn ? "All Accounting Standards (IFRS/IAS/EAS/GAAP)" : "كل معايير المحاسبة (دولي، مصري، أمريكي)", icon: BookMarked, badge: "مرجع", desc: "شرح تفصيلي عميق لكل معيار: النطاق، الاعتراف، القياس، الإفصاح، أمثلة، وقيود" },
         { id: "path" as ActiveTab, label: isEn ? "32 Learning Stages" : "المراحل التعليمية (32 مرحلة)", icon: Layers, desc: "دروس تفاعلية مع أسئلة وحالات عمل" },
         { id: "smartQuizzes" as ActiveTab, label: isEn ? "Smart Quizzes" : "الاختبارات والتطبيقات الذكية", icon: Brain, desc: "اختبر مستواك المحاسبي مع التغذية الراجعة" },
         { id: "socpaExam" as ActiveTab, label: isEn ? "SOCPA Exam Simulator" : "محاكي اختبار زمالة SOCPA", icon: ShieldCheck, desc: "أسئلة وتمارين الزمالة السعودية للمحاسبين" },
@@ -151,6 +152,7 @@ export function Navbar({
     { id: "hero" as ActiveTab, label: isEn ? "Home" : "الرئيسية", icon: Scale },
     { id: "path" as ActiveTab, label: isEn ? "Stages (32)" : "المراحل (32)", icon: Layers, badge: "32" },
     { id: "interviewQuestions" as ActiveTab, label: isEn ? "Interview Q&A" : "مقابلات العمل", icon: MessageCircleQuestion },
+    { id: "accountingStandards" as ActiveTab, label: isEn ? "Accounting Standards" : "معايير المحاسبة", icon: BookMarked },
     { id: "smartQuizzes" as ActiveTab, label: isEn ? "Smart Quizzes" : "الاختبارات الذكية", icon: Brain },
     { id: "socpaExam" as ActiveTab, label: isEn ? "SOCPA Exam" : "اختبار SOCPA", icon: ShieldCheck },
     { id: "lab" as ActiveTab, label: isEn ? "Accounting Lab" : "المعمل المحاسبي", icon: Calculator },

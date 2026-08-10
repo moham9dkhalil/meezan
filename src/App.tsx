@@ -9,6 +9,7 @@ import { PathSection } from "./components/PathSection";
 import { AccountingSectorsSection } from "./components/AccountingSectorsSection";
 import { SectorDetailSection } from "./components/SectorDetailSection";
 import { InterviewQuestionsSection } from "./components/InterviewQuestionsSection";
+import { AccountingStandardsSection } from "./components/AccountingStandardsSection";
 import { CoursesSection } from "./components/CoursesSection";
 import { FlashcardsSection } from "./components/FlashcardsSection";
 import { GlossarySection } from "./components/GlossarySection";
@@ -439,6 +440,15 @@ export default function App() {
         {activeTab === "interviewQuestions" && (
           <div className="max-w-7xl mx-auto px-4 pt-4">
             <InterviewQuestionsSection
+              onSelectTab={handleSelectTab}
+              appLanguage={language}
+            />
+          </div>
+        )}
+
+        {activeTab === "accountingStandards" && (
+          <div className="max-w-7xl mx-auto px-4 pt-4">
+            <AccountingStandardsSection
               onSelectTab={handleSelectTab}
               appLanguage={language}
             />

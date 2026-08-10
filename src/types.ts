@@ -5,6 +5,7 @@ export type ActiveTab =
   | "sectors"
   | "sectorDetail"
   | "interviewQuestions"
+  | "accountingStandards"
   | "lessonView"
   | "smartQuizzes"
   | "socpaExam"
