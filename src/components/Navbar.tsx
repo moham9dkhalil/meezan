@@ -186,6 +186,7 @@ export function Navbar({
     { id: "path", label: isEn ? "Stages" : "المراحل", icon: Layers },
     { id: "lab", label: isEn ? "Lab" : "المعمل", icon: Calculator },
     { id: "taxGuide", label: isEn ? "Tax" : "الضرائب", icon: Receipt },
+    { id: "studyTimer", label: isEn ? "Focus" : "مؤقت", icon: Timer },
     { id: "profile", label: isEn ? "Account" : "حسابي", icon: User },
   ];
 
@@ -425,6 +426,15 @@ export function Navbar({
               </button>
             ) : (
               <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => handleTabClick("profile")}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-400/40 text-indigo-200 hover:bg-indigo-500/20 transition-all cursor-pointer"
+                  title={isEn ? "My Account" : "حسابي الشخصي"}
+                >
+                  <User className="w-3.5 h-3.5 text-indigo-300" />
+                  <span className="hidden sm:inline">{isEn ? "Account" : "حسابي"}</span>
+                </button>
+
                 <button
                   onClick={() => onOpenAuth("LOGIN")}
                   className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-indigo-400/50 text-white font-black text-xs transition-all cursor-pointer flex items-center gap-1"
