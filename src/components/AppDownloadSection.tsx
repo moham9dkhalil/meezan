@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { getDirectDownloadUrl } from "./AppDownloadModal";
 import { Language } from "../data/translations";
+import { PhoneDeviceMockup } from "./PhoneDeviceMockup";
 import {
-  Smartphone,
   Download,
   QrCode,
   ShieldCheck,
@@ -12,10 +12,7 @@ import {
   Bell,
   CheckCircle2,
   Sparkles,
-  ArrowLeft,
   Lock,
-  Calculator,
-  Bot,
   Edit3,
   Link,
   Check
@@ -33,7 +30,6 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
   appLanguage = "ar"
 }) => {
   const isEn = appLanguage === "en";
-  const [activeScreen, setActiveScreen] = useState<"home" | "tax" | "quiz">("home");
   const [customApkUrl, setCustomApkUrl] = useState<string>("");
   const [customAppName, setCustomAppName] = useState<string>(isEn ? "Meezan Mobile App" : "تطبيق ميزان المحاسبي");
   const [inlineLinkInput, setInlineLinkInput] = useState("");
@@ -236,136 +232,11 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
 
           {/* Right Mobile Phone Graphic Interactive Device Preview */}
           <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-[290px] sm:max-w-[320px]">
-              
-              {/* Outer Glowing Ring */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-indigo-500 to-purple-500 rounded-[48px] blur-lg opacity-40 animate-pulse" />
-
-              {/* Smartphone Frame */}
-              <div className="relative bg-slate-950 border-[6px] border-slate-800 rounded-[44px] shadow-2xl p-3 overflow-hidden text-slate-100">
-                
-                {/* Speaker Notch */}
-                <div className="w-28 h-4 bg-slate-800 rounded-full mx-auto mb-3 flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-slate-900" />
-                  <div className="w-10 h-1 rounded-full bg-slate-900" />
-                </div>
-
-                {/* Simulated App Header */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3 mb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs">
-                      م
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-extrabold text-white">{customAppName}</h4>
-                      <p className="text-[9px] text-emerald-400">متصل والمزامنة نشطة</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
-                    أوفلاين جاهز
-                  </span>
-                </div>
-
-                {/* Screen Toggle Tabs */}
-                <div className="flex bg-slate-900/80 p-1 rounded-xl mb-3 text-[10px] font-bold">
-                  <button
-                    onClick={() => setActiveScreen("home")}
-                    className={`flex-1 py-1.5 rounded-lg transition-all ${
-                      activeScreen === "home" ? "bg-indigo-600 text-white" : "text-slate-400"
-                    }`}
-                  >
-                    الرئيسية
-                  </button>
-                  <button
-                    onClick={() => setActiveScreen("tax")}
-                    className={`flex-1 py-1.5 rounded-lg transition-all ${
-                      activeScreen === "tax" ? "bg-indigo-600 text-white" : "text-slate-400"
-                    }`}
-                  >
-                    دليل الضرائب
-                  </button>
-                  <button
-                    onClick={() => setActiveScreen("quiz")}
-                    className={`flex-1 py-1.5 rounded-lg transition-all ${
-                      activeScreen === "quiz" ? "bg-indigo-600 text-white" : "text-slate-400"
-                    }`}
-                  >
-                    القيود
-                  </button>
-                </div>
-
-                {/* Screen Content Box */}
-                <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 min-h-[260px] space-y-3 text-right">
-                  {activeScreen === "home" && (
-                    <div className="space-y-2.5 animate-fade-in">
-                      <div className="bg-indigo-950/40 border border-indigo-500/30 p-2.5 rounded-xl">
-                        <div className="flex justify-between items-center text-[10px] text-indigo-300 font-bold mb-1">
-                          <span>التحدي اليومي #14</span>
-                          <span className="text-emerald-400">+50 XP</span>
-                        </div>
-                        <p className="text-xs font-bold text-white">ما هو القيد الصحيح لشراء أصول ثابتة بالأجل؟</p>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-slate-950/60 border border-slate-800 p-2 rounded-xl text-center">
-                          <Calculator className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
-                          <span className="text-[10px] font-bold text-slate-200 block">حاسبة الضرائب</span>
-                        </div>
-                        <div className="bg-slate-950/60 border border-slate-800 p-2 rounded-xl text-center">
-                          <Bot className="w-4 h-4 text-indigo-400 mx-auto mb-1" />
-                          <span className="text-[10px] font-bold text-slate-200 block">مساعد AI</span>
-                        </div>
-                      </div>
-
-                      <div className="bg-emerald-950/30 border border-emerald-500/20 p-2 rounded-xl text-[10px] text-emerald-300 flex items-center justify-between">
-                        <span>قانون القيمة المضافة 2026</span>
-                        <ArrowLeft className="w-3 h-3" />
-                      </div>
-                    </div>
-                  )}
-
-                  {activeScreen === "tax" && (
-                    <div className="space-y-2 text-xs animate-fade-in">
-                      <div className="p-2 bg-slate-950/60 border border-slate-800 rounded-xl">
-                        <span className="text-[10px] font-bold text-amber-400 block mb-0.5">ضريبة القيمة المضافة</span>
-                        <p className="text-[11px] text-slate-200">النسبة الأساسية: 14% على السلع والخدمات</p>
-                      </div>
-                      <div className="p-2 bg-slate-950/60 border border-slate-800 rounded-xl">
-                        <span className="text-[10px] font-bold text-emerald-400 block mb-0.5">ضريبة كسب العمل</span>
-                        <p className="text-[11px] text-slate-200">الإعفاء الشخصي السنوي: 20,000 ج.م</p>
-                      </div>
-                      <div className="p-2 bg-slate-950/60 border border-slate-800 rounded-xl">
-                        <span className="text-[10px] font-bold text-sky-400 block mb-0.5">الفاتورة الإلكترونية</span>
-                        <p className="text-[11px] text-slate-200">الربط مع منظومة الفاتورة بورتال</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeScreen === "quiz" && (
-                    <div className="space-y-2 text-xs animate-fade-in">
-                      <span className="text-[10px] text-slate-400 font-bold block">معمل القيود المحاسبية</span>
-                      <div className="bg-slate-950/80 p-2 rounded-xl border border-slate-800 space-y-1">
-                        <div className="flex justify-between text-[11px]">
-                          <span className="text-slate-400">من حـ/ الأصول الثابتة</span>
-                          <span className="text-emerald-400 font-mono">10,000</span>
-                        </div>
-                        <div className="flex justify-between text-[11px]">
-                          <span className="text-slate-400">إلى حـ/ النقدية</span>
-                          <span className="text-emerald-400 font-mono">10,000</span>
-                        </div>
-                      </div>
-                      <div className="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-[10px] text-emerald-300 text-center font-bold">
-                        ✓ قيد متوازن وصحيح!
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Bottom Home Indicator */}
-                <div className="w-20 h-1 bg-slate-700 rounded-full mx-auto mt-3" />
-              </div>
-
-            </div>
+            <PhoneDeviceMockup
+              appName={customAppName}
+              onSelectTab={onSelectTab}
+              onOpenDownloadModal={onOpenDownloadModal}
+            />
           </div>
 
         </div>
