@@ -199,10 +199,8 @@ export function Navbar({
     <>
       {/* Floating Modern Header */}
       <header className="sticky top-0 z-50 w-full px-2 sm:px-4 py-2 transition-all">
-        <div className="max-w-7xl mx-auto bg-[#070b1a]/90 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl shadow-indigo-950/40 px-3 sm:px-4 py-1.5 sm:py-2 flex flex-col gap-1.5 sm:gap-2 transition-all relative">
+        <div className="max-w-7xl mx-auto bg-[#070b1a]/90 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl shadow-indigo-950/40 px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none transition-all relative">
 
-          {/* ROW A: BRAND + DESKTOP NAV + MOBILE HAMBURGER */}
-          <div className="flex items-center justify-between gap-2">
             {/* BRAND LOGO */}
             <div
               onClick={() => handleTabClick("hero")}
@@ -216,7 +214,7 @@ export function Navbar({
                   <span className="font-black text-xl sm:text-2xl tracking-tight bg-gradient-to-r from-white via-indigo-200 to-pink-300 bg-clip-text text-transparent">
                     {isEn ? "Meezan" : "ميزان"}
                   </span>
-                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-full text-[9px] font-black bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 shadow-inner">
+                  <span className="hidden 2xl:inline-block px-1.5 py-0.5 rounded-full text-[9px] font-black bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 shadow-inner">
                     2026
                   </span>
                 </div>
@@ -226,8 +224,19 @@ export function Navbar({
               </div>
             </div>
 
+          {/* MOBILE HAMBURGER (next to brand) */}
+            <div className="lg:hidden shrink-0 flex items-center">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center justify-center"
+                aria-label={isEn ? "Menu" : "القائمة"}
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5 text-pink-400" /> : <Menu className="w-5 h-5 text-indigo-300" />}
+              </button>
+            </div>
+
           {/* DESKTOP NAVIGATION BAR */}
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1">
+          <nav className="hidden lg:flex shrink-0 items-center gap-0.5 xl:gap-1">
             {primaryNavItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -241,7 +250,7 @@ export function Navbar({
                   key={item.id}
                   id={`nav-${item.id}`}
                   onClick={() => handleTabClick(item.id)}
-                  className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl font-black text-sm whitespace-nowrap transition-all duration-200 cursor-pointer border ${
+                  className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl font-black text-xs xl:text-sm whitespace-nowrap transition-all duration-200 cursor-pointer border ${
                     isActive
                       ? "bg-gradient-to-r from-indigo-600/40 via-purple-600/30 to-indigo-600/40 text-indigo-100 border-indigo-400/60 shadow-lg shadow-indigo-500/20 font-black scale-105"
                       : "text-slate-300 hover:text-white hover:bg-white/8 border-transparent"
@@ -262,7 +271,7 @@ export function Navbar({
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-black text-sm whitespace-nowrap transition-all cursor-pointer border ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-black text-xs xl:text-sm whitespace-nowrap transition-all cursor-pointer border ${
                   moreMenuOpen
                     ? "bg-purple-600/30 text-purple-200 border-purple-400/60 shadow-lg shadow-purple-500/20"
                     : "bg-white/5 hover:bg-white/10 text-slate-200 border-white/10"
@@ -275,7 +284,7 @@ export function Navbar({
 
               {/* MEGA DROPDOWN MENU */}
               {moreMenuOpen && (
-                <div className="fixed top-[112px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4">
+                <div className="fixed top-[72px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4">
                   <div className="flex items-center justify-between border-b border-white/10 pb-3">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-amber-400" />
@@ -367,21 +376,6 @@ export function Navbar({
             </div>
           </nav>
 
-            {/* MOBILE HAMBURGER (ROW A) */}
-            <div className="lg:hidden flex items-center gap-1.5">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center justify-center"
-                aria-label={isEn ? "Menu" : "القائمة"}
-              >
-                {mobileMenuOpen ? <X className="w-5 h-5 text-pink-400" /> : <Menu className="w-5 h-5 text-indigo-300" />}
-              </button>
-            </div>
-          </div>
-
-          {/* ROW B: UTILITIES */}
-          <div className="flex items-center justify-start lg:justify-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none">
-
             {/* ACHIEVEMENTS & XP BADGE */}
             {onOpenAchievements && (
               <button
@@ -390,8 +384,8 @@ export function Navbar({
                 title="لوحة الإنجازات والتحديات اليومية"
               >
                 <Award className="w-4 h-4 text-amber-400 animate-pulse" />
-                <span className="font-mono font-black text-amber-300 hidden xl:inline">+{xp} XP</span>
-                <span className="font-mono font-black text-amber-300 xl:hidden">+{xp}</span>
+                <span className="font-mono font-black text-amber-300 hidden 2xl:inline">+{xp} XP</span>
+                <span className="font-mono font-black text-amber-300 2xl:hidden">+{xp}</span>
               </button>
             )}
 
@@ -419,7 +413,7 @@ export function Navbar({
                 className="shrink-0 h-9 flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#0e162f] border border-indigo-500/40 text-white hover:border-indigo-400 transition-all cursor-pointer shadow-md"
               >
                 <span className="text-lg">{currentUser.avatar}</span>
-                <div className="hidden sm:flex flex-col text-right">
+                <div className="hidden xl:flex flex-col text-right">
                   <span className="text-xs font-black text-white leading-tight">{currentUser.name}</span>
                   <span className="text-[10px] text-amber-300 font-bold leading-tight">+{currentUser.xp} XP</span>
                 </div>
@@ -432,7 +426,7 @@ export function Navbar({
                   title={isEn ? "My Account" : "حسابي الشخصي"}
                 >
                   <User className="w-3.5 h-3.5 text-indigo-300" />
-                  <span className="hidden lg:inline">{isEn ? "Account" : "حسابي"}</span>
+                  <span className="hidden xl:inline">{isEn ? "Account" : "حسابي"}</span>
                 </button>
 
                 <button
@@ -440,7 +434,7 @@ export function Navbar({
                   className="h-9 flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-indigo-400/50 text-white font-black text-xs transition-all cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5 text-indigo-400" />
-                  <span className="hidden lg:inline">{isEn ? "Log In" : "دخول"}</span>
+                  <span className="hidden xl:inline">{isEn ? "Log In" : "دخول"}</span>
                 </button>
 
                 <button
@@ -452,7 +446,6 @@ export function Navbar({
                 </button>
               </div>
             )}
-          </div>
         </div>
 
         {/* MOBILE EXPANDED MENU DRAWER */}
