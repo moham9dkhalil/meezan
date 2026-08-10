@@ -23,10 +23,11 @@ interface HeroSectionProps {
   onSelectTab: (tab: ActiveTab) => void;
   onOpenStage: (stageId: number) => void;
   onOpenDownloadModal?: () => void;
+  onOpenSector?: (sectorId: string) => void;
   appLanguage?: Language;
 }
 
-export function HeroSection({ onSelectTab, onOpenStage, onOpenDownloadModal, appLanguage = "ar" }: HeroSectionProps) {
+export function HeroSection({ onSelectTab, onOpenStage, onOpenDownloadModal, onOpenSector, appLanguage = "ar" }: HeroSectionProps) {
   const isEn = appLanguage === "en";
 
   return (
@@ -159,7 +160,7 @@ export function HeroSection({ onSelectTab, onOpenStage, onOpenDownloadModal, app
               return (
                 <button
                   key={sec.id}
-                  onClick={() => onSelectTab("sectors")}
+                  onClick={() => onOpenSector?.(sec.id)}
                   className="p-3.5 rounded-2xl bg-[#130B22] hover:bg-[#1f1137] border border-white/10 hover:border-amber-400/50 transition-all cursor-pointer flex flex-col items-center text-center space-y-2 group shadow-md"
                 >
                   <div className={`p-2.5 rounded-xl bg-white/5 group-hover:scale-110 transition-transform ${sec.color}`}>

@@ -7,6 +7,7 @@ import { DailyChallengeSection } from "./components/DailyChallengeSection";
 import { FeaturesSection } from "./components/FeaturesSection";
 import { PathSection } from "./components/PathSection";
 import { AccountingSectorsSection } from "./components/AccountingSectorsSection";
+import { SectorDetailSection } from "./components/SectorDetailSection";
 import { CoursesSection } from "./components/CoursesSection";
 import { FlashcardsSection } from "./components/FlashcardsSection";
 import { GlossarySection } from "./components/GlossarySection";
@@ -38,6 +39,7 @@ import { ArrowUp, Smartphone, Download } from "lucide-react";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("hero");
+  const [selectedSectorId, setSelectedSectorId] = useState<string>("contracting");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [downloadModalOpen, setDownloadModalOpen] = useState(false);
   const [certificateModalOpen, setCertificateModalOpen] = useState(false);
@@ -293,6 +295,12 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleOpenSector = (sectorId: string) => {
+    setSelectedSectorId(sectorId);
+    setActiveTab("sectorDetail");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const handleOpenStage = (
     stageId: number,
     lessonIndex: number = 0,
@@ -353,6 +361,7 @@ export default function App() {
               onSelectTab={handleSelectTab}
               onOpenStage={handleOpenStage}
               onOpenDownloadModal={() => setDownloadModalOpen(true)}
+              onOpenSector={handleOpenSector}
               appLanguage={language}
             />
             <DailyChallengeSection
@@ -407,6 +416,20 @@ export default function App() {
             <AccountingSectorsSection
               onSelectTab={handleSelectTab}
               onOpenOdooWithEntry={() => handleSelectTab("odooJournal")}
+              onOpenSector={handleOpenSector}
+              appLanguage={language}
+            />
+          </div>
+        )}
+
+        {activeTab === "sectorDetail" && (
+          <div className="max-w-7xl mx-auto px-4 pt-4">
+            <SectorDetailSection
+              sectorId={selectedSectorId}
+              onBack={() => handleSelectTab("sectors")}
+              onSelectTab={handleSelectTab}
+              onOpenOdooWithEntry={() => handleSelectTab("odooJournal")}
+              onChangeSector={setSelectedSectorId}
               appLanguage={language}
             />
           </div>

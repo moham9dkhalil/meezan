@@ -3,6 +3,7 @@ export type ActiveTab =
   | "features"
   | "path"
   | "sectors"
+  | "sectorDetail"
   | "lessonView"
   | "smartQuizzes"
   | "socpaExam"
