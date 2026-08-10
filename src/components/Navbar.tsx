@@ -86,13 +86,13 @@ export function Navbar({
   }, []);
 
   // Primary Nav Items shown directly on the top bar
-  const primaryNavItems: { id: ActiveTab; label: string; icon: any; badge?: string; lgHidden?: boolean }[] = [
+  const primaryNavItems: { id: ActiveTab; label: string; icon: any; badge?: string }[] = [
     { id: "hero", label: isEn ? "Home" : "الرئيسية", icon: Scale },
-    { id: "sectors", label: isEn ? "Sectors" : "التخصصات", icon: Briefcase, lgHidden: true },
+    { id: "sectors", label: isEn ? "Sectors" : "التخصصات", icon: Briefcase },
     { id: "path", label: isEn ? "Stages (32)" : "المراحل", icon: Layers, badge: "32" },
     { id: "lab", label: isEn ? "Lab" : "المعمل", icon: Calculator },
     { id: "taxGuide", label: isEn ? "Tax" : "الضرائب", icon: Receipt, badge: isEn ? "2026" : "2026" },
-    { id: "interviewQuestions", label: isEn ? "Interviews" : "المقابلات", icon: MessageCircleQuestion, badge: "جديد", lgHidden: true },
+    { id: "interviewQuestions", label: isEn ? "Interviews" : "المقابلات", icon: MessageCircleQuestion, badge: "جديد" },
   ];
 
   // Categorized items for the "All Tools & Sections" Dropdown
@@ -201,7 +201,7 @@ export function Navbar({
     <>
       {/* Floating Modern Header */}
       <header className="sticky top-0 z-50 w-full px-2 sm:px-4 py-2 transition-all">
-        <div className="max-w-7xl mx-auto bg-[#070b1a]/90 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl shadow-indigo-950/40 px-3 sm:px-4 h-16 flex items-center justify-between gap-1 sm:gap-3 transition-all relative">
+        <div className="max-w-7xl mx-auto bg-[#070b1a]/90 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl shadow-indigo-950/40 px-3 sm:px-4 min-h-16 py-1.5 sm:py-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 sm:gap-3 transition-all relative">
           
             {/* BRAND LOGO */}
             <div
@@ -241,9 +241,7 @@ export function Navbar({
                   key={item.id}
                   id={`nav-${item.id}`}
                   onClick={() => handleTabClick(item.id)}
-                  className={`${
-                    item.lgHidden ? "hidden xl:flex" : "flex"
-                  } items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl font-black text-xs xl:text-sm whitespace-nowrap transition-all duration-200 cursor-pointer border ${
+                  className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl font-black text-xs xl:text-sm whitespace-nowrap transition-all duration-200 cursor-pointer border ${
                     isActive
                       ? "bg-gradient-to-r from-indigo-600/40 via-purple-600/30 to-indigo-600/40 text-indigo-100 border-indigo-400/60 shadow-lg shadow-indigo-500/20 font-black scale-105"
                       : "text-slate-300 hover:text-white hover:bg-white/8 border-transparent"
@@ -277,7 +275,7 @@ export function Navbar({
 
               {/* MEGA DROPDOWN MENU */}
               {moreMenuOpen && (
-                <div className="fixed top-[72px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4">
+                <div className="fixed top-[76px] lg:top-[122px] 2xl:top-[76px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4">
                   <div className="flex items-center justify-between border-b border-white/10 pb-3">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-amber-400" />
@@ -358,7 +356,7 @@ export function Navbar({
           </nav>
 
           {/* RIGHT CONTROLS / UTILITIES */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
             
             {/* QUICK SEARCH BUTTON */}
             <button
@@ -374,7 +372,7 @@ export function Navbar({
             {onOpenAchievements && (
               <button
                 onClick={onOpenAchievements}
-                className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-indigo-500/20 border border-amber-400/40 text-amber-300 font-extrabold text-xs hover:bg-amber-500/30 transition-all cursor-pointer shadow-md"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-indigo-500/20 border border-amber-400/40 text-amber-300 font-extrabold text-xs hover:bg-amber-500/30 transition-all cursor-pointer shadow-md"
                 title="لوحة الإنجازات والتحديات اليومية"
               >
                 <Award className="w-4 h-4 text-amber-400 animate-pulse" />
@@ -384,7 +382,7 @@ export function Navbar({
             )}
 
             {/* POMODORO TIMER */}
-            <div className="hidden md:block">
+            <div>
               <PomodoroTimer />
             </div>
 
@@ -440,7 +438,7 @@ export function Navbar({
 
                 <button
                   onClick={() => onOpenAuth("LOGIN")}
-                  className="hidden sm:flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-indigo-400/50 text-white font-black text-xs transition-all cursor-pointer"
+                  className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-indigo-400/50 text-white font-black text-xs transition-all cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5 text-indigo-400" />
                   <span className="hidden lg:inline">{isEn ? "Log In" : "دخول"}</span>
@@ -448,10 +446,10 @@ export function Navbar({
 
                 <button
                   onClick={() => onOpenAuth("SIGNUP")}
-                  className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-black text-xs shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all cursor-pointer border border-white/20"
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-black text-xs shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all cursor-pointer border border-white/20"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
-                  <span>{isEn ? "Sign Up" : "حساب جديد"}</span>
+                  <span className="hidden sm:inline">{isEn ? "Sign Up" : "حساب جديد"}</span>
                 </button>
               </div>
             )}
