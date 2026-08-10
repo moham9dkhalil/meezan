@@ -5,9 +5,22 @@ import { IAS_STANDARDS } from "./ias";
 import { INTERPRETATION_STANDARDS } from "./interpretations";
 import { EAS_STANDARDS } from "./eas";
 import { USGAAP_STANDARDS } from "./usgaap";
+import { SOCPA_STANDARDS } from "./socpa";
+import { UKFRS_STANDARDS } from "./ukfrs";
+import { INDAS_STANDARDS } from "./indas";
 
 export * from "./types";
-export { FRAMEWORK_STANDARDS, IFRS_STANDARDS, IAS_STANDARDS, INTERPRETATION_STANDARDS, EAS_STANDARDS, USGAAP_STANDARDS };
+export {
+  FRAMEWORK_STANDARDS,
+  IFRS_STANDARDS,
+  IAS_STANDARDS,
+  INTERPRETATION_STANDARDS,
+  EAS_STANDARDS,
+  USGAAP_STANDARDS,
+  SOCPA_STANDARDS,
+  UKFRS_STANDARDS,
+  INDAS_STANDARDS,
+};
 
 export const STANDARDS_FAMILIES: StandardsFamily[] = [
   {
@@ -73,6 +86,38 @@ export const STANDARDS_FAMILIES: StandardsFamily[] = [
     introAr: "مبادئ المحاسبة المقبولة عموماً في الولايات المتحدة وفق تدوين FASB (ASC)، والاختلافات الجوهرية عن IFRS.",
     introEn: "Generally Accepted Accounting Principles in the US (FASB ASC).",
     standards: USGAAP_STANDARDS,
+  },
+  {
+    id: "socpa",
+    labelAr: "المعايير السعودية (SOCPA)",
+    labelEn: "Saudi SOCPA Standards",
+    icon: "🇸🇦",
+    color: "teal",
+    introAr:
+      "المعايير المحاسبية السعودية الصادرة عن الهيئة السعودية للمحاسبين القانونيين SOCPA، التي استُبدلت باعتماد معايير IFRS كاملاً من 2018 (مع بقاء متطلبات الزكاة والأنظمة المحلية).",
+    introEn: "Saudi accounting standards issued by SOCPA, superseded by full IFRS adoption from 2018.",
+    standards: SOCPA_STANDARDS,
+  },
+  {
+    id: "ukfrs",
+    labelAr: "المعايير البريطانية FRS",
+    labelEn: "UK Financial Reporting Standards",
+    icon: "🇬🇧",
+    color: "slate",
+    introAr: "معايير التقارير المالية في المملكة المتحدة وأيرلندا الصادرة عن مجلس التقارير المالية FRC: FRS 100 - 104 وFRSSE.",
+    introEn: "UK Financial Reporting Standards issued by the FRC (FRS 100-104 and FRSSE).",
+    standards: UKFRS_STANDARDS,
+  },
+  {
+    id: "indas",
+    labelAr: "المعايير الهندية Ind AS",
+    labelEn: "Indian Accounting Standards (Ind AS)",
+    icon: "🇮🇳",
+    color: "orange",
+    introAr:
+      "المعايير المحاسبية الهندية Ind AS الصادرة عن ICAI والمتوافقة جوهرياً مع IFRS مع بعض التعديلات المحلية carve-outs.",
+    introEn: "Indian Accounting Standards issued by ICAI, aligned with IFRS with local carve-outs.",
+    standards: INDAS_STANDARDS,
   },
 ];
 

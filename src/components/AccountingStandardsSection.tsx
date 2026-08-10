@@ -75,6 +75,30 @@ const FAMILY_STYLE: Record<
     text: "text-rose-300",
     cardBorder: "hover:border-rose-400/50",
   },
+  sic: {
+    active: "border-cyan-400/70 bg-cyan-600/20 text-cyan-100",
+    chip: "bg-cyan-500/15 text-cyan-300 border-cyan-400/30",
+    text: "text-cyan-300",
+    cardBorder: "hover:border-cyan-400/50",
+  },
+  socpa: {
+    active: "border-teal-400/70 bg-teal-600/20 text-teal-100",
+    chip: "bg-teal-500/15 text-teal-300 border-teal-400/30",
+    text: "text-teal-300",
+    cardBorder: "hover:border-teal-400/50",
+  },
+  ukfrs: {
+    active: "border-slate-400/70 bg-slate-600/20 text-slate-100",
+    chip: "bg-slate-500/15 text-slate-300 border-slate-400/30",
+    text: "text-slate-300",
+    cardBorder: "hover:border-slate-400/50",
+  },
+  indas: {
+    active: "border-orange-400/70 bg-orange-600/20 text-orange-100",
+    chip: "bg-orange-500/15 text-orange-300 border-orange-400/30",
+    text: "text-orange-300",
+    cardBorder: "hover:border-orange-400/50",
+  },
 };
 
 function DetailBlock({
@@ -531,7 +555,9 @@ export function AccountingStandardsSection({
               {STANDARDS_FAMILIES.length} {isEn ? "Families" : "مجموعات معايير"}
             </span>
             <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10">
-              {isEn ? "IFRS 1-18 + IAS 1-41" : "IFRS 1-18 + IAS 1-41 + تفسيرات + مصرية + أمريكية"}
+              {isEn
+                ? "IFRS 1-18 + IAS 1-41 + US GAAP + Saudi + UK + India"
+                : "IFRS + IAS 1-41 + GAAP أمريكي + سعودي + بريطاني + هندي"}
             </span>
           </div>
         </div>
