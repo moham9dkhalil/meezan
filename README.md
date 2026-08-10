@@ -1,51 +1,20 @@
-# ميزان — منصة تعلم المحاسبة التفاعلية
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-منصة تفاعلية لتعليم المحاسبة والمالية باللغة العربية من الصفر حتى الاحتراف، مع معمل قيود عملي، قارئ كتب، حاسبات مالية، ومساعد محاسبي ذكي مدعوم بـ Gemini API.
+# Run and deploy your AI Studio app
 
-## المزايا الرئيسية
+This contains everything you need to run your app locally.
 
-- **32 مرحلة تعليمية** مع دروس، بطاقات، اختبارات ذكية، وملاحظات.
-- **معمل القيود (Lab)** لتسجيل قيود اليومية وتصحيحها فورياً.
-- **قيود Odoo v17** ومحاكي اختبار **SOCPA** ومحاكي استمارات ضريبية.
-- **مساعد ميزان الذكي** (Gemini): محادثة، تحليل فواتير وصور، وشرح القيود.
-- **مكتبة كتب محاسبية** مع وضع قراءة مركّز.
-- **قوالب إكسل** وحاسبات مالية (ضرائب، إهلاك، رواتب، ميزانيات، تداول...).
-- **تحفيز وألعاب**: نقاط XP، شارات، تحديات يومية، سلسلة استمرار، وشهادات.
-- **دعم عربي/إنجليزي** ووضع ليلي/نهاري.
+View your app in AI Studio: https://ai.studio/apps/fac1a036-a00a-4f9f-be71-f52b9f69cfb5
 
-## التشغيل محلياً
+## Run Locally
 
-المتطلبات: Node.js 18+
+**Prerequisites:**  Node.js
 
-1. تثبيت الاعتماديات:
-   ```
-   npm install
-   ```
-2. إنشاء ملف `.env.local` ووضع مفتاح Gemini:
-   ```
-   GEMINI_API_KEY=your_key_here
-   ```
-   (راجع `.env.example`)
-3. التشغيل:
-   ```
-   npm run dev
-   ```
-   يتوفر التطبيق على `http://localhost:3000` مع واجهات Gemini على `/api/chat` و `/api/explain-journal`.
 
-## أوامر
-
-| الأمر | الوصف |
-| --- | --- |
-| `npm run dev` | تشغيل الخادم مع Vite (تطوير) |
-| `npm run build` | بناء الإنتاج (Vite + حزمة الخادم) |
-| `npm run start` | تشغيل نسخة الإنتاج من `dist/` |
-| `npm run lint` | فحص الأنواع (tsc --noEmit) |
-
-## البنية
-
-- `src/components` — أقسام وأدوات الواجهة.
-- `src/data` — المحتوى التعليمي (دورات، مراحل، قاموس، بطاقات، كتب، ضرائب).
-- `src/utils` — أدوات مساعدة (نطق، نسخ احتياطي، تكرار متباعد، مؤثرات صوتية).
-- `server.ts` — خادم Express: وسيط Gemini للـ AI وتقديم التطبيق.
-
-ملاحظة: بيانات المستخدم (XP، شارات، التقدم) محفوظة في `localStorage` حالياً بدون خادم مصادقة.
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

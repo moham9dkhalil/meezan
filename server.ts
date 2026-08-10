@@ -1,96 +1,16 @@
 import express from "express";
 import path from "path";
-import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
-import { INITIAL_REVIEWS } from "./src/data/seedReviews";
 
 async function startServer() {
   const app = express();
-  const PORT = parseInt(process.env.PORT || "3000", 10);
+  const PORT = 3000;
 
   app.use(express.json());
 
-  // Simple in-memory rate limiter for API abuse protection
-  const rateLimiter = (windowMs: number, maxRequests: number) => {
-    const hits = new Map<string, { count: number; resetAt: number }>();
-    return (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      const ip = req.ip || req.socket.remoteAddress || "unknown";
-      const now = Date.now();
-      const entry = hits.get(ip);
-      if (!entry || entry.resetAt <= now) {
-        hits.set(ip, { count: 1, resetAt: now + windowMs });
-        return next();
-      }
-      entry.count += 1;
-      if (entry.count > maxRequests) {
-        return res.status(429).json({
-          error: "محاولات كثيرة. يرجى الانتظار قليلاً قبل المحاولة مرة أخرى.",
-        });
-      }
-      return next();
-    };
-  };
-
-  const geminiLimiter = rateLimiter(60 * 1000, 15);
-  const reviewLimiter = rateLimiter(60 * 1000, 5);
-
-  // Persistent reviews storage (JSON file based)
-  const REVIEWS_FILE = process.env.REVIEWS_FILE || path.join(process.cwd(), "data", "reviews.json");
-
-  function loadReviews(): any[] {
-    try {
-      if (fs.existsSync(REVIEWS_FILE)) {
-        const parsed = JSON.parse(fs.readFileSync(REVIEWS_FILE, "utf-8"));
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch (e) {
-      console.error("Failed to read reviews file:", e);
-    }
-    return [...INITIAL_REVIEWS];
-  }
-
-  function saveReviews(reviews: any[]) {
-    try {
-      fs.mkdirSync(path.dirname(REVIEWS_FILE), { recursive: true });
-      fs.writeFileSync(REVIEWS_FILE, JSON.stringify(reviews, null, 2), "utf-8");
-    } catch (e) {
-      console.error("Failed to save reviews file:", e);
-    }
-  }
-
-  // Ensure the reviews file exists with seed data on startup
-  saveReviews(loadReviews());
-
-  // Reviews Endpoint - GET all reviews
-  app.get("/api/reviews", (_req, res) => {
-    res.json({ reviews: loadReviews() });
-  });
-
-  // Reviews Endpoint - POST new review
-  app.post("/api/reviews", reviewLimiter, (req, res) => {
-    const { name, role, text, stars } = req.body || {};
-    if (!name || !text || !String(name).trim() || !String(text).trim()) {
-      return res.status(400).json({ error: "الاسم والرأي مطلوبان" });
-    }
-    const starCount = Math.min(5, Math.max(1, parseInt(stars, 10) || 5));
-    const newRev = {
-      id: Date.now().toString(),
-      stars: starCount,
-      name: String(name).trim().slice(0, 80),
-      role: String(role || "متعلم في ميزان").trim().slice(0, 120),
-      text: String(text).trim().slice(0, 1000),
-      createdAt: "الآن",
-      submittedAt: new Date().toISOString(),
-    };
-    const reviews = loadReviews();
-    reviews.unshift(newRev);
-    saveReviews(reviews);
-    res.json({ review: newRev });
-  });
-
   // Gemini AI Assistant Endpoint
-  app.post("/api/chat", geminiLimiter, async (req, res) => {
+  app.post("/api/chat", async (req, res) => {
     try {
       const { message, history, persona, image } = req.body;
       if (!message && !image) {
@@ -197,7 +117,7 @@ async function startServer() {
   });
 
   // Gemini AI Journal Entry Explanation Endpoint
-  app.post("/api/explain-journal", geminiLimiter, async (req, res) => {
+  app.post("/api/explain-journal", async (req, res) => {
     try {
       const { entry } = req.body;
       if (!entry) {
@@ -252,6 +172,80 @@ ${entryDetailsStr}
       console.error("Gemini Journal Explanation Error:", error);
       return res.status(500).json({
         error: "حدث خطأ أثناء تحليل القيد بواسطة الذكاء الاصطناعي.",
+        details: error?.message,
+      });
+    }
+  });
+
+  // Odoo AI Interactive Chatter Endpoint
+  app.post("/api/odoo-chat", async (req, res) => {
+    try {
+      const { message, currentEntry, history } = req.body;
+      if (!message) {
+        return res.status(400).json({ error: "الرسالة مطلوبة" });
+      }
+
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({
+          error: "مفتاح GEMINI_API_KEY غير متوفر في البيئة.",
+        });
+      }
+
+      const ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            "User-Agent": "aistudio-build",
+          },
+        },
+      });
+
+      const entryContext = currentEntry
+        ? `البيانات الحالية للقيد المحاسبي المعروض بـ Odoo:
+- رقم القيد: ${currentEntry.name}
+- دفتر اليومية: ${currentEntry.journal}
+- الشريك: ${currentEntry.partner}
+- تاريخ القيد: ${currentEntry.date}
+- المرجع: ${currentEntry.ref}
+- الحالة: ${currentEntry.status}
+- إجمالي المدين والدائن: ${currentEntry.totalDebit} ج.م / ${currentEntry.totalCredit} ج.م
+- بنود القيد:
+${currentEntry.items?.map((it: any) => `  * [${it.accountCode}] ${it.accountName} | بيان: ${it.label} | مدين: ${it.debit} | دائن: ${it.credit}`).join("\n")}`
+        : "لا يوجد قيد محدد حالياً.";
+
+      const chatPrompt = `أنت "مساعد Odoo ERP المحاسبي الذكي" (Odoo AI Chatter Assistant).
+تصلك رسالة وسؤال من مستخدم نظام Odoo المحاسبي في شاشة قيود اليومية.
+
+السياق الحالي للنظام:
+${entryContext}
+
+سجل المحادثة السابقة:
+${history && history.length > 0 ? history.map((h: any) => `${h.role === 'user' ? 'المستخدم' : 'Odoo AI'}: ${h.text}`).join('\n') : 'لا توجد محادثة سابقة.'}
+
+رسالة المستخدم الجديدة:
+"${message}"
+
+يرجى الإجابة بدقة بالغة باللغة العربية، بأسلوب خبير أنظمة Odoo ERP المحاسبية والمعايير المحاسبية الدولية (IFRS).
+- قدم إجابات مباشرة، واضحة، ومنسقة بنقاط سهلة القراءة.
+- إذا كان السؤال عن كيفية إعداد قيد معين أو تعديل حقل في أودو، وضح الخطوات المحددة بالزر والحقل.
+- اجعل الأسلوب مهنياً ودوداً ومباشراً كخبراء Odoo ERP.`;
+
+      const response = await ai.models.generateContent({
+        model: "gemini-3.6-flash",
+        contents: chatPrompt,
+        config: {
+          systemInstruction: `أنت مساعد Odoo ERP المحاسبي الذكي المدمج في نظام ميزان. تجيب بدقة عالية وبأسلوب منظم وواضح عن جميع أسئلة القيود والمحاسبة بنظام Odoo.`,
+          temperature: 0.6,
+        },
+      });
+
+      const reply = response.text || "أهلاً بك! أنا مساعد Odoo المحاسبي. كيف يمكنني مساعدتك في هذا القيد؟";
+      return res.json({ reply });
+    } catch (error: any) {
+      console.error("Odoo AI Chat Error:", error);
+      return res.status(500).json({
+        error: "حدث خطأ أثناء معالجة استفسارك بواسطة مساعد Odoo الذكي.",
         details: error?.message,
       });
     }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getStageQuestionCards, StageQuestionCard } from "../data/stageQuestions";
 import { STAGES_DATA } from "../data/curriculum";
-import { speakText } from "../utils/textToSpeech";
 import {
   recordSRSReview,
   getSRSStatusText,
@@ -133,6 +132,15 @@ export function StageFlashcardsSection({ initialStageId }: StageFlashcardsSectio
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const speakText = (text: string) => {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "ar-SA";
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
   };
 
   const currentStageInfo = STAGES_DATA.find((s) => s.id === selectedStageId) || STAGES_DATA[0];

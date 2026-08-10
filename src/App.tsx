@@ -4,7 +4,9 @@ import { ParticlesBg } from "./components/ParticlesBg";
 import { Navbar } from "./components/Navbar";
 import { HeroSection } from "./components/HeroSection";
 import { DailyChallengeSection } from "./components/DailyChallengeSection";
+import { FeaturesSection } from "./components/FeaturesSection";
 import { PathSection } from "./components/PathSection";
+import { AccountingSectorsSection } from "./components/AccountingSectorsSection";
 import { CoursesSection } from "./components/CoursesSection";
 import { FlashcardsSection } from "./components/FlashcardsSection";
 import { GlossarySection } from "./components/GlossarySection";
@@ -365,6 +367,9 @@ export default function App() {
                 )
               }
             />
+            <div id="features-section">
+              <FeaturesSection onSelectTab={handleSelectTab} appLanguage={language} />
+            </div>
 
             {/* Mobile App Download Banner Section on Home */}
             <AppDownloadSection
@@ -395,6 +400,16 @@ export default function App() {
             }}
             appLanguage={language}
           />
+        )}
+
+        {activeTab === "sectors" && (
+          <div className="max-w-7xl mx-auto px-4 pt-4">
+            <AccountingSectorsSection
+              onSelectTab={handleSelectTab}
+              onOpenOdooWithEntry={() => handleSelectTab("odooJournal")}
+              appLanguage={language}
+            />
+          </div>
         )}
 
         {activeTab === "lessonView" && (

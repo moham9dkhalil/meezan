@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { getDirectDownloadUrl } from "./AppDownloadModal";
-import { PhoneDeviceMockup } from "./PhoneDeviceMockup";
 import { Language } from "../data/translations";
 import {
   Smartphone,
@@ -13,11 +12,13 @@ import {
   Bell,
   CheckCircle2,
   Sparkles,
+  ArrowLeft,
   Lock,
+  Calculator,
+  Bot,
   Edit3,
   Link,
-  Check,
-  MonitorSmartphone
+  Check
 } from "lucide-react";
 
 interface AppDownloadSectionProps {
@@ -32,13 +33,12 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
   appLanguage = "ar"
 }) => {
   const isEn = appLanguage === "en";
+  const [activeScreen, setActiveScreen] = useState<"home" | "tax" | "quiz">("home");
   const [customApkUrl, setCustomApkUrl] = useState<string>("");
   const [customAppName, setCustomAppName] = useState<string>(isEn ? "Meezan Mobile App" : "تطبيق ميزان المحاسبي");
   const [inlineLinkInput, setInlineLinkInput] = useState("");
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
-  const [installEvent, setInstallEvent] = useState<any>(null);
-  const [installSupported, setInstallSupported] = useState(true);
 
   useEffect(() => {
     const saved = localStorage.getItem("meezan_custom_apk_url");
@@ -46,38 +46,6 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
     if (saved) setCustomApkUrl(saved);
     if (name) setCustomAppName(name);
   }, []);
-
-  useEffect(() => {
-    const onBeforeInstall = (e: Event) => {
-      e.preventDefault();
-      setInstallEvent(e);
-    };
-    window.addEventListener("beforeinstallprompt", onBeforeInstall);
-    const onInstalled = () => {
-      setInstallEvent(null);
-      setInstallSupported(false);
-    };
-    window.addEventListener("appinstalled", onInstalled);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onBeforeInstall);
-      window.removeEventListener("appinstalled", onInstalled);
-    };
-  }, []);
-
-  const handleInstall = async () => {
-    if (installEvent) {
-      try {
-        (installEvent as any).prompt();
-        const choice = await (installEvent as any).userChoice;
-        if (choice && choice.outcome === "accepted") setInstallSupported(false);
-      } catch {
-        /* noop */
-      }
-      setInstallEvent(null);
-    } else {
-      onOpenDownloadModal();
-    }
-  };
 
   const handleSaveInlineLink = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +61,7 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
   };
 
   const handleDirectDownload = () => {
-    const finalUrl = getDirectDownloadUrl(customApkUrl || "/MeezanApp.apk");
+    const finalUrl = getDirectDownloadUrl(customApkUrl);
     if (finalUrl) {
       const a = document.createElement("a");
       a.href = finalUrl;
@@ -213,11 +181,11 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
             {/* Main Download Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <button
-                onClick={handleInstall}
+                onClick={handleDirectDownload}
                 className="px-8 py-4 bg-gradient-to-r from-emerald-500 via-teal-600 to-indigo-600 hover:from-emerald-400 hover:to-indigo-500 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all flex items-center justify-center gap-3 cursor-pointer text-base group"
               >
-                <MonitorSmartphone className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span>تثبيت تطبيق ميزان على جهازك</span>
+                <Download className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <span>تحميل البرنامج (APK مباشر)</span>
               </button>
 
               <button
@@ -227,26 +195,7 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
                 <QrCode className="w-5 h-5 text-indigo-400" />
                 <span>مسح رمز QR أو تعديل الرابط</span>
               </button>
-
-              <button
-                onClick={handleDirectDownload}
-                className="px-6 py-4 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-emerald-300 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer text-sm"
-              >
-                <Download className="w-5 h-5 text-emerald-400" />
-                <span>تحميل APK مباشر</span>
-              </button>
             </div>
-
-            {installSupported ? (
-              <p className="text-[11px] text-slate-400 pt-1">
-                زر "تثبيت تطبيق ميزان" يُثبّت التطبيق مباشرة على موبايلك أو كمبيوترك مثل أي تطبيق عادي (آندرويد/آيفون/ويندوز/ماك). على آيفون: افتح الموقع في Safari ثم اضغط Share ← Add to Home Screen.
-              </p>
-            ) : (
-              <p className="text-[11px] text-emerald-400 pt-1 flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                تم تثبيت تطبيق ميزان بنجاح! ابحث عن أيقونته في شاشتك الرئيسية.
-              </p>
-            )}
 
             {/* Feature Bullets */}
             <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 pt-4">
@@ -287,11 +236,136 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
 
           {/* Right Mobile Phone Graphic Interactive Device Preview */}
           <div className="lg:col-span-5 flex justify-center">
-            <PhoneDeviceMockup
-              appName={customAppName}
-              onSelectTab={onSelectTab}
-              onOpenDownloadModal={onOpenDownloadModal}
-            />
+            <div className="relative w-full max-w-[290px] sm:max-w-[320px]">
+              
+              {/* Outer Glowing Ring */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 via-indigo-500 to-purple-500 rounded-[48px] blur-lg opacity-40 animate-pulse" />
+
+              {/* Smartphone Frame */}
+              <div className="relative bg-slate-950 border-[6px] border-slate-800 rounded-[44px] shadow-2xl p-3 overflow-hidden text-slate-100">
+                
+                {/* Speaker Notch */}
+                <div className="w-28 h-4 bg-slate-800 rounded-full mx-auto mb-3 flex items-center justify-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-slate-900" />
+                  <div className="w-10 h-1 rounded-full bg-slate-900" />
+                </div>
+
+                {/* Simulated App Header */}
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3 mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs">
+                      م
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-extrabold text-white">{customAppName}</h4>
+                      <p className="text-[9px] text-emerald-400">متصل والمزامنة نشطة</p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
+                    أوفلاين جاهز
+                  </span>
+                </div>
+
+                {/* Screen Toggle Tabs */}
+                <div className="flex bg-slate-900/80 p-1 rounded-xl mb-3 text-[10px] font-bold">
+                  <button
+                    onClick={() => setActiveScreen("home")}
+                    className={`flex-1 py-1.5 rounded-lg transition-all ${
+                      activeScreen === "home" ? "bg-indigo-600 text-white" : "text-slate-400"
+                    }`}
+                  >
+                    الرئيسية
+                  </button>
+                  <button
+                    onClick={() => setActiveScreen("tax")}
+                    className={`flex-1 py-1.5 rounded-lg transition-all ${
+                      activeScreen === "tax" ? "bg-indigo-600 text-white" : "text-slate-400"
+                    }`}
+                  >
+                    دليل الضرائب
+                  </button>
+                  <button
+                    onClick={() => setActiveScreen("quiz")}
+                    className={`flex-1 py-1.5 rounded-lg transition-all ${
+                      activeScreen === "quiz" ? "bg-indigo-600 text-white" : "text-slate-400"
+                    }`}
+                  >
+                    القيود
+                  </button>
+                </div>
+
+                {/* Screen Content Box */}
+                <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 min-h-[260px] space-y-3 text-right">
+                  {activeScreen === "home" && (
+                    <div className="space-y-2.5 animate-fade-in">
+                      <div className="bg-indigo-950/40 border border-indigo-500/30 p-2.5 rounded-xl">
+                        <div className="flex justify-between items-center text-[10px] text-indigo-300 font-bold mb-1">
+                          <span>التحدي اليومي #14</span>
+                          <span className="text-emerald-400">+50 XP</span>
+                        </div>
+                        <p className="text-xs font-bold text-white">ما هو القيد الصحيح لشراء أصول ثابتة بالأجل؟</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-slate-950/60 border border-slate-800 p-2 rounded-xl text-center">
+                          <Calculator className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
+                          <span className="text-[10px] font-bold text-slate-200 block">حاسبة الضرائب</span>
+                        </div>
+                        <div className="bg-slate-950/60 border border-slate-800 p-2 rounded-xl text-center">
+                          <Bot className="w-4 h-4 text-indigo-400 mx-auto mb-1" />
+                          <span className="text-[10px] font-bold text-slate-200 block">مساعد AI</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-emerald-950/30 border border-emerald-500/20 p-2 rounded-xl text-[10px] text-emerald-300 flex items-center justify-between">
+                        <span>قانون القيمة المضافة 2026</span>
+                        <ArrowLeft className="w-3 h-3" />
+                      </div>
+                    </div>
+                  )}
+
+                  {activeScreen === "tax" && (
+                    <div className="space-y-2 text-xs animate-fade-in">
+                      <div className="p-2 bg-slate-950/60 border border-slate-800 rounded-xl">
+                        <span className="text-[10px] font-bold text-amber-400 block mb-0.5">ضريبة القيمة المضافة</span>
+                        <p className="text-[11px] text-slate-200">النسبة الأساسية: 14% على السلع والخدمات</p>
+                      </div>
+                      <div className="p-2 bg-slate-950/60 border border-slate-800 rounded-xl">
+                        <span className="text-[10px] font-bold text-emerald-400 block mb-0.5">ضريبة كسب العمل</span>
+                        <p className="text-[11px] text-slate-200">الإعفاء الشخصي السنوي: 20,000 ج.م</p>
+                      </div>
+                      <div className="p-2 bg-slate-950/60 border border-slate-800 rounded-xl">
+                        <span className="text-[10px] font-bold text-sky-400 block mb-0.5">الفاتورة الإلكترونية</span>
+                        <p className="text-[11px] text-slate-200">الربط مع منظومة الفاتورة بورتال</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeScreen === "quiz" && (
+                    <div className="space-y-2 text-xs animate-fade-in">
+                      <span className="text-[10px] text-slate-400 font-bold block">معمل القيود المحاسبية</span>
+                      <div className="bg-slate-950/80 p-2 rounded-xl border border-slate-800 space-y-1">
+                        <div className="flex justify-between text-[11px]">
+                          <span className="text-slate-400">من حـ/ الأصول الثابتة</span>
+                          <span className="text-emerald-400 font-mono">10,000</span>
+                        </div>
+                        <div className="flex justify-between text-[11px]">
+                          <span className="text-slate-400">إلى حـ/ النقدية</span>
+                          <span className="text-emerald-400 font-mono">10,000</span>
+                        </div>
+                      </div>
+                      <div className="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-[10px] text-emerald-300 text-center font-bold">
+                        ✓ قيد متوازن وصحيح!
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom Home Indicator */}
+                <div className="w-20 h-1 bg-slate-700 rounded-full mx-auto mt-3" />
+              </div>
+
+            </div>
           </div>
 
         </div>

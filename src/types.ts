@@ -2,6 +2,7 @@ export type ActiveTab =
   | "hero"
   | "features"
   | "path"
+  | "sectors"
   | "lessonView"
   | "smartQuizzes"
   | "socpaExam"
@@ -181,12 +182,9 @@ export interface ChatMessage {
   sender: "user" | "ai";
   text: string;
   timestamp: string;
-  image?: {
-    url: string;
-    mimeType: string;
-    data: string;
-  };
 }
+
+export type LearningTrack = "corporate" | "governmental" | "auditing";
 
 export interface UserProfile {
   id: string;
@@ -198,6 +196,7 @@ export interface UserProfile {
   streak: number;
   joinedDate: string;
   isLoggedIn: boolean;
+  learningTrack?: LearningTrack;
   savedCourses?: string[];
   completedStages?: number[];
   unlockedBadges?: string[];
@@ -234,5 +233,17 @@ export interface AccountingTerm {
   formula?: string;
   journalEntry?: string;
   relatedTerms?: string[];
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: "ai" | "user";
+  text: string;
+  timestamp: string;
+  image?: {
+    url: string;
+    mimeType: string;
+    data: string;
+  };
 }
 

@@ -244,12 +244,17 @@ export function FlashcardsSection() {
     setSelectedCategory(cat);
   };
 
+  // Text-To-Speech function using imported utility
+  const speakWord = (text: string, lang: "ar" | "en" = "en") => {
+    speakText(text, lang);
+  };
+
   const handleFlip = () => {
     playSound.flip();
     setIsFlipped((prev) => {
       const nextState = !prev;
       if (nextState && currentCard?.en) {
-        speakText(currentCard.en, "en");
+        speakText(currentCard.en);
       }
       return nextState;
     });
@@ -424,7 +429,7 @@ export function FlashcardsSection() {
       // Auto mark card as mastered
       const key = `${currentQ.card.cat}::${currentQ.card.ar}`;
       setMasteredIds((prev) => new Set(prev).add(key));
-      speakText(currentQ.card.en, "en");
+      speakText(currentQ.card.en);
     } else {
       playSound.error();
       setQuizStreak(0);
@@ -948,7 +953,7 @@ export function FlashcardsSection() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (currentCard) speakText(currentCard.en, "en");
+                              if (currentCard) speakText(currentCard.en);
                             }}
                             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-400/40 text-indigo-100 text-xs font-bold transition-all cursor-pointer"
                           >
@@ -1230,7 +1235,7 @@ export function FlashcardsSection() {
 
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={() => speakText(card.en, "en")}
+                        onClick={() => speakText(card.en)}
                         className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white cursor-pointer"
                         title="استمع للنطق"
                       >

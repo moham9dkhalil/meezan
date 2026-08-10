@@ -58,7 +58,7 @@ export function TaxGuideSection({ onSelectTab }: TaxGuideSectionProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeSubTab, setActiveSubTab] = useState<
     "interactive_invoice" | "form_simulator" | "asset_depreciation" | "income_tax_calculator" | "personal_budget" | "payroll_simulator" | "wizard" | "samples" | "pitfalls" | "overview" | "details" | "steps" | "einvoicing" | "calculator" | "penalties" | "faqs"
-  >("payroll_simulator");
+  >("overview");
 
   // --- TAX PITFALLS & AUDIT SCANNER STATE ---
   const [pitfallCategoryFilter, setPitfallCategoryFilter] = useState<string>("all");

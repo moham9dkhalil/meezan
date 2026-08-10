@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { STAGES_DATA } from "../data/curriculum";
-import { Stage } from "../types";
+import { Stage, LearningTrack } from "../types";
 import { Language } from "../data/translations";
 import { LearningRoadmapChart } from "./LearningRoadmapChart";
 import {
@@ -60,6 +60,66 @@ export function PathSection({ onOpenStage, onOpenFlashcards, appLanguage = "ar" 
   const [activeTopicFilter, setActiveTopicFilter] = useState<string>("ALL");
   const [previewStageModal, setPreviewStageModal] = useState<Stage | null>(null);
 
+  // Preferred Learning Track state (reads from currentUser in localStorage or default preference)
+  const [activeTrack, setActiveTrack] = useState<LearningTrack>(() => {
+    try {
+      const userStr = localStorage.getItem("meezan_auth_user");
+      if (userStr) {
+        const parsed = JSON.parse(userStr);
+        if (parsed.learningTrack) return parsed.learningTrack;
+      }
+      const savedTrack = localStorage.getItem("meezan_preferred_track");
+      if (savedTrack === "corporate" || savedTrack === "governmental" || savedTrack === "auditing") {
+        return savedTrack;
+      }
+    } catch {}
+    return "corporate";
+  });
+
+  const [sortByTrackPriority, setSortByTrackPriority] = useState<boolean>(true);
+
+  const handleSelectTrack = (track: LearningTrack) => {
+    setActiveTrack(track);
+    try {
+      localStorage.setItem("meezan_preferred_track", track);
+      const userStr = localStorage.getItem("meezan_auth_user");
+      if (userStr) {
+        const parsed = JSON.parse(userStr);
+        parsed.learningTrack = track;
+        localStorage.setItem("meezan_auth_user", JSON.stringify(parsed));
+      }
+    } catch {}
+  };
+
+  // Helper to determine if a stage is high priority for the active learning track
+  const isHighPriorityForTrack = (stage: Stage, track: LearningTrack): boolean => {
+    if (track === "corporate") {
+      // Corporate: Focus on Double Entry, Financial Statements, Adjustments, IFRS
+      return (stage.id >= 1 && stage.id <= 25) || (stage.id >= 31 && stage.id <= 40);
+    }
+    if (track === "governmental") {
+      // Governmental: Fundamentals, Budgeting, Public Expenditures, GFS, Auditing of Public Accounts
+      return (
+        (stage.id >= 1 && stage.id <= 5) ||
+        (stage.id >= 11 && stage.id <= 15) ||
+        (stage.id >= 26 && stage.id <= 30) ||
+        (stage.id >= 35 && stage.id <= 40) ||
+        (stage.id >= 45 && stage.id <= 50) ||
+        stage.name.includes("حكومية") || stage.name.includes("ميزانية") || stage.sub.includes("حكومية")
+      );
+    }
+    if (track === "auditing") {
+      // Auditing: Fundamentals, Adjustments & Internal Control, ISA standards, Fraud
+      return (
+        (stage.id >= 1 && stage.id <= 5) ||
+        (stage.id >= 16 && stage.id <= 30) ||
+        (stage.id >= 41 && stage.id <= 50) ||
+        stage.name.includes("تدقيق") || stage.name.includes("مراجعة") || stage.name.includes("رقابة")
+      );
+    }
+    return true;
+  };
+
   // Completed lessons state from localStorage
   const [completedLessons] = useState<string[]>(() => {
     try {
@@ -100,14 +160,29 @@ export function PathSection({ onOpenStage, onOpenFlashcards, appLanguage = "ar" 
     });
   }, [searchQuery, activeTopicFilter]);
 
-  // Group stages by level for Level View
+  // Group stages by level for Level View with optional track-based prioritization
   const stagesByLevel = useMemo(() => {
     const level1 = filteredStages.filter((s) => s.level === 1 || (s.id >= 1 && s.id <= 12));
     const level2 = filteredStages.filter((s) => s.level === 2 || (s.id >= 13 && s.id <= 25));
     const level3 = filteredStages.filter((s) => s.level === 3 || (s.id >= 26 && s.id <= 38));
     const level4 = filteredStages.filter((s) => s.level === 4 || (s.id >= 39 && s.id <= 50));
-    return { 1: level1, 2: level2, 3: level3, 4: level4 };
-  }, [filteredStages]);
+
+    const sortFn = (a: Stage, b: Stage) => {
+      if (!sortByTrackPriority) return a.id - b.id;
+      const aPriority = isHighPriorityForTrack(a, activeTrack);
+      const bPriority = isHighPriorityForTrack(b, activeTrack);
+      if (aPriority && !bPriority) return -1;
+      if (!aPriority && bPriority) return 1;
+      return a.id - b.id;
+    };
+
+    return {
+      1: [...level1].sort(sortFn),
+      2: [...level2].sort(sortFn),
+      3: [...level3].sort(sortFn),
+      4: [...level4].sort(sortFn)
+    };
+  }, [filteredStages, sortByTrackPriority, activeTrack]);
 
   const currentLevelStages = stagesByLevel[selectedLevel as 1 | 2 | 3 | 4] || [];
   const activeLevelMeta = LEVEL_TABS.find((t) => t.id === selectedLevel) || LEVEL_TABS[0];
@@ -214,6 +289,83 @@ export function PathSection({ onOpenStage, onOpenFlashcards, appLanguage = "ar" 
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────────
+          1.5 PREFERRED LEARNING TRACK BAR
+         ───────────────────────────────────────────────────────────── */}
+      <div className="p-4 rounded-3xl bg-gradient-to-r from-[#0d152a] via-[#091122] to-[#0d152a] border border-indigo-500/30 shadow-xl space-y-3">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <Sparkles className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-black text-white">مسار التعلم المفضل المخصص لك:</h3>
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                  {activeTrack === "corporate" ? "🏢 محاسبة شركات" : activeTrack === "governmental" ? "🏛️ محاسبة حكومية" : "🔍 تدقيق ومراجعة"}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                تغيير مسارك يغيّر أولوية وترتيب وشارات عرض المراحل والدروس بما يلائم تخصصك مباشرة
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-start lg:justify-end">
+            {/* TRACK SELECTION PILLS */}
+            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-black/40 border border-white/10">
+              <button
+                onClick={() => handleSelectTrack("corporate")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeTrack === "corporate"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <span>🏢</span>
+                <span>محاسبة شركات</span>
+              </button>
+
+              <button
+                onClick={() => handleSelectTrack("governmental")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeTrack === "governmental"
+                    ? "bg-amber-600 text-white shadow-md shadow-amber-600/30"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <span>🏛️</span>
+                <span>محاسبة حكومية</span>
+              </button>
+
+              <button
+                onClick={() => handleSelectTrack("auditing")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeTrack === "auditing"
+                    ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <span>🔍</span>
+                <span>تدقيق ومراجعة</span>
+              </button>
+            </div>
+
+            {/* SORT TOGGLE */}
+            <button
+              onClick={() => setSortByTrackPriority(!sortByTrackPriority)}
+              className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                sortByTrackPriority
+                  ? "bg-emerald-500/20 text-emerald-300 border-emerald-400/40"
+                  : "bg-white/5 text-slate-400 border-white/10 hover:bg-white/10"
+              }`}
+            >
+              <span>{sortByTrackPriority ? "⚡ إعادة ترتيب حسب التخصص (مُفعّل)" : "🔢 الترتيب المنهجي القياسي"}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -420,6 +572,7 @@ export function PathSection({ onOpenStage, onOpenFlashcards, appLanguage = "ar" 
                 {currentLevelStages.map((st, index) => {
                   const completed = isStageCompleted(st.id);
                   const isEven = index % 2 === 0;
+                  const isHighPriority = isHighPriorityForTrack(st, activeTrack);
 
                   return (
                     <div
@@ -429,12 +582,33 @@ export function PathSection({ onOpenStage, onOpenFlashcards, appLanguage = "ar" 
                       }`}
                     >
                       {/* STAGE NODE CARD */}
-                      <div className="flex-1 w-full sm:w-auto bg-[#0d1424] border border-white/12 hover:border-indigo-400/50 p-5 rounded-3xl shadow-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl space-y-3 relative group">
+                      <div className={`flex-1 w-full sm:w-auto bg-[#0d1424] border p-5 rounded-3xl shadow-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl space-y-3 relative group ${
+                        isHighPriority
+                          ? activeTrack === "corporate"
+                            ? "border-indigo-500/40 shadow-indigo-500/10"
+                            : activeTrack === "governmental"
+                            ? "border-amber-500/40 shadow-amber-500/10"
+                            : "border-purple-500/40 shadow-purple-500/10"
+                          : "border-white/12 hover:border-indigo-400/50"
+                      }`}>
                         
                         <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                          <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-indigo-600/30 text-indigo-300 border border-indigo-500/30">
-                            مرحلة #{st.id}
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-indigo-600/30 text-indigo-300 border border-indigo-500/30">
+                              مرحلة #{st.id}
+                            </span>
+                            {isHighPriority && (
+                              <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border ${
+                                activeTrack === "corporate"
+                                  ? "bg-indigo-500/20 text-indigo-300 border-indigo-400/40"
+                                  : activeTrack === "governmental"
+                                  ? "bg-amber-500/20 text-amber-300 border-amber-400/40"
+                                  : "bg-purple-500/20 text-purple-300 border-purple-400/40"
+                              }`}>
+                                {activeTrack === "corporate" ? "🏢 أولوية شركات" : activeTrack === "governmental" ? "🏛️ أولوية حكومية" : "🔍 أولوية تدقيق"}
+                              </span>
+                            )}
+                          </div>
 
                           <span className="text-[11px] text-amber-300 font-mono font-bold">
                             +{st.xp} XP
@@ -539,6 +713,7 @@ export function PathSection({ onOpenStage, onOpenFlashcards, appLanguage = "ar" 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {currentLevelStages.map((st) => {
               const completed = isStageCompleted(st.id);
+              const isHighPriority = isHighPriorityForTrack(st, activeTrack);
 
               return (
                 <div
@@ -546,14 +721,33 @@ export function PathSection({ onOpenStage, onOpenFlashcards, appLanguage = "ar" 
                   className={`bg-[#0b1021] border rounded-3xl p-5 shadow-xl transition-all space-y-4 relative overflow-hidden ${
                     completed
                       ? "border-emerald-500/50 bg-emerald-950/10"
+                      : isHighPriority
+                      ? activeTrack === "corporate"
+                        ? "border-indigo-500/50 shadow-indigo-500/10 hover:border-indigo-400"
+                        : activeTrack === "governmental"
+                        ? "border-amber-500/50 shadow-amber-500/10 hover:border-amber-400"
+                        : "border-purple-500/50 shadow-purple-500/10 hover:border-purple-400"
                       : "border-indigo-500/30 hover:border-indigo-400 hover:-translate-y-1"
                   }`}
                 >
                   {/* Top Badge Row */}
                   <div className="flex items-center justify-between text-xs">
-                    <span className="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-300 font-black border border-indigo-500/40">
-                      مرحلة {st.id} من 32
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="px-3 py-1 rounded-xl bg-indigo-500/20 text-indigo-300 font-black border border-indigo-500/40">
+                        مرحلة #{st.id}
+                      </span>
+                      {isHighPriority && (
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border ${
+                          activeTrack === "corporate"
+                            ? "bg-indigo-500/20 text-indigo-300 border-indigo-400/40"
+                            : activeTrack === "governmental"
+                            ? "bg-amber-500/20 text-amber-300 border-amber-400/40"
+                            : "bg-purple-500/20 text-purple-300 border-purple-400/40"
+                        }`}>
+                          {activeTrack === "corporate" ? "🏢 أولوية شركات" : activeTrack === "governmental" ? "🏛️ أولوية حكومية" : "🔍 أولوية تدقيق"}
+                        </span>
+                      )}
+                    </div>
 
                     <span className="font-mono text-amber-300 font-black">
                       +{st.xp} XP

@@ -19,7 +19,11 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCcw,
-  Play
+  Play,
+  Copy,
+  Filter,
+  Tag,
+  X
 } from "lucide-react";
 
 interface JournalLearningGuideProps {
@@ -28,9 +32,10 @@ interface JournalLearningGuideProps {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ACCOUNT DICTIONARY DATA
+// ACCOUNT DICTIONARY DATA (Chart of Accounts / دليل الحسابات)
 // ─────────────────────────────────────────────────────────────
-interface AccountInfo {
+export interface AccountInfo {
+  code: string;
   name: string;
   type: "أصول متداولة" | "أصول غير متداولة" | "خصوم متداولة" | "خصوم غير متداولة" | "حقوق ملكية" | "إيرادات" | "مصروفات";
   nature: "مدين (Dr)" | "دائن (Cr)";
@@ -41,8 +46,10 @@ interface AccountInfo {
 }
 
 const ACCOUNTS_DICTIONARY: AccountInfo[] = [
+  // 1100s - CURRENT ASSETS (أصول متداولة)
   {
-    name: "الصندوق / الخزينة (Cash in Hand)",
+    code: "1101",
+    name: "الصندوق / الخزينة الرئيسي (Cash in Hand)",
     type: "أصول متداولة",
     nature: "مدين (Dr)",
     statement: "الميزانية العمومية (المركز المالي)",
@@ -51,7 +58,8 @@ const ACCOUNTS_DICTIONARY: AccountInfo[] = [
     example: "تحصيل 5,000 ج.م نقداً من عميل -> الصندوق (مدين بـ 5,000 ج.م)."
   },
   {
-    name: "البنك / الحساب الجاري (Bank Account)",
+    code: "1102",
+    name: "البنك / الحساب الجاري (Bank Current Account)",
     type: "أصول متداولة",
     nature: "مدين (Dr)",
     statement: "الميزانية العمومية (المركز المالي)",
@@ -60,6 +68,7 @@ const ACCOUNTS_DICTIONARY: AccountInfo[] = [
     example: "تحويل بنكي من عميل بـ 10,000 ج.م -> البنك (مدين بـ 10,000 ج.م)."
   },
   {
+    code: "1103",
     name: "العملاء / المدينون (Accounts Receivable)",
     type: "أصول متداولة",
     nature: "مدين (Dr)",
@@ -69,6 +78,121 @@ const ACCOUNTS_DICTIONARY: AccountInfo[] = [
     example: "بيع بضاعة بالآجل لعميل بـ 8,000 ج.م -> حساب العملاء (مدين بـ 8,000 ج.م)."
   },
   {
+    code: "1104",
+    name: "مخزون البضائع / المشتريات (Inventory / Purchases)",
+    type: "أصول متداولة",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند شراء بضاعة بغرض إعادة بيعها أو جلب خامات للتشغيل (زيادة المخزون).",
+    whenCredit: "عند صرف بضاعة مباعة (تكلفة المبيعات) أو إرجاع بضاعة للمورد.",
+    example: "شراء بضاعة بـ 12,000 ج.م -> المخزون / المشتريات (مدين بـ 12,000 ج.م)."
+  },
+  {
+    code: "1105",
+    name: "أوراق قبض / شيكات برسم التحصيل (Notes Receivable)",
+    type: "أصول متداولة",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند استلام كمبيالة أو شيك مؤجل من العميل إثباتاً للحق.",
+    whenCredit: "عند تحصيل قيمة الشيك بالبنك أو رفضه وإعادته للعميل.",
+    example: "استلام كمبيالة من عميل بـ 15,000 ج.م -> أوراق القبض (مدين)."
+  },
+  {
+    code: "1106",
+    name: "مصاريف مدفوعة مقدماً (Prepaid Expenses)",
+    type: "أصول متداولة",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند سداد إيجار أو تأمين سُنوي مقدماً قبل الاستفادة منه.",
+    whenCredit: "نهاية كل شهر/سنة عند إهلاك الجزء المستنفد وتحويله لمصروف.",
+    example: "سداد إيجار سنة مقدماً 24,000 ج.م -> مصاريف مدفوعة مقدماً (مدين)."
+  },
+  {
+    code: "1107",
+    name: "إيرادات مستحقة التحصيل (Accrued Revenues)",
+    type: "أصول متداولة",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند تقديم خدمة للعميل ولم يتم تحصيل قيمتها أو إصدار الفاتورة بعد.",
+    whenCredit: "عند تحصيل المبلغ المستحق فعلياً بالبنك أو الصندوق.",
+    example: "تقديم استشارة بـ 6,000 ج.م أُنجزت ولم تُحصل -> إيراد مستحق (مدين)."
+  },
+
+  // 1200s - NON-CURRENT ASSETS (أصول غير متداولة)
+  {
+    code: "1201",
+    name: "الأراضي (Land)",
+    type: "أصول غير متداولة",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند شراء أراضٍ لاستخدامها في مقر الشركة أو المصنع (أصل لا يُهلك).",
+    whenCredit: "عند بيع أرض أو الاستغناء عنها.",
+    example: "شراء قطعة أرض لبناء مقر بـ 500,000 ج.م -> حـ/ الأراضي (مدين)."
+  },
+  {
+    code: "1202",
+    name: "المباني والعقارات (Buildings)",
+    type: "أصول غير متداولة",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند شراء أو إنشاء مبانٍ ومقرات تشغيلية.",
+    whenCredit: "عند بيع العقار أو هدمه واستبعاده من الدفاتر.",
+    example: "شراء مقر إداري بـ 300,000 ج.م -> حـ/ المباني (مدين)."
+  },
+  {
+    code: "1203",
+    name: "الآلات والمعدات الإنتاجية (Machinery & Equipment)",
+    type: "أصول غير متداولة",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند شراء خطوط إنتاج أو آلات مصنع جديدة.",
+    whenCredit: "عند بيع الآلات أو تخريدها واستبعادها.",
+    example: "شراء خط إنتاج بـ 150,000 ج.م -> حـ/ الآلات والمعدات (مدين)."
+  },
+  {
+    code: "1204",
+    name: "أجهزة الكمبيوتر والتقنية (IT Hardware & Software)",
+    type: "أصول غير متداولة",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند شراء خوادم، أجهزة حاسوب، أو برامج وأدوات رقمية دائمة.",
+    whenCredit: "عند التخلص من الأجهزة القديمة وتخريدها.",
+    example: "شراء أجهزة حاسوب للشركة بـ 40,000 ج.م -> حـ/ أجهزة التقنية (مدين)."
+  },
+  {
+    code: "1205",
+    name: "وسائل النقل والسيارات (Vehicles & Fleet)",
+    type: "أصول غير متداولة",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند شراء سيارات شحن أو سيارات تنقل للموظفين.",
+    whenCredit: "عند بيع السيارة واستبعاد قيمتها الأصلية.",
+    example: "شراء سيارة نقل بضائع بـ 90,000 ج.م -> حـ/ السيارات (مدين)."
+  },
+  {
+    code: "1206",
+    name: "الأثاث والتجهيزات المكتبية (Furniture & Fixtures)",
+    type: "أصول غير متداولة",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند شراء مكاتب، كراسي، ديكورات وتكييفات للمقر.",
+    whenCredit: "عند الاستغناء عن الأثاث أو بيعه مستعملاً.",
+    example: "تأثيث المقر بـ 25,000 ج.م -> حـ/ الأثاث والتجهيزات (مدين)."
+  },
+  {
+    code: "1207",
+    name: "مجمع إهلاك الأصول الثابتة (Accumulated Depreciation)",
+    type: "أصول غير متداولة",
+    nature: "دائن (Cr)",
+    statement: "الميزانية العمومية (حساب مقابل يخصم من الأصل)",
+    whenDebit: "عند إقفال تخريد الأصل أو بيعه وتصفية مجمعه.",
+    whenCredit: "عند إثبات قيد الإهلاك الدوري السنوي أو الشهري للأصل.",
+    example: "إثبات إهلاك السيارات السنوي 9,000 ج.م -> مجمع إهلاك السيارات (دائن)."
+  },
+
+  // 2100s - CURRENT LIABILITIES (خصوم متداولة)
+  {
+    code: "2101",
     name: "الموردون / الدائنون (Accounts Payable)",
     type: "خصوم متداولة",
     nature: "دائن (Cr)",
@@ -78,25 +202,62 @@ const ACCOUNTS_DICTIONARY: AccountInfo[] = [
     example: "شراء بضاعة بالآجل من مورد بـ 15,000 ج.م -> حساب الموردين (دائن بـ 15,000 ج.م)."
   },
   {
-    name: "المبيعات / إيراد النشاط (Sales Revenue)",
-    type: "إيرادات",
+    code: "2102",
+    name: "أوراق دفع / شيكات برسم السداد (Notes Payable)",
+    type: "خصوم متداولة",
     nature: "دائن (Cr)",
-    statement: "قائمة الدخل (الأرباح والخسائر)",
-    whenDebit: "عند إقفال الحساب نهاية السنة أو إرجاع مبيعات (مردودات مبيعات).",
-    whenCredit: "عند تحقيق عمليات بيع بضاعة أو تقديم خدمة للعملاء (زيادة الإيراد).",
-    example: "بيع بضاعة بمبلغ 20,000 ج.م -> المبيعات (دائن بـ 20,000 ج.م)."
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند سداد الشيك وصرف قيمته من حساب البنك.",
+    whenCredit: "عند تحرير وتقديم شيك مؤجل أو كمبيالة للمورد ضماناً للدين.",
+    example: "إصدار شيك مؤجل للمورد بـ 20,000 ج.م -> أوراق الدفع (دائن)."
   },
   {
-    name: "المشتريات / المخزون (Purchases / Inventory)",
-    type: "أصول متداولة",
-    nature: "مدين (Dr)",
-    statement: "قائمة الدخل / الميزانية",
-    whenDebit: "عند شراء بضاعة بغرض إعادة بيعها (زيادة المخزون).",
-    whenCredit: "عند إرجاع بضاعة للمورد (مردودات مشتريات) أو إقفال الحساب.",
-    example: "شراء مخزون بضاعة بـ 12,000 ج.م -> المشتريات/المخزون (مدين بـ 12,000 ج.م)."
+    code: "2103",
+    name: "مصاريف مستحقة غير مدفوعة (Accrued Expenses)",
+    type: "خصوم متداولة",
+    nature: "دائن (Cr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند صرف وسداد المصروف المستحق فعلياً نقداً أو بنكياً.",
+    whenCredit: "نهاية الشهر عند استحقاق رواتب/إيجار/كهرباء لم تُدفع بعد إثباتاً للالتزام.",
+    example: "إثبات رواتب الشهر المستحقة 35,000 ج.م -> رواتب مستحقة (دائن)."
   },
   {
-    name: "رأس المال (Capital)",
+    code: "2104",
+    name: "إيرادات مقبوضة مقدماً (Unearned / Deferred Revenue)",
+    type: "خصوم متداولة",
+    nature: "دائن (Cr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند تنفيذ الخدمة وتحويل المبلغ المقبوض إلى إيراد محقق.",
+    whenCredit: "عند استلام دفعة مقدمة من العميل قبل تنفيذ الخدمة أو تسليم البضاعة.",
+    example: "استلام 18,000 ج.م مقدماً لعقد صيانة -> إيراد مقبوض مقدماً (دائن)."
+  },
+  {
+    code: "2105",
+    name: "ضريبة القيمة المضافة المستحقة (VAT Payable)",
+    type: "خصوم متداولة",
+    nature: "دائن (Cr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند سداد الضريبة للهيئة أو مقاصة ضريبة المشتريات المدفوعة.",
+    whenCredit: "عند تحصيل ضريبة مبيعات من العملاء لحساب الهيئة الضريبية.",
+    example: "تحصيل ضريبة 14% بقيمة 1,400 ج.م -> ضريبة القيمة المضافة (دائن)."
+  },
+
+  // 2200s - NON-CURRENT LIABILITIES (خصوم غير متداولة)
+  {
+    code: "2201",
+    name: "القروض البنكية طويلة الأجل (Long-term Bank Loans)",
+    type: "خصوم غير متداولة",
+    nature: "دائن (Cr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند سداد أقساط القرض البنكي ونقص الالتزام.",
+    whenCredit: "عند استلام مبلغ القرض البنكي الممول للنشاط وزيادة المديونية.",
+    example: "استلام قرض تمويلي بـ 200,000 ج.م بالبنك -> القروض طويلة الأجل (دائن)."
+  },
+
+  // 3100s - EQUITY (حقوق الملكية)
+  {
+    code: "3101",
+    name: "رأس المال المدفوع (Owner's Capital)",
     type: "حقوق ملكية",
     nature: "دائن (Cr)",
     statement: "الميزانية العمومية (المركز المالي)",
@@ -105,31 +266,118 @@ const ACCOUNTS_DICTIONARY: AccountInfo[] = [
     example: "بدء النشاط بضخ 100,000 ج.م في البنك -> رأس المال (دائن بـ 100,000 ج.م)."
   },
   {
-    name: "مصروف الإيجار / الكهرباء / الرواتب (Expenses)",
+    code: "3102",
+    name: "الأرباح المبقاة / المدورة (Retained Earnings)",
+    type: "حقوق ملكية",
+    nature: "دائن (Cr)",
+    statement: "الميزانية العمومية (المركز المالي)",
+    whenDebit: "عند توزيع أرباح على الشركاء أو تغطية خسائر سنوية.",
+    whenCredit: "نهاية كل فترة مالية عند إقفال صافي أرباح الشركة فيها.",
+    example: "ترحيل صافي ربح السنة 45,000 ج.م -> الأرباح المبقاة (دائن)."
+  },
+  {
+    code: "3103",
+    name: "المسحوبات الشخصية للملاك (Drawings / Owner Withdrawals)",
+    type: "حقوق ملكية",
+    nature: "مدين (Dr)",
+    statement: "الميزانية العمومية (حساب مخفض للملكية)",
+    whenDebit: "عند سحب المالك مبالغ نقدية أو بضاعة لاستخدامه الشخصي.",
+    whenCredit: "عند إقفال الحساب نهاية السنة المالية في جاري المالك أو رأس المال.",
+    example: "سحب المالك 3,000 ج.م نقداً لأغراضه الشخصية -> المسحوبات الشخصية (مدين)."
+  },
+
+  // 4100s - REVENUES (الإيرادات)
+  {
+    code: "4101",
+    name: "إيراد المبيعات الرئيسية (Sales Revenue)",
+    type: "إيرادات",
+    nature: "دائن (Cr)",
+    statement: "قائمة الدخل (الأرباح والخسائر)",
+    whenDebit: "عند إقفال الحساب نهاية السنة أو إثبات مردودات المبيعات.",
+    whenCredit: "عند تحقيق عمليات بيع بضاعة أو منتجات للعملاء (زيادة الإيراد).",
+    example: "بيع بضاعة بمبلغ 20,000 ج.م -> إيراد المبيعات (دائن بـ 20,000 ج.م)."
+  },
+  {
+    code: "4102",
+    name: "إيرادات الخدمات والاستشارات (Service Revenue)",
+    type: "إيرادات",
+    nature: "دائن (Cr)",
+    statement: "قائمة الدخل (الأرباح والخسائر)",
+    whenDebit: "عند إقفال الحساب نهاية الفترة الماليّة.",
+    whenCredit: "عند تقديم خدمات استشارية أو تنفيدية للعملاء وتثبيت الحق.",
+    example: "إنجاز خدمة صيانة بـ 8,000 ج.م -> إيراد الخدمات (دائن)."
+  },
+
+  // 5100s & 5200s - EXPENSES & COGS (المصروفات والتكاليف)
+  {
+    code: "5101",
+    name: "تكلفة البضاعة المباعة (Cost of Goods Sold - COGS)",
+    type: "مصروفات",
+    nature: "مدين (Dr)",
+    statement: "قائمة الدخل (خصم من المبيعات لحساب مجمل الربح)",
+    whenDebit: "عند بيع بضاعة لتسجيل التكلفة الأصلية للمخزون المباع.",
+    whenCredit: "عند إقفال الحساب نهاية السنة في ملخص قائمة الدخل.",
+    example: "تسجيل تكلفة البضاعة المباعة بـ 11,000 ج.م -> حـ/ COGS (مدين)."
+  },
+  {
+    code: "5201",
+    name: "مصروف الرواتب والأجور (Salaries & Wages)",
     type: "مصروفات",
     nature: "مدين (Dr)",
     statement: "قائمة الدخل (الأرباح والخسائر)",
-    whenDebit: "عند استحقاق أو تكبد المصروف واستفادة الشركة من الخدمة (زيادة المصروف).",
-    whenCredit: "عند إقفال الحسابات نهاية الفترة المالية في حساب الأرباح والخسائر.",
-    example: "دفع إيجار المقر 4,000 ج.م بشيك -> مصروف الإيجار (مدين بـ 4,000 ج.م)."
+    whenDebit: "عند استحقاق رواتب الموظفين والعمال عن الشهر.",
+    whenCredit: "عند إقفال الحساب نهاية السنّة المالّية.",
+    example: "إثبات مسير رواتب الشهر 30,000 ج.م -> مصروف الرواتب (مدين)."
   },
   {
-    name: "الأصول الثابتة - آلات / سيارات / أثاث (Fixed Assets)",
-    type: "أصول غير متداولة",
+    code: "5202",
+    name: "مصروف إيجار المقر والمخازن (Rent Expense)",
+    type: "مصروفات",
     nature: "مدين (Dr)",
-    statement: "الميزانية العمومية (المركز المالي)",
-    whenDebit: "عند اقتناء وشراء أصول جديدة لاستخدامها في التشغيل.",
-    whenCredit: "عند استبعاد الأصل أو بيعه أو تكهينه.",
-    example: "شراء أجهزة كمبيوتر للمكتب بـ 30,000 ج.م -> حـ/ الأجهزة والمعدات (مدين)."
+    statement: "قائمة الدخل (الأرباح والخسائر)",
+    whenDebit: "عند استحقاق أو استنفاد قيمة إيجار المكاتب والفروع.",
+    whenCredit: "عند إقفال الحساب بنهاية الفترة المالية.",
+    example: "استحقاق إيجار المقر بـ 5,000 ج.م -> مصروف الإيجار (مدين)."
   },
   {
-    name: "مجمع الإهلاك (Accumulated Depreciation)",
-    type: "أصول غير متداولة",
-    nature: "دائن (Cr)",
-    statement: "الميزانية العمومية (حساب مقابل للأصل)",
-    whenDebit: "عند استبعاد الأصل المباع وتصفية حسابه.",
-    whenCredit: "عند إثبات الإهلاك الدوري السنوي أو الشهري للأصل.",
-    example: "إثبات إهلاك سنوي للسيارات 5,000 ج.م -> مجمع إهلاك السيارات (دائن)."
+    code: "5203",
+    name: "مصروف الكهرباء والمياه والمنافع (Utilities Expense)",
+    type: "مصروفات",
+    nature: "مدين (Dr)",
+    statement: "قائمة الدخل (الأرباح والخسائر)",
+    whenDebit: "عند ورود ودفع فواتير الكهرباء، المياه، والإنترنت.",
+    whenCredit: "عند إقفال الحساب نهاية السنة.",
+    example: "دفع فاتورة كهرباء بـ 1,200 ج.م -> مصروف الكهرباء (مدين)."
+  },
+  {
+    code: "5204",
+    name: "مصروف التسويق والدعاية (Marketing & Advertising)",
+    type: "مصروفات",
+    nature: "مدين (Dr)",
+    statement: "قائمة الدخل (الأرباح والخسائر)",
+    whenDebit: "عند إطلاق حملات إعلانية وتكبد مصاريف الترويج.",
+    whenCredit: "عند إقفال الحساب بنهاية السنة.",
+    example: "سداد 4,000 ج.م إعلانات ممولة -> مصروف التسويق (مدين)."
+  },
+  {
+    code: "5205",
+    name: "مصروف إهلاك الأصول الثابتة (Depreciation Expense)",
+    type: "مصروفات",
+    nature: "مدين (Dr)",
+    statement: "قائمة الدخل (الأرباح والخسائر)",
+    whenDebit: "عند تسجيل النقص التدريجي في قيمة الأصل الثابت سنوياً.",
+    whenCredit: "عند إقفال الحساب في ملخص الدخل نهاية الفترة.",
+    example: "تسجيل إهلاك الآلات السنوي بـ 6,000 ج.م -> مصروف الإهلاك (مدين)."
+  },
+  {
+    code: "5206",
+    name: "مصاريف عمومية وإدارية متنوعة (General & Admin)",
+    type: "مصروفات",
+    nature: "مدين (Dr)",
+    statement: "قائمة الدخل (الأرباح والخسائر)",
+    whenDebit: "عند تكبد أدوات مكتبية، ضيافة، أو مصاريف حكومية ونثرية.",
+    whenCredit: "عند إقفال الحساب بنهاية الفترة.",
+    example: "شراء أدوات ضيافة بـ 500 ج.م -> مصاريف عمومية وإدارية (مدين)."
   }
 ];
 
@@ -274,6 +522,10 @@ const KNOWLEDGE_QUIZ: QuizQuestion[] = [
 export function JournalLearningGuide({ onLoadPresetToJournal, onSwitchToERPJournal }: JournalLearningGuideProps) {
   const [activeTab, setActiveTab] = useState<"wizard" | "dictionary" | "scenarios" | "quiz">("wizard");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>("الكل");
+  const [selectedNatureFilter, setSelectedNatureFilter] = useState<string>("الكل");
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
   const [wizardStep, setWizardStep] = useState(1);
   const [selectedGuidedScenario, setSelectedGuidedScenario] = useState<GuidedScenario>(GUIDED_SCENARIOS[0]);
 
@@ -283,12 +535,29 @@ export function JournalLearningGuide({ onLoadPresetToJournal, onSwitchToERPJourn
   const [score, setScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
 
-  const filteredDictionary = ACCOUNTS_DICTIONARY.filter(
-    (acc) =>
+  const filteredDictionary = ACCOUNTS_DICTIONARY.filter((acc) => {
+    const matchesSearch =
       acc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      acc.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       acc.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      acc.nature.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      acc.statement.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      acc.whenDebit.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      acc.whenCredit.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      selectedCategoryFilter === "الكل" || acc.type === selectedCategoryFilter;
+
+    const matchesNature =
+      selectedNatureFilter === "الكل" || acc.nature.includes(selectedNatureFilter);
+
+    return matchesSearch && matchesCategory && matchesNature;
+  });
+
+  const copyToClipboard = (text: string, code: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
 
   const handleOptionSelect = (idx: number) => {
     if (selectedOptionIdx !== null) return; // prevent multiple clicks
@@ -819,58 +1088,200 @@ export function JournalLearningGuide({ onLoadPresetToJournal, onSwitchToERPJourn
       )}
 
       {/* ───────────────────────────────────────────────────────────── */}
-      {/* TAB 3: ACCOUNT CLASSIFICATION DICTIONARY */}
+      {/* TAB 3: ACCOUNT CLASSIFICATION DICTIONARY (CHART OF ACCOUNTS) */}
       {/* ───────────────────────────────────────────────────────────── */}
       {activeTab === "dictionary" && (
-        <div className="bg-[#080d1e] p-6 rounded-3xl border border-white/10 space-y-5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+        <div className="bg-[#080d1e] p-6 rounded-3xl border border-white/10 space-y-6">
+          {/* HEADER & SEARCH BAR */}
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-white/10 pb-5">
             <div>
-              <h3 className="text-lg font-black text-white">مستكشف دليل الحسابات وقواعد الاختيار ("أي حساب أختار؟")</h3>
-              <p className="text-xs text-slate-300">ابحث عن أي حساب لتعرف فورياً تصنيفه في القوائم وطبيعته ومتى يكون مديناً أو دائناً.</p>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                  الدليل المحاسبي الموحد COA
+                </span>
+                <span className="text-xs text-slate-400 font-mono">
+                  {filteredDictionary.length} حساب من إجمالي {ACCOUNTS_DICTIONARY.length}
+                </span>
+              </div>
+              <h3 className="text-xl font-black text-white">مستكشف دليل الحسابات الموحد وقواعد القيد المزدوج</h3>
+              <p className="text-xs text-slate-300 mt-0.5">
+                تصفح شجرة ودليل الحسابات للتعرف فورياً على الرمز، الطبيعة (مدين/دائن)، القائمة المالية، وقواعد الزيادة والنقصان لكل حساب.
+              </p>
             </div>
 
-            <div className="relative w-full sm:w-72">
+            <div className="relative w-full lg:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="ابحث باسم الحساب (مثل البنك، العملاء)..."
-                className="w-full bg-[#10182b] border border-white/10 rounded-2xl pr-10 pl-4 py-2 text-xs font-bold text-white focus:outline-none focus:border-cyan-400"
+                placeholder="ابحث بالرمز (1101) أو الاسم (البنك، العملاء)..."
+                className="w-full bg-[#10182b] border border-white/10 rounded-2xl pr-10 pl-8 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-cyan-400 placeholder:text-slate-500"
               />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute left-3 top-3 text-slate-400 hover:text-white cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredDictionary.map((acc, idx) => (
-              <div key={idx} className="bg-[#0b1328] p-5 rounded-2xl border border-white/10 space-y-3">
-                <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                  <span className="text-sm font-black text-white">{acc.name}</span>
-                  <span className="px-2.5 py-0.5 rounded-md text-[10px] font-black bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    {acc.nature}
-                  </span>
-                </div>
+          {/* FILTERS & STATS RIBBON */}
+          <div className="space-y-3">
+            {/* CATEGORY TABS */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              <span className="text-[11px] font-black text-slate-400 shrink-0 ml-1 flex items-center gap-1">
+                <Filter className="w-3 h-3 text-cyan-400" />
+                التصنيف:
+              </span>
+              {[
+                { id: "الكل", label: "الكل (جميع الحسابات)" },
+                { id: "أصول متداولة", label: "🏢 أصول متداولة (1100)" },
+                { id: "أصول غير متداولة", label: "🏗️ أصول غير متداولة (1200)" },
+                { id: "خصوم متداولة", label: "💳 خصوم متداولة (2100)" },
+                { id: "خصوم غير متداولة", label: "🏦 خصوم غير متداولة (2200)" },
+                { id: "حقوق ملكية", label: "⚖️ حقوق ملكية (3100)" },
+                { id: "إيرادات", label: "💰 إيرادات (4100)" },
+                { id: "مصروفات", label: "💸 مصروفات وتكاليف (5100/5200)" }
+              ].map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategoryFilter(cat.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 border ${
+                    selectedCategoryFilter === cat.id
+                      ? "bg-cyan-500/20 text-cyan-200 border-cyan-400 shadow-md shadow-cyan-500/10 font-black"
+                      : "bg-[#0b1328] text-slate-400 border-white/10 hover:border-white/20 hover:text-slate-200"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
 
-                <div className="flex items-center gap-2 text-[11px] text-slate-300 font-bold">
-                  <span className="px-2 py-0.5 rounded bg-white/5 text-purple-300 border border-white/10">{acc.type}</span>
-                  <span className="px-2 py-0.5 rounded bg-white/5 text-slate-400 border border-white/10">{acc.statement}</span>
-                </div>
-
-                <div className="space-y-1.5 text-xs text-slate-300 font-medium">
-                  <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-200">
-                    <b>متى يكون مديناً (Dr)؟</b> {acc.whenDebit}
-                  </div>
-                  <div className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-200">
-                    <b>متى يكون دائناً (Cr)؟</b> {acc.whenCredit}
-                  </div>
-                </div>
-
-                <div className="p-2 rounded-xl bg-white/5 text-[11px] text-slate-400 font-mono">
-                  <b>مثال:</b> {acc.example}
-                </div>
-              </div>
-            ))}
+            {/* NATURE TABS */}
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-black text-slate-400 shrink-0 flex items-center gap-1">
+                <Tag className="w-3 h-3 text-purple-400" />
+                طبيعة الحساب:
+              </span>
+              {[
+                { id: "الكل", label: "الكل" },
+                { id: "مدين", label: "🟢 حسابات مدينة (Debit)" },
+                { id: "دائن", label: "🔴 حسابات دائنة (Credit)" }
+              ].map((nat) => (
+                <button
+                  key={nat.id}
+                  onClick={() => setSelectedNatureFilter(nat.id)}
+                  className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer border ${
+                    selectedNatureFilter === nat.id
+                      ? "bg-purple-600/30 text-purple-200 border-purple-400/50 font-black"
+                      : "bg-white/5 text-slate-400 border-white/10 hover:text-white"
+                  }`}
+                >
+                  {nat.label}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* ACCOUNTS GRID */}
+          {filteredDictionary.length === 0 ? (
+            <div className="bg-[#0b1328] p-8 rounded-2xl border border-white/10 text-center space-y-2">
+              <HelpCircle className="w-10 h-10 text-slate-500 mx-auto" />
+              <h4 className="text-sm font-bold text-slate-300">لم نجد حسابات مطابقة للبحث أو التصفية</h4>
+              <p className="text-xs text-slate-400">جرب البحث بكلمة مختلفة مثل "بنك"، "عملاء"، "مشتريات"، أو قم بإعادة ضبط الفلاتر.</p>
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setSelectedCategoryFilter("الكل");
+                  setSelectedNatureFilter("الكل");
+                }}
+                className="mt-2 px-4 py-1.5 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/40 text-cyan-200 text-xs font-bold border border-cyan-400/30 cursor-pointer"
+              >
+                إعادة ضبط جميع الفلاتر
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredDictionary.map((acc) => {
+                const isDebit = acc.nature.includes("مدين");
+                const isCopied = copiedCode === acc.code;
+
+                return (
+                  <div
+                    key={acc.code}
+                    className="bg-[#0b1328] p-5 rounded-2xl border border-white/10 hover:border-cyan-500/30 transition-all space-y-3.5 group relative"
+                  >
+                    {/* ACCOUNT TOP ROW */}
+                    <div className="flex items-start justify-between gap-2 border-b border-white/10 pb-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-md text-xs font-black font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                            {acc.code}
+                          </span>
+                          <span className="text-sm font-black text-white group-hover:text-cyan-200 transition-colors">
+                            {acc.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-slate-300 font-bold">
+                          <span className="px-2 py-0.5 rounded bg-white/5 text-purple-300 border border-white/10">
+                            {acc.type}
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-white/5 text-slate-400 border border-white/10">
+                            {acc.statement}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-md text-[10px] font-black border ${
+                            isDebit
+                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                              : "bg-rose-500/20 text-rose-300 border-rose-500/30"
+                          }`}
+                        >
+                          {acc.nature}
+                        </span>
+
+                        <button
+                          onClick={() => copyToClipboard(`${acc.code} - ${acc.name}`, acc.code)}
+                          title="نسخ رمز واسم الحساب"
+                          className="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white text-[10px] font-bold border border-white/10 transition-all flex items-center gap-1 cursor-pointer"
+                        >
+                          {isCopied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                          <span>{isCopied ? "تم النسخ!" : "نسخ الكود"}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* DEBIT / CREDIT RULES */}
+                    <div className="space-y-2 text-xs font-medium">
+                      <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 leading-relaxed">
+                        <b className="font-black text-emerald-300">متى يكون مديناً (Dr)؟</b>
+                        <p className="mt-0.5 text-slate-200">{acc.whenDebit}</p>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-200 leading-relaxed">
+                        <b className="font-black text-rose-300">متى يكون دائناً (Cr)؟</b>
+                        <p className="mt-0.5 text-slate-200">{acc.whenCredit}</p>
+                      </div>
+                    </div>
+
+                    {/* PRACTICAL EXAMPLE */}
+                    <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-[11px] text-slate-300 font-mono leading-relaxed flex items-start gap-2">
+                      <Lightbulb className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      <div>
+                        <b className="text-amber-300 font-sans">مثال تطبيقي:</b> {acc.example}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

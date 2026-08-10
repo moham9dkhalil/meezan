@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { UserProfile } from "../types";
+import { UserProfile, LearningTrack } from "../types";
 import { AvatarPicker } from "./AvatarPicker";
 import {
   User,
@@ -84,6 +84,7 @@ export function AuthModal({
   const [signupPassword, setSignupPassword] = useState("");
   const [signupRole, setSignupRole] = useState("طالب محاسبة");
   const [signupAvatar, setSignupAvatar] = useState("👨‍💼");
+  const [signupTrack, setSignupTrack] = useState<LearningTrack>("corporate");
 
   // Forgot password inputs
   const [forgotEmail, setForgotEmail] = useState("");
@@ -94,6 +95,7 @@ export function AuthModal({
   const [editName, setEditName] = useState("");
   const [editAvatar, setEditAvatar] = useState("👨‍💼");
   const [editRole, setEditRole] = useState("طالب محاسبة");
+  const [editTrack, setEditTrack] = useState<LearningTrack>("corporate");
 
   // UI state
   const [errorMsg, setErrorMsg] = useState("");
@@ -109,6 +111,7 @@ export function AuthModal({
       setEditName(currentUser.name || "");
       setEditAvatar(currentUser.avatar || "👨‍💼");
       setEditRole(currentUser.role || "طالب محاسبة");
+      setEditTrack(currentUser.learningTrack || "corporate");
     }
   }, [initialMode, isOpen, currentUser]);
 
@@ -131,18 +134,20 @@ export function AuthModal({
         ...currentUser,
         name: editName.trim(),
         avatar: editAvatar,
-        role: editRole
+        role: editRole,
+        learningTrack: editTrack
       };
 
       onLoginSuccess(updatedUser);
       try {
         localStorage.setItem("meezan_auth_user", JSON.stringify(updatedUser));
+        localStorage.setItem("meezan_preferred_track", editTrack);
       } catch {
         // ignore
       }
 
       setIsEditingProfile(false);
-      setSuccessMsg("تم تحديث الاسم والرمز التعبيري بنجاح! ✨");
+      setSuccessMsg("تم تحديث معلوماتك ومسارك المفضل بنجاح! ✨");
       setTimeout(() => setSuccessMsg(""), 3000);
     }, 400);
   };
@@ -216,8 +221,15 @@ export function AuthModal({
         xp: 100, // Welcome signup bonus!
         streak: 1,
         joinedDate: new Date().toLocaleDateString("ar-SA"),
-        isLoggedIn: true
+        isLoggedIn: true,
+        learningTrack: signupTrack
       };
+
+      try {
+        localStorage.setItem("meezan_preferred_track", signupTrack);
+      } catch {
+        // ignore
+      }
 
       onLoginSuccess(newUser);
       setSuccessMsg("تم إنشاء الحساب بنجاح! تم منحك +100 XP هدية الترحيب 🎉");
@@ -392,6 +404,63 @@ export function AuthModal({
                         <option value="مدير مالي CFO">👑 مدير مالي (CFO)</option>
                         <option value="صاحب مشروع / مهتم">💼 صاحب عمل / مهتم بالمحاسبة</option>
                       </select>
+                    </div>
+
+                    {/* Preferred Learning Track */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-slate-300 flex items-center justify-between">
+                        <span>مسار التعلم المفضل</span>
+                        <span className="text-[10px] text-indigo-400 font-normal">لتوجيه ترتيب الدروس</span>
+                      </label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setEditTrack("corporate")}
+                          className={`p-2.5 rounded-xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                            editTrack === "corporate"
+                              ? "bg-indigo-600/30 border-indigo-500 text-white shadow-lg shadow-indigo-600/20"
+                              : "bg-black/30 border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-lg">🏢</span>
+                            {editTrack === "corporate" && <Check className="w-3.5 h-3.5 text-indigo-400" />}
+                          </div>
+                          <div className="font-bold text-[11px]">محاسبة شركات</div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setEditTrack("governmental")}
+                          className={`p-2.5 rounded-xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                            editTrack === "governmental"
+                              ? "bg-amber-600/30 border-amber-500 text-white shadow-lg shadow-amber-600/20"
+                              : "bg-black/30 border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-lg">🏛️</span>
+                            {editTrack === "governmental" && <Check className="w-3.5 h-3.5 text-amber-400" />}
+                          </div>
+                          <div className="font-bold text-[11px]">محاسبة حكومية</div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setEditTrack("auditing")}
+                          className={`p-2.5 rounded-xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                            editTrack === "auditing"
+                              ? "bg-purple-600/30 border-purple-500 text-white shadow-lg shadow-purple-600/20"
+                              : "bg-black/30 border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-lg">🔍</span>
+                            {editTrack === "auditing" && <Check className="w-3.5 h-3.5 text-purple-400" />}
+                          </div>
+                          <div className="font-bold text-[11px]">تدقيق ومراجعة</div>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -715,6 +784,70 @@ export function AuthModal({
                       <option value="مدير مالي CFO">👑 مدير مالي (CFO)</option>
                       <option value="صاحب مشروع / مهتم">💼 صاحب عمل / مهتم بالمحاسبة</option>
                     </select>
+                  </div>
+
+                  {/* Preferred Learning Track Selector */}
+                  <div className="space-y-2 p-3 rounded-2xl bg-indigo-950/40 border border-indigo-500/30">
+                    <label className="text-xs font-black text-indigo-200 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                        <span>اختر مسار التعلم المفضل (التخصص)</span>
+                      </span>
+                      <span className="text-[10px] text-indigo-300 font-normal">لتخصيص ترتيب الدروس</span>
+                    </label>
+                    
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSignupTrack("corporate")}
+                        className={`p-2.5 rounded-xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                          signupTrack === "corporate"
+                            ? "bg-indigo-600/40 border-indigo-400 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-indigo-400"
+                            : "bg-black/40 border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xl">🏢</span>
+                          {signupTrack === "corporate" && <Check className="w-4 h-4 text-indigo-300" />}
+                        </div>
+                        <div className="font-black text-xs text-white">محاسبة شركات</div>
+                        <div className="text-[9px] text-slate-400 leading-tight mt-1">القوائم، المعايير IFRS والشركات</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSignupTrack("governmental")}
+                        className={`p-2.5 rounded-xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                          signupTrack === "governmental"
+                            ? "bg-amber-600/40 border-amber-400 text-white shadow-lg shadow-amber-600/30 ring-1 ring-amber-400"
+                            : "bg-black/40 border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xl">🏛️</span>
+                          {signupTrack === "governmental" && <Check className="w-4 h-4 text-amber-300" />}
+                        </div>
+                        <div className="font-black text-xs text-white">محاسبة حكومية</div>
+                        <div className="text-[9px] text-slate-400 leading-tight mt-1">الميزانية العامة والقطاع الحكومي</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSignupTrack("auditing")}
+                        className={`p-2.5 rounded-xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                          signupTrack === "auditing"
+                            ? "bg-purple-600/40 border-purple-400 text-white shadow-lg shadow-purple-400/30 ring-1 ring-purple-400"
+                            : "bg-black/40 border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xl">🔍</span>
+                          {signupTrack === "auditing" && <Check className="w-4 h-4 text-purple-300" />}
+                        </div>
+                        <div className="font-black text-xs text-white">تدقيق ومراجعة</div>
+                        <div className="text-[9px] text-slate-400 leading-tight mt-1">معايير ISA والضبط الداخلي</div>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Avatar Picker */}

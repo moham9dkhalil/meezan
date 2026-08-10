@@ -1,7 +1,8 @@
 import { useState, useEffect, FormEvent } from "react";
+import { INITIAL_REVIEWS } from "../data/seedReviews";
 import { Review } from "../types";
 import { Language } from "../data/translations";
-import { Star, MessageSquarePlus, User, CheckCircle2, Loader2 } from "lucide-react";
+import { Star, MessageSquarePlus, User, CheckCircle2 } from "lucide-react";
 
 interface TestimonialsSectionProps {
   appLanguage?: Language;
@@ -9,86 +10,58 @@ interface TestimonialsSectionProps {
 
 export function TestimonialsSection({ appLanguage = "ar" }: TestimonialsSectionProps) {
   const isEn = appLanguage === "en";
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>(() => {
+    try {
+      const saved = localStorage.getItem("meezan_reviews");
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return INITIAL_REVIEWS;
+  });
 
   const [formName, setFormName] = useState("");
   const [formRole, setFormRole] = useState("");
   const [formText, setFormText] = useState("");
   const [selectedStars, setSelectedStars] = useState(5);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
-    let cancelled = false;
-    fetch("/api/reviews")
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        if (Array.isArray(data.reviews)) {
-          setReviews(data.reviews);
-        }
-        setLoading(false);
-      })
-      .catch((e) => {
-        console.error(e);
-        if (!cancelled) {
-          setLoadError(true);
-          setLoading(false);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    try {
+      localStorage.setItem("meezan_reviews", JSON.stringify(reviews));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [reviews]);
 
   // Calculate Average Stars
   const avgStars = reviews.length
     ? (reviews.reduce((acc, r) => acc + r.stars, 0) / reviews.length).toFixed(1)
     : "4.8";
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!formName.trim() || !formText.trim()) return;
 
-    setIsSubmitting(true);
-    setSubmitError("");
+    const newRev: Review = {
+      id: Date.now().toString(),
+      name: formName.trim(),
+      role: formRole.trim() || "متعلم في ميزان",
+      text: formText.trim(),
+      stars: selectedStars,
+      createdAt: "الآن"
+    };
 
-    try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formName.trim(),
-          role: formRole.trim(),
-          text: formText.trim(),
-          stars: selectedStars,
-        }),
-      });
-      const data = await res.json();
+    setReviews([newRev, ...reviews]);
+    setFormName("");
+    setFormRole("");
+    setFormText("");
+    setSelectedStars(5);
+    setIsSubmitted(true);
 
-      if (!res.ok) {
-        setSubmitError(data.error || "حدث خطأ أثناء نشر التقييم. حاول مرة أخرى.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      setReviews((prev) => [data.review, ...prev]);
-      setFormName("");
-      setFormRole("");
-      setFormText("");
-      setSelectedStars(5);
-      setIsSubmitted(true);
-
-      setTimeout(() => setIsSubmitted(false), 4000);
-    } catch (err) {
-      console.error(err);
-      setSubmitError("تعذر الاتصال بالخادم. تأكد من تشغيل الخادم وحاول مرة أخرى.");
-    }
-
-    setIsSubmitting(false);
+    setTimeout(() => setIsSubmitted(false), 4000);
   };
 
   return (
@@ -135,56 +108,42 @@ export function TestimonialsSection({ appLanguage = "ar" }: TestimonialsSectionP
 
       {/* Grid of Reviews */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        {loading ? (
-          <div className="col-span-full flex items-center justify-center py-16 gap-2 text-slate-400 text-sm font-bold">
-            <Loader2 className="w-5 h-5 animate-spin text-pink-400" />
-            <span>{isEn ? "Loading reviews..." : "جارٍ تحميل التقييمات..."}</span>
-          </div>
-        ) : loadError ? (
-          <div className="col-span-full py-12 text-center text-slate-400 text-sm font-bold">
-            {isEn ? "Could not load reviews. Please try again later." : "تعذر تحميل التقييمات. حاول مرة أخرى لاحقاً."}
-          </div>
-        ) : (
-          reviews.map((rev) => (
-            <div
-              key={rev.id}
-              className="glass-panel p-6 rounded-3xl border border-white/10 hover:border-pink-500/30 transition-all duration-300 flex flex-col justify-between shadow-lg"
-            >
-              <div>
-                {/* Stars */}
-                <div className="flex items-center gap-1 mb-3 text-amber-400">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-4 h-4 ${
-                        i < rev.stars ? "fill-amber-400 text-amber-400" : "text-gray-600"
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                {/* Text */}
-                <p className="text-xs sm:text-sm text-gray-200 leading-relaxed font-normal mb-4 italic">
-                  "{rev.text}"
-                </p>
+        {reviews.map((rev) => (
+          <div
+            key={rev.id}
+            className="glass-panel p-6 rounded-3xl border border-white/10 hover:border-pink-500/30 transition-all duration-300 flex flex-col justify-between shadow-lg"
+          >
+            <div>
+              {/* Stars */}
+              <div className="flex items-center gap-1 mb-3 text-amber-400">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < rev.stars ? "fill-amber-400 text-amber-400" : "text-gray-600"
+                    }`}
+                  />
+                ))}
               </div>
 
-              {/* Author */}
-              <div className="pt-4 border-t border-white/5 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-600 flex items-center justify-center text-white text-xs font-black shrink-0">
-                  <User className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-xs text-white">{rev.name}</h4>
-                  <p className="text-[10px] text-gray-400 mt-0.5">{rev.role}</p>
-                  {rev.createdAt && (
-                    <p className="text-[9px] text-pink-400 mt-0.5 font-bold">{rev.createdAt}</p>
-                  )}
-                </div>
+              {/* Text */}
+              <p className="text-xs sm:text-sm text-gray-200 leading-relaxed font-normal mb-4 italic">
+                "{rev.text}"
+              </p>
+            </div>
+
+            {/* Author */}
+            <div className="pt-4 border-t border-white/5 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-600 flex items-center justify-center text-white text-xs font-black shrink-0">
+                <User className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-xs text-white">{rev.name}</h4>
+                <p className="text-[10px] text-gray-400 mt-0.5">{rev.role}</p>
               </div>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
 
       {/* Review Submission Form */}
@@ -266,23 +225,10 @@ export function TestimonialsSection({ appLanguage = "ar" }: TestimonialsSectionP
 
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white font-extrabold text-sm shadow-xl shadow-pink-600/30 hover:opacity-90 disabled:opacity-60 cursor-pointer transition-all flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white font-extrabold text-sm shadow-xl shadow-pink-600/30 hover:opacity-90 cursor-pointer transition-all"
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>جارٍ نشر التقييم...</span>
-                </>
-              ) : (
-                "نشر التقييم في المنصة 🚀"
-              )}
+              نشر التقييم في المنصة 🚀
             </button>
-            {submitError && (
-              <p className="text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl p-2.5">
-                {submitError}
-              </p>
-            )}
           </form>
         )}
       </div>

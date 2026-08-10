@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { UserProfile, ActiveTab } from "../types";
+import { UserProfile, ActiveTab, LearningTrack } from "../types";
 import { AvatarPicker } from "./AvatarPicker";
 import { LearningRoadmapChart } from "./LearningRoadmapChart";
 import { Language, getSavedLanguage, applyLanguageSettings, translations } from "../data/translations";
@@ -90,6 +90,7 @@ export function UserProfileSection({
   const [editName, setEditName] = useState(currentUser?.name || "المحاسب المالي");
   const [editAvatar, setEditAvatar] = useState(currentUser?.avatar || "👨‍💼");
   const [editRole, setEditRole] = useState(currentUser?.role || "طالب محاسبة");
+  const [editTrack, setEditTrack] = useState<LearningTrack>(currentUser?.learningTrack || "corporate");
   const [editBio, setEditBio] = useState("طالب شغوف بتعلم القيود المحاسبية والمعايير الدولية IFRS وتطوير مهاراتي الماليّة.");
   const [successMsg, setSuccessMsg] = useState("");
   const [saving, setSaving] = useState(false);
@@ -231,10 +232,16 @@ export function UserProfileSection({
         ...currentUser,
         name: editName.trim() || currentUser.name,
         avatar: editAvatar,
-        role: editRole
+        role: editRole,
+        learningTrack: editTrack
       };
+      try {
+        localStorage.setItem("meezan_preferred_track", editTrack);
+      } catch {
+        // ignore
+      }
       onUpdateUser(updated);
-      setSuccessMsg("تم حفظ بيانات الملف الشخصي بنجاح! ✨");
+      setSuccessMsg("تم حفظ بيانات الملف الشخصي والمسار المفضل بنجاح! ✨");
       setTimeout(() => setSuccessMsg(""), 3000);
     }, 400);
   };
@@ -1035,6 +1042,70 @@ export function UserProfileSection({
                   <option value="مدير مالي CFO">👑 مدير مالي (CFO)</option>
                   <option value="صاحب مشروع / مهتم">💼 صاحب عمل / مهتم بالمحاسبة</option>
                 </select>
+              </div>
+
+              {/* Preferred Learning Track Selector */}
+              <div className="space-y-2 p-4 rounded-2xl bg-gradient-to-br from-indigo-950/50 to-purple-950/40 border border-indigo-500/30">
+                <label className="text-xs font-black text-indigo-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-indigo-400" />
+                    <span>مسار التعلم المفضل (التخصص الدراسي)</span>
+                  </span>
+                  <span className="text-[10px] text-indigo-300 font-normal">لتخصيص وترتيب المراحل والدروس</span>
+                </label>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setEditTrack("corporate")}
+                    className={`p-3 rounded-xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                      editTrack === "corporate"
+                        ? "bg-indigo-600/40 border-indigo-400 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-indigo-400"
+                        : "bg-black/40 border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-2xl">🏢</span>
+                      {editTrack === "corporate" && <Check className="w-4 h-4 text-indigo-300" />}
+                    </div>
+                    <div className="font-black text-xs text-white">محاسبة شركات</div>
+                    <div className="text-[10px] text-slate-400 leading-snug mt-1">القوائم المالية، المعايير الدولية IFRS وقيود الشركات</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEditTrack("governmental")}
+                    className={`p-3 rounded-xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                      editTrack === "governmental"
+                        ? "bg-amber-600/40 border-amber-400 text-white shadow-lg shadow-amber-600/30 ring-1 ring-amber-400"
+                        : "bg-black/40 border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-2xl">🏛️</span>
+                      {editTrack === "governmental" && <Check className="w-4 h-4 text-amber-300" />}
+                    </div>
+                    <div className="font-black text-xs text-white">محاسبة حكومية</div>
+                    <div className="text-[10px] text-slate-400 leading-snug mt-1">الميزانية العامة للدولة، دليل الحسابات الموحد والقطاع العام</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEditTrack("auditing")}
+                    className={`p-3 rounded-xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                      editTrack === "auditing"
+                        ? "bg-purple-600/40 border-purple-400 text-white shadow-lg shadow-purple-400/30 ring-1 ring-purple-400"
+                        : "bg-black/40 border-white/10 text-slate-400 hover:border-white/20 hover:text-slate-200"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-2xl">🔍</span>
+                      {editTrack === "auditing" && <Check className="w-4 h-4 text-purple-300" />}
+                    </div>
+                    <div className="font-black text-xs text-white">تدقيق ومراجعة</div>
+                    <div className="text-[10px] text-slate-400 leading-snug mt-1">معايير التدقيق الدولية ISA وأنظمة الضبط والرقابة الداخلية</div>
+                  </button>
+                </div>
               </div>
 
               {/* Bio */}

@@ -40,7 +40,15 @@ import {
   VolumeX,
   X,
   RefreshCw,
-  Calendar
+  Calendar,
+  Grid,
+  Bot,
+  User,
+  Settings,
+  MoreVertical,
+  Landmark,
+  TrendingUp,
+  DollarSign
 } from "lucide-react";
 
 export interface OdooJournalItem {
@@ -74,35 +82,46 @@ interface OdooJournalEntrySectionProps {
   onAwardXp?: (amount: number, title: string, message: string) => void;
 }
 
+export interface OdooAccount {
+  code: string;
+  name: string;
+  type: "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
+  category: string;
+  openingBalance?: number;
+  isCustom?: boolean;
+}
+
 // Chart of Accounts for Odoo
-const ODOO_ACCOUNTS = [
-  { code: "101000", name: "101000 البنك - الحساب الجاري الرئيسية", type: "Asset", category: "أصول متداولة" },
-  { code: "102000", name: "102000 الصندوق / الخزينة الرئيسية", type: "Asset", category: "أصول متداولة" },
-  { code: "110000", name: "110000 حسابات العملاء (Accounts Receivable)", type: "Asset", category: "أصول متداولة" },
-  { code: "120000", name: "120000 مخزون البضائع (Inventory)", type: "Asset", category: "أصول متداولة" },
-  { code: "150000", name: "150000 الأصول الثابتة - الآلات والمعدات", type: "Asset", category: "أصول غير متداولة" },
-  { code: "151000", name: "151000 الأصول الثابتة - أجهزة كمبيوتر وتكنولوجيا", type: "Asset", category: "أصول غير متداولة" },
-  { code: "210000", name: "210000 حسابات الموردين (Accounts Payable)", type: "Liability", category: "خصوم متداولة" },
-  { code: "220000", name: "220000 مصلحة الضرائب - ضريبة القيمة المضافة 14%", type: "Liability", category: "خصوم متداولة" },
-  { code: "230000", name: "230000 مستحقات التأمينات الاجتماعية والرواتب", type: "Liability", category: "خصوم متداولة" },
-  { code: "300000", name: "300000 رأس المال المدفوع", type: "Equity", category: "حقوق ملكية" },
-  { code: "400000", name: "400000 إيرادات المبيعات (Sales Revenue)", type: "Revenue", category: "إيرادات" },
-  { code: "410000", name: "410000 إيرادات خدمات واستشارات", type: "Revenue", category: "إيرادات" },
-  { code: "500000", name: "500000 تكلفة البضاعة المباعة (COGS)", type: "Expense", category: "مصروفات" },
-  { code: "510000", name: "510000 مصروف الإيجار - المقر الرئيسي", type: "Expense", category: "مصروفات" },
-  { code: "520000", name: "520000 مصروف أجور ورواتب الموظفين", type: "Expense", category: "مصروفات" },
-  { code: "530000", name: "530000 مصروفات تسويق وإعلانات", type: "Expense", category: "مصروفات" },
-  { code: "540000", name: "540000 خصم نقدي مسموح به (تعجيل دفع)", type: "Expense", category: "مصروفات" },
+const ODOO_ACCOUNTS: OdooAccount[] = [
+  { code: "101000", name: "101000 البنك - الحساب الجاري الرئيسية", type: "Asset", category: "أصول متداولة", openingBalance: 150000 },
+  { code: "102000", name: "102000 الصندوق / الخزينة الرئيسية", type: "Asset", category: "أصول متداولة", openingBalance: 45000 },
+  { code: "110000", name: "110000 حسابات العملاء (Accounts Receivable)", type: "Asset", category: "أصول متداولة", openingBalance: 85000 },
+  { code: "120000", name: "120000 مخزون البضائع (Inventory)", type: "Asset", category: "أصول متداولة", openingBalance: 120000 },
+  { code: "150000", name: "150000 الأصول الثابتة - الآلات والمعدات", type: "Asset", category: "أصول غير متداولة", openingBalance: 350000 },
+  { code: "151000", name: "151000 الأصول الثابتة - أجهزة كمبيوتر وتكنولوجيا", type: "Asset", category: "أصول غير متداولة", openingBalance: 95000 },
+  { code: "210000", name: "210000 حسابات الموردين (Accounts Payable)", type: "Liability", category: "خصوم متداولة", openingBalance: 65000 },
+  { code: "220000", name: "220000 مصلحة الضرائب - ضريبة القيمة المضافة 14%", type: "Liability", category: "خصوم متداولة", openingBalance: 14000 },
+  { code: "230000", name: "230000 مستحقات التأمينات الاجتماعية والرواتب", type: "Liability", category: "خصوم متداولة", openingBalance: 25000 },
+  { code: "300000", name: "300000 رأس المال المدفوع", type: "Equity", category: "حقوق ملكية", openingBalance: 700000 },
+  { code: "400000", name: "400000 إيرادات المبيعات (Sales Revenue)", type: "Revenue", category: "إيرادات", openingBalance: 0 },
+  { code: "410000", name: "410000 إيرادات خدمات واستشارات", type: "Revenue", category: "إيرادات", openingBalance: 0 },
+  { code: "500000", name: "500000 تكلفة البضاعة المباعة (COGS)", type: "Expense", category: "مصروفات", openingBalance: 0 },
+  { code: "510000", name: "510000 مصروف الإيجار - المقر الرئيسي", type: "Expense", category: "مصروفات", openingBalance: 0 },
+  { code: "520000", name: "520000 مصروف أجور ورواتب الموظفين", type: "Expense", category: "مصروفات", openingBalance: 0 },
+  { code: "530000", name: "530000 مصروفات تسويق وإعلانات", type: "Expense", category: "مصروفات", openingBalance: 0 },
+  { code: "540000", name: "540000 خصم نقدي مسموح به (تعجيل دفع)", type: "Expense", category: "مصروفات", openingBalance: 0 },
 ];
 
 interface AccountAutocompleteProps {
   value: string;
   onChange: (accountCode: string) => void;
   disabled?: boolean;
+  accounts?: OdooAccount[];
 }
 
-function AccountAutocompleteInput({ value, onChange, disabled }: AccountAutocompleteProps) {
-  const selectedAccount = ODOO_ACCOUNTS.find((a) => a.code === value);
+function AccountAutocompleteInput({ value, onChange, disabled, accounts }: AccountAutocompleteProps) {
+  const accountListToUse = accounts && accounts.length > 0 ? accounts : ODOO_ACCOUNTS;
+  const selectedAccount = accountListToUse.find((a) => a.code === value);
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -128,7 +147,7 @@ function AccountAutocompleteInput({ value, onChange, disabled }: AccountAutocomp
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [selectedAccount]);
 
-  const filteredAccounts = ODOO_ACCOUNTS.filter(
+  const filteredAccounts = accountListToUse.filter(
     (acc) =>
       acc.code.includes(query.trim()) ||
       acc.name.toLowerCase().includes(query.toLowerCase().trim()) ||
@@ -136,7 +155,7 @@ function AccountAutocompleteInput({ value, onChange, disabled }: AccountAutocomp
   );
 
   const handleSelect = (code: string) => {
-    const acc = ODOO_ACCOUNTS.find((a) => a.code === code);
+    const acc = accountListToUse.find((a) => a.code === code);
     if (acc) {
       setQuery(acc.name);
       onChange(code);
@@ -327,7 +346,39 @@ const INITIAL_ENTRIES: OdooEntryRecord[] = [
 ];
 
 export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionProps) {
-  // Main View Switcher: "tree" (Odoo List View) or "form" (Odoo Single Sheet View)
+  // Main Section Tab Switcher: "editor" (Odoo Journal Form & List), "practice" ( اتعلم قيود أودو ), "guide" ( دليل أودو المحاسبي من أ إلى ي ), "coa" (شجرة الحسابات)
+  const [mainSectionTab, setMainSectionTab] = useState<"editor" | "practice" | "guide" | "coa">("editor");
+  const [isPracticeFullscreen, setIsPracticeFullscreen] = useState<boolean>(false);
+
+  // Dynamic Chart of Accounts State
+  const [accountsList, setAccountsList] = useState<OdooAccount[]>(ODOO_ACCOUNTS);
+  const [coaSearchQuery, setCoaSearchQuery] = useState("");
+  const [coaTypeFilter, setCoaTypeFilter] = useState<string>("all");
+  const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false);
+  const [selectedLedgerAccountCode, setSelectedLedgerAccountCode] = useState<string | null>(null);
+
+  const [newAccountForm, setNewAccountForm] = useState<{
+    code: string;
+    name: string;
+    type: "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
+    category: string;
+    openingBalance: number;
+  }>({
+    code: "",
+    name: "",
+    type: "Asset",
+    category: "أصول متداولة",
+    openingBalance: 0
+  });
+
+  // Odoo Chatter Floating Chat Drawer State
+  const [isChatterOpen, setIsChatterOpen] = useState<boolean>(false);
+
+  // Field Helper Popover State (مساعد حقول أودو التفاعلي)
+  const [fieldHelperOpen, setFieldHelperOpen] = useState<boolean>(false);
+  const [activeHelperField, setActiveHelperField] = useState<string>("journal");
+
+  // Main View Switcher for Editor: "tree" (Odoo List View) or "form" (Odoo Single Sheet View)
   const [viewMode, setViewMode] = useState<"form" | "tree">("form");
 
   // All Entries Database in state
@@ -336,6 +387,177 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
 
   // Active Entry State inside Form View
   const currentRecord = entries[activeEntryIndex] || entries[0];
+
+  // ==========================================
+  // ODOO PRACTICE & QUIZ MODE ( اتعلم قيود أودو )
+  // ==========================================
+  const ODOO_PRACTICE_SCENARIOS = [
+    {
+      id: "p1",
+      title: "تمرين 1: شراء أجهزة كمبيوتر ولابتوبات نقدًا للإدارة",
+      difficulty: "مبتدئ ERP 🟢",
+      story: "شراء أجهزة لابتوب حاسوب آلي للإدارة العامة بمبلغ 25,000 ج.م نقدًا مسددة من الخزينة الرئيسية بدون ضريبة.",
+      goalDescription: "قم باختيار وتوجيه القيد المزدوج الصحيح في شاشة أودو لتسجيل الأصل الثابت والخزينة.",
+      correctAccounts: [
+        { accountCode: "151000", side: "debit", amount: 25000 },
+        { accountCode: "102000", side: "credit", amount: 25000 }
+      ],
+      explanation: "شراء أصل ثابت يزيد الأصول في الجانب المدين (Debit) بمبلغ 25,000 ج.م، والسداد نقدًا ينقص الخزينة في الجانب الدائن (Credit) بنفس المبلغ."
+    },
+    {
+      id: "p2",
+      title: "تمرين 2: إثبات فاتورة مبيعات بآجل + ضريبة قيمة مضافة 14%",
+      difficulty: "متوسط ERP 🟡",
+      story: "أصدرت الشركة فاتورة مبيعات بآجل 30 يوم لـ 'شركة المستقبل' بمبلغ 10,000 ج.م خاضعة لضريبة القيمة المضافة 14% (1,400 ج.م). إجمالي المستحق على العميل 11,400 ج.م.",
+      goalDescription: "سجل قيد المبيعات المركب واثبات التزام الضريبة ومديونية العملاء.",
+      correctAccounts: [
+        { accountCode: "110000", side: "debit", amount: 11400 },
+        { accountCode: "400000", side: "credit", amount: 10000 },
+        { accountCode: "220000", side: "credit", amount: 1400 }
+      ],
+      explanation: "العملاء أصل متداول يزيد في المدين بإجمالي 11,400 ج.م، إيرادات المبيعات دائنه بـ 10,000 ج.م، وضريبة القيمة المضافة مخرجات دائنة بـ 1,400 ج.م لمصلحة الضرائب."
+    },
+    {
+      id: "p3",
+      title: "تمرين 3: سداد إيجار المقر بشيك وتخصيصه لمركز تكلفة",
+      difficulty: "محترف ERP 🔴",
+      story: "سداد مصروف إيجار المقر الإداري لشهر أغسطس بمبلغ 8,000 ج.م بشيك بنكي مسحوب على البنك الأهلي، وتخصيصه لمركز تكلفة 'الإدارة العامة والتنفيذية'.",
+      goalDescription: "سجل قيد المصروف والبنوك وربطه بمركز التكلفة التحليلي المناسب.",
+      correctAccounts: [
+        { accountCode: "510000", side: "debit", amount: 8000 },
+        { accountCode: "101000", side: "credit", amount: 8000 }
+      ],
+      explanation: "المصروفات طبيعتها مدينة بـ 8,000 ج.م، والبنوك أصل يقل بالجانب الدائن بـ 8,000 ج.م."
+    },
+    {
+      id: "p4",
+      title: "تمرين 4: إثبات استحقاق الرواتب والأجور واستقطاع التأمينات",
+      difficulty: "خبير ERP 🏆",
+      story: "إثبات استحقاق الرواتب الإجمالية للموظفين بمبلغ 30,000 ج.م، مع خصم تأمينات اجتماعية مستحقة 3,000 ج.م، وسداد الصافي نقدًا من الخزينة.",
+      goalDescription: "قم بتوجيه القيد المركب للاستحقاق والاستقطاعات والخزينة.",
+      correctAccounts: [
+        { accountCode: "520000", side: "debit", amount: 30000 },
+        { accountCode: "230000", side: "credit", amount: 3000 },
+        { accountCode: "102000", side: "credit", amount: 27000 }
+      ],
+      explanation: "مصروف الأجور والرواتب مدين بالإجمالي 30,000 ج.م. التزامات التأمينات دائنة بـ 3,000 ج.م. الخزينة دائنة بالصافي المسدد 27,000 ج.م."
+    }
+  ];
+
+  const [practiceIndex, setPracticeIndex] = useState(0);
+  const [practiceItems, setPracticeItems] = useState<OdooJournalItem[]>([
+    { id: "pr1", accountCode: "151000", accountName: "الأصول الثابتة - أجهزة كمبيوتر وتكنولوجيا", accountType: "Asset", partner: "شركة التكنولوجيا", label: "شراء أجهزة كمبيوتر", analyticAccount: "الإدارة العامة والتنفيذية", tax: "بدون ضريبة (0%)", debit: 25000, credit: 0 },
+    { id: "pr2", accountCode: "102000", accountName: "الصندوق / الخزينة الرئيسية", accountType: "Asset", partner: "الخزينة الرئيسية", label: "سداد نقدًا", analyticAccount: "بدون مركز تكلفة", tax: "بدون ضريبة (0%)", debit: 0, credit: 25000 }
+  ]);
+
+  const [practiceCheckFeedback, setPracticeCheckFeedback] = useState<{
+    status: "success" | "error";
+    message: string;
+    whyText: string;
+    correctionSteps: string;
+  } | null>(null);
+
+  // Handle Practice Check Logic
+  const handleVerifyPracticeEntry = () => {
+    playSound.click();
+    const scenario = ODOO_PRACTICE_SCENARIOS[practiceIndex];
+    const totalDeb = practiceItems.reduce((s, i) => s + (Number(i.debit) || 0), 0);
+    const totalCred = practiceItems.reduce((s, i) => s + (Number(i.credit) || 0), 0);
+
+    // Check 1: Balance
+    if (Math.abs(totalDeb - totalCred) > 0.01) {
+      playSound.error();
+      setPracticeCheckFeedback({
+        status: "error",
+        message: "❌ القيد غير متوازن ماليًا!",
+        whyText: `مجموع أسطر المدين (${totalDeb.toLocaleString("ar-EG")} ج.م) لا يساوي مجموع أسطر الدائن (${totalCred.toLocaleString("ar-EG")} ج.م). الفرق الحالي: ${Math.abs(totalDeb - totalCred).toLocaleString("ar-EG")} ج.م.`,
+        correctionSteps: "في نظام Odoo ERP والمعايير المحاسبية الدولية، يرفض النظام ترحيل القيد إذا كان الفرق أكبر من صفر. قم بضبط القيم ليتساوى إجمالي المدين والدائن."
+      });
+      return;
+    }
+
+    if (totalDeb === 0) {
+      playSound.error();
+      setPracticeCheckFeedback({
+        status: "error",
+        message: "⚠️ القيد يحتوي على قيم صفرية!",
+        whyText: "لم تقم بمدخلات مالية حقيقية للبنود.",
+        correctionSteps: "أدخل المبالغ المالية الصحيحة للمدين والدائن حسب نص التمرين."
+      });
+      return;
+    }
+
+    // Check 2: Correct accounts and sides
+    let isMatch = true;
+    let errorReason = "";
+    let errorWhy = "";
+
+    for (const req of scenario.correctAccounts) {
+      const matchedItem = practiceItems.find((i) => i.accountCode === req.accountCode);
+      if (!matchedItem) {
+        isMatch = false;
+        errorReason = `حساب مفقود في القيد: [${req.accountCode}]`;
+        errorWhy = `لم تقم باختيار الحساب المالي المخصص في شجرة حسابات Odoo لهذا القيد (${req.accountCode}).`;
+        break;
+      }
+
+      const itemAmount = req.side === "debit" ? matchedItem.debit : matchedItem.credit;
+      const wrongSideAmount = req.side === "debit" ? matchedItem.credit : matchedItem.debit;
+
+      if (wrongSideAmount > 0) {
+        isMatch = false;
+        errorReason = `وضع القيمة في الجانب الخاطئ للحساب [${req.accountCode}]`;
+        errorWhy = `لقد وضعت المبلغ في جانب الـ ${req.side === "debit" ? "دائن (Credit)" : "مدين (Debit)"} بينما يجب أن يكون في جانب الـ ${req.side === "debit" ? "المدين (Debit)" : "الدائن (Credit)"} حسب طبيعة الحساب المحاسبي!`;
+        break;
+      }
+
+      if (Math.abs(itemAmount - req.amount) > 1) {
+        isMatch = false;
+        errorReason = `المبلغ غير دقيق للحساب [${req.accountCode}]`;
+        errorWhy = `المبلغ المكتوب هو ${itemAmount.toLocaleString("ar-EG")} ج.م بينما المبلغ المطلوب حسب معطيات التمرين هو ${req.amount.toLocaleString("ar-EG")} ج.م.`;
+        break;
+      }
+    }
+
+    if (!isMatch) {
+      playSound.error();
+      setPracticeCheckFeedback({
+        status: "error",
+        message: `❌ خطأ في التوجيه المحاسبي: ${errorReason}`,
+        whyText: errorWhy,
+        correctionSteps: `💡 التصويب الصحيح وفق قواعد أودو:\n${scenario.explanation}`
+      });
+    } else {
+      playSound.levelUp();
+      setPracticeCheckFeedback({
+        status: "success",
+        message: "🎉 ممتاز جداً! التوجيه المحاسبي وقيد Odoo صحيح 100%",
+        whyText: scenario.explanation,
+        correctionSteps: "تم إحراز نقاط الخبرة (XP). يمكنك الانتقال للتمرين التالي لتطوير مهاراتك في ERP!"
+      });
+      if (onAwardXp) {
+        onAwardXp(25, "خبير قيود Odoo 🌟", `أتقنت حظر أخطاء أودو في ${scenario.title}`);
+      }
+    }
+  };
+
+  // Add line in Practice
+  const handleAddPracticeLine = () => {
+    playSound.click();
+    const newItem: OdooJournalItem = {
+      id: Date.now().toString(),
+      accountCode: "101000",
+      accountName: "البنك - الحساب الجاري",
+      accountType: "Asset",
+      partner: "شريك جديد",
+      label: "بند قيد تمرين",
+      analyticAccount: "بدون مركز تكلفة",
+      tax: "بدون ضريبة (0%)",
+      debit: 0,
+      credit: 0
+    };
+    setPracticeItems((prev) => [...prev, newItem]);
+  };
 
   const [voucherNo, setVoucherNo] = useState(currentRecord?.name || "MISC/2026/08/0001");
   const [journalType, setJournalType] = useState(currentRecord?.journal || "Miscellaneous Operations (عمليات متنوعة)");
@@ -351,10 +573,86 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
   // Form Notebook Tab ("items" | "explanation" | "gl" | "other")
   const [activeFormTab, setActiveFormTab] = useState<"items" | "explanation" | "gl" | "other">("items");
 
+  // Chatter Tab Mode ("chat" | "notes" | "scenarios")
+  const [chatterTab, setChatterTab] = useState<"chat" | "notes" | "scenarios">("chat");
+
+  // Odoo AI Interactive Chat Messages State
+  const [chatMessages, setChatMessages] = useState<Array<{ id: string; sender: "user" | "odoo_ai"; text: string; time: string }>>([
+    {
+      id: "m1",
+      sender: "odoo_ai",
+      text: "مرحباً بك في شات Odoo ERP المحاسبي! 🟣\nأنا مساعدك الذكي لمراجعة وتوجيه قيود اليومية. يمكنك استفساري عن أي قيد، تحليل الحسابات، ضريبة القيمة المضافة، أو كيفية معالجة الحسابات الدائنة والمدينة.",
+      time: "الآن"
+    }
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [isChatLoading, setIsChatLoading] = useState(false);
+
+  // Send Odoo AI Chat Message
+  const handleSendOdooChatMessage = async (e?: React.FormEvent, customMsg?: string) => {
+    if (e) e.preventDefault();
+    const msg = (customMsg || chatInput).trim();
+    if (!msg || isChatLoading) return;
+
+    playSound.click();
+    const nowStr = new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+    const userMsgObj = { id: Date.now().toString(), sender: "user" as const, text: msg, time: nowStr };
+
+    setChatMessages((prev) => [...prev, userMsgObj]);
+    if (!customMsg) setChatInput("");
+    setIsChatLoading(true);
+
+    try {
+      const response = await fetch("/api/odoo-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: msg,
+          currentEntry: currentRecord,
+          history: chatMessages.map((m) => ({ role: m.sender === "user" ? "user" : "model", text: m.text }))
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "تعذر الحصول على إجابة من شات Odoo.");
+
+      const replyText = data.reply || "أهلاً بك! أنا مساعد Odoo المحاسبي. كيف يمكنني مساعدتك؟";
+      playSound.levelUp();
+
+      const aiMsgObj = { id: (Date.now() + 1).toString(), sender: "odoo_ai" as const, text: replyText, time: nowStr };
+      setChatMessages((prev) => [...prev, aiMsgObj]);
+
+      // Sync with audit trail notes
+      setChatterNotes((prev) => [
+        {
+          id: Date.now().toString(),
+          user: "مساعد Odoo الذكي",
+          text: `[سؤال]: ${msg}\n[رد Odoo]: ${replyText.slice(0, 90)}...`,
+          time: "الآن",
+          type: "note"
+        },
+        ...prev
+      ]);
+    } catch (err: any) {
+      console.error(err);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          sender: "odoo_ai",
+          text: `⚠️ تعذر الاتصال بمساعد Odoo الذكي: ${err.message || "يرجى التحقق من المفتاح بالبيئة"}`,
+          time: nowStr
+        }
+      ]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
   // Chatter Messages
   const [chatterNotes, setChatterNotes] = useState<Array<{ id: string; user: string; text: string; time: string; type: "audit" | "note" }>>([
     { id: "c1", user: "نظام Odoo ERP", text: "تم إنشاء القيد المحاسبي في حالة مسودة (Draft).", time: "اليوم 10:00 ص", type: "audit" },
-    { id: "c2", user: "المحاسب المالي", text: "يرجى مراجعة القيمة المضافة ومراكز التكلفة قبل التترحيل.", time: "اليوم 10:15 ص", type: "note" }
+    { id: "c2", user: "المحاسب المالي", text: "يرجى مراجعة القيمة المضافة ومراكز التكلفة قبل الترحيل.", time: "اليوم 10:15 ص", type: "note" }
   ]);
   const [newNoteInput, setNewNoteInput] = useState("");
 
@@ -610,7 +908,7 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
         if (item.id !== id) return item;
 
         if (field === "accountCode") {
-          const selectedAcc = ODOO_ACCOUNTS.find((a) => a.code === value);
+          const selectedAcc = accountsList.find((a) => a.code === value);
           return {
             ...item,
             accountCode: value,
@@ -622,6 +920,89 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
         return { ...item, [field]: value };
       })
     );
+  };
+
+  // Calculate dynamic account running balance from posted entries
+  const calculateAccountBalances = (accCode: string, accType: string, openingBal = 0) => {
+    let totalDebit = 0;
+    let totalCredit = 0;
+    let txCount = 0;
+
+    entries.forEach((entry) => {
+      if (entry.status === "posted") {
+        entry.items.forEach((item) => {
+          if (item.accountCode === accCode) {
+            totalDebit += Number(item.debit) || 0;
+            totalCredit += Number(item.credit) || 0;
+            txCount++;
+          }
+        });
+      }
+    });
+
+    let netBalance = openingBal;
+    if (accType === "Asset" || accType === "Expense") {
+      netBalance = openingBal + totalDebit - totalCredit;
+    } else {
+      netBalance = openingBal + totalCredit - totalDebit;
+    }
+
+    return { totalDebit, totalCredit, netBalance, txCount };
+  };
+
+  // Handle adding new account to COA
+  const handleAddNewAccount = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAccountForm.code.trim() || !newAccountForm.name.trim()) {
+      setNotification({ msg: "يرجى تعبئة رمز واسم الحساب المحاسبي!", type: "warning" });
+      return;
+    }
+
+    if (accountsList.some((a) => a.code === newAccountForm.code.trim())) {
+      setNotification({ msg: `كود الحساب (${newAccountForm.code.trim()}) موجود بالفعل في شجرة الحسابات!`, type: "warning" });
+      return;
+    }
+
+    playSound.success();
+    const cleanName = newAccountForm.name.trim();
+    const formattedName = cleanName.startsWith(newAccountForm.code.trim())
+      ? cleanName
+      : `${newAccountForm.code.trim()} ${cleanName}`;
+
+    const newAcc: OdooAccount = {
+      code: newAccountForm.code.trim(),
+      name: formattedName,
+      type: newAccountForm.type,
+      category: newAccountForm.category || "حساب فرعي مخصص",
+      openingBalance: Number(newAccountForm.openingBalance) || 0,
+      isCustom: true
+    };
+
+    setAccountsList((prev) => [...prev, newAcc]);
+    setIsAddAccountModalOpen(false);
+    setNewAccountForm({
+      code: "",
+      name: "",
+      type: "Asset",
+      category: "أصول متداولة",
+      openingBalance: 0
+    });
+
+    setNotification({
+      msg: `تم إضافة الحساب المحاسبي (${formattedName}) بنجاح لشجرة حسابات أودو! 🌳`,
+      type: "success"
+    });
+
+    if (onAwardXp) {
+      onAwardXp(15, "إضافة حساب أودو جديد 🌳", `سجلت الحساب رقم (${newAcc.code}) في دليل شجرة الحسابات!`);
+    }
+  };
+
+  // Handle deleting custom account
+  const handleDeleteCustomAccount = (accCode: string) => {
+    playSound.click();
+    setAccountsList((prev) => prev.filter((a) => a.code !== accCode));
+    setNotification({ msg: `تم حذف الحساب (${accCode}) من شجرة الحسابات.`, type: "info" });
   };
 
   // Remove line
@@ -848,65 +1229,128 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
   });
 
   return (
-    <div className="space-y-4 pb-12 text-right dir-rtl font-sans bg-[#0E0B12] text-slate-100 p-2 sm:p-4 rounded-3xl min-h-screen">
+    <div className="w-full space-y-4 pb-12 text-right dir-rtl font-sans bg-[#0E0B12] text-slate-100 p-2 sm:p-4 rounded-3xl min-h-screen">
       
       {/* ODOO SYSTEM NAVIGATION HEADER / TOP BAR */}
       <div className="bg-[#1C1625] border border-purple-500/30 rounded-2xl p-3 sm:p-4 shadow-xl flex flex-wrap items-center justify-between gap-3">
         
         {/* Left Brand & App Title */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#714B67] via-[#8F5982] to-[#008784] flex items-center justify-center text-white shadow-lg shadow-purple-900/40">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#714B67] via-[#8F5982] to-[#00A09D] flex items-center justify-center text-white shadow-lg shadow-purple-900/40">
             <Building2 className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-base sm:text-lg font-black text-white tracking-wide">Odoo v17 Accounting</span>
-              <span className="bg-[#714B67]/30 text-purple-200 border border-[#714B67]/60 text-[10px] font-black px-2 py-0.5 rounded-md">
-                محاكي أودو المحاسبي
+              <span className="bg-[#714B67]/40 text-purple-200 border border-[#714B67] text-[10px] font-black px-2 py-0.5 rounded-md">
+                محاكي أودو المحاسبي الأصلي
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">شاشة تسجيل وتوجيه قيود اليومية المحاسبية المعتمدة</p>
+            <p className="text-[11px] text-slate-400">شاشة تسجيل وتوجيه قيود اليومية المحاسبية واختبار المهارات</p>
           </div>
         </div>
 
-        {/* View Switchers & Controls (List View vs Form View) */}
-        <div className="flex items-center gap-2">
-          <div className="bg-[#120D1A] p-1 rounded-xl border border-white/10 flex items-center gap-1">
-            <button
-              onClick={() => setViewMode("tree")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                viewMode === "tree"
-                  ? "bg-[#714B67] text-white shadow-md font-black"
-                  : "text-slate-400 hover:text-white"
-              }`}
-              title="عرض قائمة القيود (List / Tree View)"
-            >
-              <List className="w-4 h-4" />
-              <span className="hidden sm:inline">قائمة القيود</span>
-            </button>
-
-            <button
-              onClick={() => setViewMode("form")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                viewMode === "form"
-                  ? "bg-[#714B67] text-white shadow-md font-black"
-                  : "text-slate-400 hover:text-white"
-              }`}
-              title="عرض استمارة القيد (Form View)"
-            >
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">استمارة القيد</span>
-            </button>
-          </div>
+        {/* 3 Main Sections Tabs Switcher */}
+        <div className="flex items-center gap-1.5 bg-[#120D1A] p-1.5 rounded-2xl border border-white/10 overflow-x-auto">
+          <button
+            onClick={() => { playSound.click(); setMainSectionTab("editor"); }}
+            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer ${
+              mainSectionTab === "editor"
+                ? "bg-gradient-to-r from-[#714B67] to-[#00A09D] text-white shadow-lg shadow-purple-900/40 ring-1 ring-white/20"
+                : "text-slate-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <FileText className="w-4 h-4 text-purple-300" />
+            <span>محاكي قيود أودو</span>
+          </button>
 
           <button
-            onClick={handleCreateNew}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-600/30 transition-all cursor-pointer flex items-center gap-1.5 border border-emerald-400/30"
+            onClick={() => { playSound.click(); setMainSectionTab("practice"); }}
+            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer ${
+              mainSectionTab === "practice"
+                ? "bg-gradient-to-r from-[#714B67] to-[#00A09D] text-white shadow-lg shadow-purple-900/40 ring-1 ring-white/20"
+                : "text-slate-400 hover:text-white hover:bg-white/5"
+            }`}
           >
-            <Plus className="w-4 h-4" />
-            <span>جديد (New)</span>
+            <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+            <span>اتعلم قيود أودو 🎯</span>
+          </button>
+
+          <button
+            onClick={() => { playSound.click(); setMainSectionTab("guide"); }}
+            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer ${
+              mainSectionTab === "guide"
+                ? "bg-gradient-to-r from-[#714B67] to-[#00A09D] text-white shadow-lg shadow-purple-900/40 ring-1 ring-white/20"
+                : "text-slate-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <BookOpen className="w-4 h-4 text-cyan-300" />
+            <span>دليل أودو المحاسبي من أ إلى ي 📚</span>
+          </button>
+
+          <button
+            onClick={() => { playSound.click(); setMainSectionTab("coa"); }}
+            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer ${
+              mainSectionTab === "coa"
+                ? "bg-gradient-to-r from-[#714B67] to-[#00A09D] text-white shadow-lg shadow-purple-900/40 ring-1 ring-white/20"
+                : "text-slate-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <Grid className="w-4 h-4 text-emerald-300" />
+            <span>شجرة الحسابات (Chart of Accounts) 🌳</span>
           </button>
         </div>
+
+        {/* View Switchers & Controls (List View vs Form View - Only visible in editor) */}
+        {mainSectionTab === "editor" && (
+          <div className="flex items-center gap-2">
+            <div className="bg-[#120D1A] p-1 rounded-xl border border-white/10 flex items-center gap-1">
+              <button
+                onClick={() => setViewMode("tree")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === "tree"
+                    ? "bg-[#714B67] text-white shadow-md font-black"
+                    : "text-slate-400 hover:text-white"
+                }`}
+                title="عرض قائمة القيود (List / Tree View)"
+              >
+                <List className="w-4 h-4" />
+                <span className="hidden sm:inline">قائمة القيود</span>
+              </button>
+
+              <button
+                onClick={() => setViewMode("form")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === "form"
+                    ? "bg-[#714B67] text-white shadow-md font-black"
+                    : "text-slate-400 hover:text-white"
+                }`}
+                title="عرض استمارة القيد (Form View)"
+              >
+                <FileText className="w-4 h-4" />
+                <span className="hidden sm:inline">استمارة القيد</span>
+              </button>
+            </div>
+
+            <button
+              onClick={handleCreateNew}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-600/30 transition-all cursor-pointer flex items-center gap-1.5 border border-emerald-400/30"
+            >
+              <Plus className="w-4 h-4" />
+              <span>جديد (New)</span>
+            </button>
+
+            {/* Odoo Chatter & AI Button Trigger */}
+            <button
+              onClick={() => { playSound.click(); setIsChatterOpen(true); }}
+              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#714B67] to-[#00A09D] hover:opacity-90 text-white text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer transition-all hover:scale-105 shadow-lg shadow-purple-900/40 border border-teal-300/30"
+              title="فتح شات ومساعد أودو المحاسبي الذكي"
+            >
+              <Bot className="w-4 h-4 text-amber-300 animate-bounce" />
+              <span className="hidden sm:inline">Odoo Chatter 💬</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* NOTIFICATION FEEDBACK TOAST */}
@@ -924,8 +1368,11 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
         </div>
       )}
 
-      {/* VIEW MODE 1: ODOO LIST / TREE VIEW */}
-      {viewMode === "tree" && (
+      {/* MAIN SECTION TAB 1: ODOO EDITOR (LIST & FORM VIEWS) */}
+      {mainSectionTab === "editor" && (
+        <>
+          {/* VIEW MODE 1: ODOO LIST / TREE VIEW */}
+          {viewMode === "tree" && (
         <div className="bg-[#150F21] border border-purple-500/30 rounded-3xl p-4 sm:p-6 space-y-4 shadow-2xl">
           {/* SEARCH & ADVANCED FILTER TOOLBAR */}
           <div className="flex flex-col gap-3 pb-4 border-b border-white/10">
@@ -1099,12 +1546,12 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
         </div>
       )}
 
-      {/* VIEW MODE 2: ODOO SINGLE ENTRY FORM SHEET */}
+      {/* VIEW MODE 2: ODOO SINGLE ENTRY FORM SHEET (FULL SCREEN WIDTH) */}
       {viewMode === "form" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div className="w-full space-y-4">
           
-          {/* MAIN FORM SHEET CANVAS (Cols 8 or 9) */}
-          <div className="lg:col-span-8 space-y-4">
+          {/* MAIN FORM SHEET CANVAS (FULL WIDTH) */}
+          <div className="w-full space-y-4">
             
             {/* ODOO FORM CONTROL BAR / BREADCRUMBS & PAGINATION */}
             <div className="bg-[#160E1F] border border-purple-500/30 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3">
@@ -1169,6 +1616,15 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
                 >
                   <Scale className="w-4 h-4 text-emerald-400" />
                   <span>موازنة القيد</span>
+                </button>
+
+                <button
+                  onClick={() => { playSound.click(); setFieldHelperOpen(true); }}
+                  className="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-[#714B67] to-[#00A09D] hover:opacity-90 border border-teal-300/40 text-white text-xs sm:text-sm font-black flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105 shadow-lg shadow-purple-900/30 ring-1 ring-white/20"
+                  title="مساعد حقول أودو والتوجيه المحاسبي والتأثير المالي"
+                >
+                  <HelpCircle className="w-4 h-4 text-amber-300 animate-bounce" />
+                  <span>💡 مساعد الحقول وإرشادات Odoo</span>
                 </button>
 
                 <button
@@ -1491,6 +1947,7 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
                                     value={item.accountCode}
                                     onChange={(newCode) => handleUpdateItem(item.id, "accountCode", newCode)}
                                     disabled={status === "posted"}
+                                    accounts={accountsList}
                                   />
                                 </td>
 
@@ -1745,98 +2202,1159 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
               </div>
             </div>
           </div>
+        </div>
+      )}
+      </>
+      )}
 
-          {/* RIGHT SIDEBAR: ODOO CHATTER & AUDIT TRAIL (Cols 4 or 3) */}
-          <div className="lg:col-span-4 space-y-4">
+      {/* FLOATING ODOO CHATTER & AI ASSISTANT TRIGGER BUTTON */}
+      <div className="fixed bottom-6 left-6 z-40">
+        <button
+          onClick={() => { playSound.click(); setIsChatterOpen(!isChatterOpen); }}
+          className="group relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-[#714B67] via-[#8F5982] to-[#00A09D] text-white font-black text-xs sm:text-sm shadow-2xl shadow-purple-900/80 border-2 border-white/20 transition-all transform hover:scale-110 active:scale-95 cursor-pointer"
+          title="فتح/إغلاق Odoo Chatter & AI Assistant"
+        >
+          <div className="relative">
+            <Bot className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300 animate-bounce" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#120a1c] animate-pulse" />
+          </div>
+          <span className="font-black text-xs sm:text-sm">Odoo Chatter & AI</span>
+          <span className="bg-white/20 px-2 py-0.5 rounded-full text-[10px] font-mono">
+            {chatMessages.length}
+          </span>
+        </button>
+      </div>
+
+      {/* ODOO CHATTER & AI ASSISTANT FLOATING MODAL DRAWER */}
+      {isChatterOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex justify-start sm:justify-end p-2 sm:p-4 animate-fadeIn dir-rtl text-right">
+          <div className="w-full max-w-lg sm:max-w-md h-full max-h-[92vh] my-auto bg-[#171022] border-2 border-[#714B67] rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-col justify-between relative overflow-hidden space-y-4">
             
-            {/* Odoo Practical Exercises Card */}
-            <div className="bg-[#181123] border border-purple-500/30 rounded-3xl p-4 space-y-3 shadow-xl">
-              <div className="flex items-center gap-2 text-amber-300 font-black text-xs">
-                <Zap className="w-4 h-4 text-amber-400 animate-pulse" />
-                <span>تحميل تمارين أودو العملية (Odoo Scenarios)</span>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#714B67]/20 rounded-full blur-2xl pointer-events-none" />
+
+            {/* Odoo Chatter Drawer Header */}
+            <div className="space-y-3 border-b border-white/10 pb-3 relative z-10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#714B67] to-[#00A09D] flex items-center justify-center text-white shadow-md">
+                    <Bot className="w-5 h-5 text-amber-300" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-white flex items-center gap-2">
+                      <span>Odoo Chatter & AI Assistant</span>
+                      <span className="bg-[#00A09D]/20 text-cyan-300 border border-[#00A09D]/40 text-[9px] font-black px-1.5 py-0.5 rounded">
+                        v17 Live
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-slate-400">المساعد المحاسبي الذكي وشات أودو التفاعلي</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => { playSound.click(); setIsChatterOpen(false); }}
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center font-black text-sm cursor-pointer transition-colors"
+                  title="إغلاق الشات"
+                >
+                  ✕
+                </button>
               </div>
 
-              <div className="space-y-2">
-                {INITIAL_ENTRIES.map((rec, i) => (
-                  <div
-                    key={rec.id}
-                    className="w-full text-right p-3 rounded-2xl bg-[#0e0817] hover:bg-[#1f152f] border border-white/10 transition-all group flex flex-col justify-between gap-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-black text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded border border-purple-400/30">
-                        {rec.name}
-                      </span>
-                      <span className="text-[10px] text-slate-400">{rec.journal.split(" ")[0]}</span>
-                    </div>
-                    <span className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">
-                      {rec.partner}
-                    </span>
-                    <div className="flex items-center gap-1.5 pt-1 border-t border-white/5">
-                      <button
-                        onClick={() => loadEntry(i)}
-                        className="flex-1 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-bold text-slate-300 flex items-center justify-center gap-1 cursor-pointer transition-colors"
-                      >
-                        <Eye className="w-3 h-3 text-purple-400" />
-                        <span>تحميل</span>
-                      </button>
-                      <button
-                        onClick={() => handleExplainJournalWithAi(rec)}
-                        className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/30 text-[11px] font-bold text-amber-200 flex items-center gap-1 cursor-pointer transition-all hover:scale-105"
-                        title="شرح المنطق المحاسبي لهذا القيد"
-                      >
-                        <Sparkles className="w-3 h-3 text-amber-400 animate-pulse" />
-                        <span>شرح المساعد</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              {/* Chatter Navigation Tabs */}
+              <div className="grid grid-cols-3 gap-1 bg-[#0c0714] p-1 rounded-2xl border border-white/10 text-[11px] font-black">
+                <button
+                  type="button"
+                  onClick={() => setChatterTab("chat")}
+                  className={`py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                    chatterTab === "chat"
+                      ? "bg-[#714B67] text-white shadow-md font-black"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>شات أودو</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setChatterTab("notes")}
+                  className={`py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                    chatterTab === "notes"
+                      ? "bg-[#714B67] text-white shadow-md font-black"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>ملاحظات ({chatterNotes.length})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setChatterTab("scenarios")}
+                  className={`py-2 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                    chatterTab === "scenarios"
+                      ? "bg-[#714B67] text-white shadow-md font-black"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-300" />
+                  <span>تمارين Odoo</span>
+                </button>
               </div>
             </div>
 
-            {/* Odoo Chatter Panel (Log Note, Send Message, Audit Trail) */}
-            <div className="bg-[#181123] border border-purple-500/30 rounded-3xl p-4 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2 text-white font-black text-xs">
-                  <MessageSquare className="w-4 h-4 text-purple-400" />
-                  <span>Odoo Chatter (سجل الملاحظات والتدقيق)</span>
-                </div>
-                <span className="text-[10px] text-slate-400 font-mono">Audit Log</span>
-              </div>
-
-              {/* Add Note Form */}
-              <form onSubmit={handleAddChatterNote} className="space-y-2">
-                <textarea
-                  rows={2}
-                  value={newNoteInput}
-                  onChange={(e) => setNewNoteInput(e.target.value)}
-                  placeholder="أضف ملاحظة محاسبية أو توجيه على القيد..."
-                  className="w-full bg-[#0e0817] border border-white/10 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 outline-none focus:border-purple-400"
-                />
-                <button
-                  type="submit"
-                  className="w-full py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>إضافة ملاحظة (Log Note)</span>
-                </button>
-              </form>
-
-              {/* Timeline Notes */}
-              <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
-                {chatterNotes.map((note) => (
-                  <div key={note.id} className="p-3 rounded-2xl bg-[#0e0817] border border-white/5 space-y-1 text-xs">
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="font-bold text-purple-300">{note.user}</span>
-                      <span className="text-slate-500 font-mono">{note.time}</span>
+            {/* CHATTER DRAWER BODY */}
+            <div className="flex-1 overflow-y-auto pr-1 space-y-3 relative z-10">
+              {/* CHATTER TAB 1: ODOO INTERACTIVE AI CHAT */}
+              {chatterTab === "chat" && (
+                <div className="space-y-3">
+                  {/* Quick Suggestions Chips */}
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-bold text-purple-300 block">أسئلة محاسبية مقترحة:</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleSendOdooChatMessage(undefined, "اشرح لي المنطق المحاسبي للقيد المعروض حالياً بكافة تفاصيله")}
+                        className="px-2.5 py-1 rounded-lg bg-[#211536] hover:bg-[#2d1c4a] border border-[#714B67]/40 text-[10px] text-purple-200 font-bold transition-all cursor-pointer text-right"
+                      >
+                        💡 اشرح القيد الحالي
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSendOdooChatMessage(undefined, "كيف أسجل فاتورة مبيعات آجل مع ضريبة القيمة المضافة 14% في أودو؟")}
+                        className="px-2.5 py-1 rounded-lg bg-[#211536] hover:bg-[#2d1c4a] border border-[#714B67]/40 text-[10px] text-purple-200 font-bold transition-all cursor-pointer text-right"
+                      >
+                        🧾 فاتورة مبيعات + ضريبة
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSendOdooChatMessage(undefined, "كيف أتحقق من توازن القيد وطريقة ربط حساب بمركز تكلفة بأودو؟")}
+                        className="px-2.5 py-1 rounded-lg bg-[#211536] hover:bg-[#2d1c4a] border border-[#714B67]/40 text-[10px] text-purple-200 font-bold transition-all cursor-pointer text-right"
+                      >
+                        ⚖️ توازن القيد ومراكز التكلفة
+                      </button>
                     </div>
-                    <p className="text-slate-300 leading-snug">{note.text}</p>
                   </div>
-                ))}
-              </div>
+
+                  {/* Messages Feed Container */}
+                  <div className="space-y-3 max-h-72 sm:max-h-80 overflow-y-auto pr-1 text-xs">
+                    {chatMessages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`p-3 rounded-2xl space-y-1.5 transition-all ${
+                          msg.sender === "user"
+                            ? "bg-[#25183a] border border-purple-400/30 text-white mr-4"
+                            : "bg-[#0f0a17] border border-[#714B67]/40 text-slate-200 ml-1"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between text-[10px]">
+                          <div className="flex items-center gap-1.5">
+                            {msg.sender === "odoo_ai" ? (
+                              <span className="font-black text-cyan-300 flex items-center gap-1">
+                                <Bot className="w-3 h-3 text-[#00A09D]" />
+                                <span>مساعد Odoo الذكي</span>
+                              </span>
+                            ) : (
+                              <span className="font-black text-purple-300 flex items-center gap-1">
+                                <User className="w-3 h-3 text-purple-400" />
+                                <span>المحاسب (أنت)</span>
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-slate-500 font-mono">{msg.time}</span>
+                        </div>
+
+                        <p className="whitespace-pre-line leading-relaxed text-xs font-sans">
+                          {msg.text}
+                        </p>
+
+                        {msg.sender === "odoo_ai" && (
+                          <div className="flex items-center gap-2 pt-1 border-t border-white/5">
+                            <button
+                              type="button"
+                              onClick={() => toggleSpeechAi(msg.text)}
+                              className="text-[10px] text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1 cursor-pointer"
+                            >
+                              <Volume2 className="w-3 h-3" />
+                              <span>استماع</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                    {isChatLoading && (
+                      <div className="p-3 rounded-2xl bg-[#0f0a17] border border-[#714B67]/40 text-purple-300 text-xs flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin text-[#00A09D]" />
+                        <span>جاري تحليل استفسارك في Odoo AI...</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Input & Send Form */}
+                  <form onSubmit={handleSendOdooChatMessage} className="space-y-2 pt-1 border-t border-white/10">
+                    <div className="relative">
+                      <textarea
+                        rows={2}
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendOdooChatMessage();
+                          }
+                        }}
+                        placeholder="اسأل مساعد Odoo الذكي عن أي قيد أو حساب..."
+                        className="w-full bg-[#0c0714] border border-[#714B67]/50 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 outline-none focus:border-[#00A09D] transition-colors resize-none"
+                      />
+                    </div>
+                    
+                    <button
+                      type="submit"
+                      disabled={isChatLoading || !chatInput.trim()}
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#714B67] to-[#00A09D] hover:opacity-90 disabled:opacity-40 text-white font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all"
+                    >
+                      {isChatLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>جاري التفكير...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-3.5 h-3.5" />
+                          <span>إرسال لمساعد Odoo</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* CHATTER TAB 2: AUDIT LOG NOTES */}
+              {chatterTab === "notes" && (
+                <div className="space-y-3">
+                  <form onSubmit={handleAddChatterNote} className="space-y-2">
+                    <textarea
+                      rows={2}
+                      value={newNoteInput}
+                      onChange={(e) => setNewNoteInput(e.target.value)}
+                      placeholder="أضف ملاحظة توثيقية أو توجيه على هذا القيد..."
+                      className="w-full bg-[#0c0714] border border-white/10 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 outline-none focus:border-purple-400"
+                    />
+                    <button
+                      type="submit"
+                      className="w-full py-2 rounded-xl bg-[#714B67]/40 hover:bg-[#714B67]/70 border border-[#714B67]/60 text-purple-200 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>تسجيل ملاحظة (Log Note)</span>
+                    </button>
+                  </form>
+
+                  <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                    {chatterNotes.map((note) => (
+                      <div key={note.id} className="p-3 rounded-2xl bg-[#0e0817] border border-white/5 space-y-1 text-xs">
+                        <div className="flex items-center justify-between text-[10px]">
+                          <span className="font-bold text-purple-300">{note.user}</span>
+                          <span className="text-slate-500 font-mono">{note.time}</span>
+                        </div>
+                        <p className="text-slate-300 leading-snug whitespace-pre-line">{note.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* CHATTER TAB 3: ODOO SCENARIOS & EXERCISES */}
+              {chatterTab === "scenarios" && (
+                <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                  <div className="p-2.5 rounded-xl bg-[#211536] border border-purple-500/30 text-[11px] text-purple-200 font-bold">
+                    اختر تمرين عملي لتحميله مباشرة في شاشة أودو:
+                  </div>
+
+                  {INITIAL_ENTRIES.map((rec, i) => (
+                    <div
+                      key={rec.id}
+                      className="w-full text-right p-3 rounded-2xl bg-[#0e0817] hover:bg-[#1f152f] border border-white/10 transition-all group flex flex-col justify-between gap-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-black text-purple-300 bg-[#714B67]/30 px-2 py-0.5 rounded border border-[#714B67]/50">
+                          {rec.name}
+                        </span>
+                        <span className="text-[10px] text-slate-400">{rec.journal.split(" ")[0]}</span>
+                      </div>
+
+                      <span className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">
+                        {rec.partner}
+                      </span>
+
+                      <div className="flex items-center gap-1.5 pt-1 border-t border-white/5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            loadEntry(i);
+                            setIsChatterOpen(false);
+                          }}
+                          className="flex-1 py-1.5 rounded-lg bg-[#714B67] hover:bg-[#5a3b52] text-white text-[11px] font-bold flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-sm"
+                        >
+                          <Eye className="w-3 h-3 text-white" />
+                          <span>تحميل في القيد</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleExplainJournalWithAi(rec)}
+                          className="px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/30 text-[11px] font-bold text-amber-200 flex items-center gap-1 cursor-pointer transition-all"
+                          title="شرح المنطق المحاسبي لهذا القيد"
+                        >
+                          <Sparkles className="w-3 h-3 text-amber-400 animate-pulse" />
+                          <span>شرح المساعد</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
           </div>
+        </div>
+      )}
 
+      {/* MAIN SECTION TAB 2: ODOO PRACTICE & QUIZ LAB (اتعلم قيود أودو - شاشة مستقلة) */}
+      {mainSectionTab === "practice" && (
+        <div className={`space-y-6 animate-fadeIn ${
+          isPracticeFullscreen 
+            ? "fixed inset-0 z-50 overflow-y-auto bg-[#0A0612] p-4 sm:p-8 dir-rtl text-right min-h-screen" 
+            : "relative"
+        }`}>
+          {/* Practice Header Banner */}
+          <div className="bg-gradient-to-r from-[#1E132D] via-[#2A1B3D] to-[#170E24] border-2 border-[#714B67] rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-gradient-to-tr from-[#714B67] to-[#00A09D] text-white font-black shadow-lg">
+                  <Sparkles className="w-7 h-7 text-amber-300 animate-pulse" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl sm:text-2xl font-black text-white">اتعلم قيود أودو (Odoo Practice Lab)</h2>
+                    <span className="bg-amber-400/20 text-amber-300 border border-amber-400/40 text-xs font-black px-2.5 py-0.5 rounded-full">
+                      شاشة تمارين مستقلة
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-300">
+                    اختر التمرين وسجّل القيد بنفسك في استمارة أودو. عند ارتكاب أي خطأ، يُبيّن لك النظام موقع الخطأ بالتحديد والتفسير العلمي وفق المعايير!
+                  </p>
+                </div>
+              </div>
+
+              {/* Fullscreen & Scenario Switcher Controls */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => {
+                    playSound.click();
+                    setIsPracticeFullscreen(!isPracticeFullscreen);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 font-black text-xs flex items-center gap-1.5 cursor-pointer transition-all"
+                  title="توسيع الشاشة بالكامل للتمرين بدون تشتيت"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-300" />
+                  <span>{isPracticeFullscreen ? "إغلاق الشاشة الكاملة ✕" : "عرض في شاشة كاملة 🖥️"}</span>
+                </button>
+
+                {/* Practice Scenario Switcher Pills */}
+                <div className="flex items-center gap-1.5 bg-[#120a1c] p-1.5 rounded-2xl border border-white/10 overflow-x-auto">
+                  {ODOO_PRACTICE_SCENARIOS.map((sc, idx) => (
+                    <button
+                      key={sc.id}
+                      onClick={() => {
+                        playSound.click();
+                        setPracticeIndex(idx);
+                        setPracticeCheckFeedback(null);
+                      }}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap ${
+                        practiceIndex === idx
+                          ? "bg-[#714B67] text-white shadow-lg shadow-purple-900/50 ring-1 ring-white/30"
+                          : "text-slate-400 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      <span>{sc.title.split(":")[0]}</span>
+                      <span className="mr-1 text-[10px] opacity-80">({sc.difficulty})</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Active Scenario Card Details */}
+            {(() => {
+              const activeScenario = ODOO_PRACTICE_SCENARIOS[practiceIndex];
+              return (
+                <div className="p-4 rounded-2xl bg-[#140b21] border border-purple-500/30 space-y-2 text-xs sm:text-sm">
+                  <div className="flex items-center justify-between font-black">
+                    <span className="text-amber-300 text-sm flex items-center gap-1.5">
+                      <BookOpen className="w-4 h-4 text-amber-400" />
+                      <span>{activeScenario.title}</span>
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-200 border border-purple-500/30 text-xs">
+                      {activeScenario.difficulty}
+                    </span>
+                  </div>
+                  <p className="text-slate-200 leading-relaxed font-bold">
+                    📝 <b>المطلوب:</b> {activeScenario.story}
+                  </p>
+                  <p className="text-cyan-300 text-xs">
+                    🎯 <b>الهدف:</b> {activeScenario.goalDescription}
+                  </p>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Practice Interactive Odoo Sheet Container */}
+          <div className="bg-[#150F21] border-2 border-[#714B67] rounded-3xl p-5 sm:p-6 space-y-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-purple-400" />
+                <h3 className="text-base font-black text-white">استمارة قيد اليومية (Odoo Practice Entry Form)</h3>
+              </div>
+              <button
+                onClick={handleAddPracticeLine}
+                className="px-3.5 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>إضافة سطر قيد</span>
+              </button>
+            </div>
+
+            {/* Practice Journal Items Table */}
+            <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#0d0717]">
+              <table className="w-full text-right text-xs">
+                <thead>
+                  <tr className="bg-[#1a0e2e] text-slate-300 font-black border-b border-white/10">
+                    <th className="p-3 w-10 text-center">#</th>
+                    <th className="p-3 min-w-[200px]">الحساب المحاسبي (Account)</th>
+                    <th className="p-3 min-w-[150px]">الشرح / البيان (Label)</th>
+                    <th className="p-3 w-32 text-center">مدين (Debit)</th>
+                    <th className="p-3 w-32 text-center">دائن (Credit)</th>
+                    <th className="p-3 w-12 text-center">حذف</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-slate-200">
+                  {practiceItems.map((item, index) => (
+                    <tr key={item.id} className="hover:bg-purple-500/10 transition-colors">
+                      <td className="p-3 text-center font-mono text-slate-400">{index + 1}</td>
+                      <td className="p-2">
+                        <AccountAutocompleteInput
+                          value={item.accountCode}
+                          accounts={accountsList}
+                          onChange={(code) => {
+                            setPracticeItems((prev) =>
+                              prev.map((pi) => {
+                                if (pi.id !== item.id) return pi;
+                                const acc = accountsList.find((a) => a.code === code);
+                                return {
+                                  ...pi,
+                                  accountCode: code,
+                                  accountName: acc ? acc.name : pi.accountName,
+                                  accountType: acc ? (acc.type as any) : pi.accountType
+                                };
+                              })
+                            );
+                          }}
+                        />
+                      </td>
+                      <td className="p-2">
+                        <input
+                          type="text"
+                          value={item.label}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setPracticeItems((prev) =>
+                              prev.map((pi) => (pi.id === item.id ? { ...pi, label: val } : pi))
+                            );
+                          }}
+                          className="w-full bg-[#180f29] border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-purple-400"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <input
+                          type="number"
+                          value={item.debit || ""}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            setPracticeItems((prev) =>
+                              prev.map((pi) => (pi.id === item.id ? { ...pi, debit: val } : pi))
+                            );
+                          }}
+                          placeholder="0"
+                          className="w-full bg-[#180f29] border border-emerald-500/30 rounded-xl px-3 py-1.5 text-xs text-center font-mono font-black text-emerald-300 outline-none focus:border-emerald-400"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <input
+                          type="number"
+                          value={item.credit || ""}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value) || 0;
+                            setPracticeItems((prev) =>
+                              prev.map((pi) => (pi.id === item.id ? { ...pi, credit: val } : pi))
+                            );
+                          }}
+                          placeholder="0"
+                          className="w-full bg-[#180f29] border border-cyan-500/30 rounded-xl px-3 py-1.5 text-xs text-center font-mono font-black text-cyan-300 outline-none focus:border-cyan-400"
+                        />
+                      </td>
+                      <td className="p-2 text-center">
+                        <button
+                          onClick={() => {
+                            if (practiceItems.length <= 1) return;
+                            setPracticeItems((prev) => prev.filter((pi) => pi.id !== item.id));
+                          }}
+                          className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg cursor-pointer transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="bg-[#120721] font-mono font-black text-xs text-slate-200 border-t border-white/10">
+                    <td colSpan={3} className="p-3 text-left">مجموع أسطر القيد:</td>
+                    <td className="p-3 text-center text-emerald-400">
+                      {practiceItems.reduce((s, i) => s + (Number(i.debit) || 0), 0).toLocaleString("ar-EG")} ج.م
+                    </td>
+                    <td className="p-3 text-center text-cyan-400">
+                      {practiceItems.reduce((s, i) => s + (Number(i.credit) || 0), 0).toLocaleString("ar-EG")} ج.م
+                    </td>
+                    <td />
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* Verify & Check Button */}
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={handleVerifyPracticeEntry}
+                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#714B67] via-purple-700 to-[#00A09D] hover:opacity-95 text-white font-black text-sm sm:text-base shadow-xl shadow-purple-900/50 cursor-pointer transition-all hover:scale-105 flex items-center gap-2 border border-purple-400/40"
+              >
+                <Sparkles className="w-5 h-5 text-amber-300 animate-bounce" />
+                <span>التحقق واختبار القيد في أودو (Verify Entry)</span>
+              </button>
+            </div>
+
+            {/* Feedback & Error Analysis Box */}
+            {practiceCheckFeedback && (
+              <div className={`p-5 rounded-2xl border-2 space-y-3 animate-fadeIn ${
+                practiceCheckFeedback.status === "success"
+                  ? "bg-emerald-950/40 border-emerald-500 text-emerald-100"
+                  : "bg-red-950/50 border-red-500 text-red-100"
+              }`}>
+                <div className="flex items-center gap-2 font-black text-base sm:text-lg">
+                  {practiceCheckFeedback.status === "success" ? (
+                    <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-6 h-6 text-red-400 shrink-0 animate-bounce" />
+                  )}
+                  <span>{practiceCheckFeedback.message}</span>
+                </div>
+
+                <div className="space-y-2 text-xs sm:text-sm leading-relaxed font-sans">
+                  <div className="p-3 rounded-xl bg-black/30 border border-white/10 space-y-1">
+                    <span className="font-black text-amber-300 flex items-center gap-1.5">
+                      <Search className="w-4 h-4 text-amber-300" />
+                      <span>أين الخطأ بظبط؟</span>
+                    </span>
+                    <p className="text-slate-200">{practiceCheckFeedback.whyText}</p>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-black/30 border border-white/10 space-y-1">
+                    <span className="font-black text-cyan-300 flex items-center gap-1.5">
+                      <Lightbulb className="w-4 h-4 text-cyan-300" />
+                      <span>التفسير المحاسبي والقواعد في Odoo:</span>
+                    </span>
+                    <p className="text-slate-200 whitespace-pre-line">{practiceCheckFeedback.correctionSteps}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* MAIN SECTION TAB 3: ODOO ACCOUNTING GUIDE A-Z (دليل أودو المحاسبي من أ إلى ي) */}
+      {mainSectionTab === "guide" && (
+        <div className="space-y-6 animate-fadeIn text-right dir-rtl">
+          
+          {/* Guide Header Banner */}
+          <div className="bg-gradient-to-r from-[#1E132D] via-[#2A1B3D] to-[#170E24] border-2 border-[#714B67] rounded-3xl p-6 shadow-2xl space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-gradient-to-tr from-[#714B67] to-[#00A09D] text-white font-black shadow-lg">
+                <BookOpen className="w-7 h-7 text-cyan-300" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black text-white">دليل أودو المحاسبي الشامل من الألف إلى الياء (Odoo Accounting A-Z)</h2>
+                <p className="text-xs sm:text-sm text-slate-300">
+                  شرح تفصيلي خطوة بخطوة لمنطق Odoo ERP المحاسبي المعروض وفق معايير المحاسبة الدولية والممارسات العملية.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 7 Modules Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            {/* Chapter 1 */}
+            <div className="p-5 rounded-2xl bg-[#150d24] border border-purple-500/30 space-y-2 hover:border-[#00A09D] transition-colors shadow-lg">
+              <div className="flex items-center gap-2 font-black text-base text-purple-300">
+                <span className="w-7 h-7 rounded-xl bg-[#714B67] text-white flex items-center justify-center text-xs">1</span>
+                <h3>1. الفلسفة ونواة نظام Odoo المحاسبي</h3>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                يعتمد أودو على محرك قيد مزدوج آلي (Single Ledger & Double Entry System). كل حركة في المبيعات، المخزون، أو المشتريات تولّد قيد محاسبي خلفي تلقائي، بحيث تتطابق ميزانية الشركة لحظياً مع الواقع المالي بدون ترحيل يدوي منفصل.
+              </p>
+            </div>
+
+            {/* Chapter 2 */}
+            <div className="p-5 rounded-2xl bg-[#150d24] border border-purple-500/30 space-y-2 hover:border-[#00A09D] transition-colors shadow-lg">
+              <div className="flex items-center gap-2 font-black text-base text-cyan-300">
+                <span className="w-7 h-7 rounded-xl bg-[#00A09D] text-white flex items-center justify-center text-xs">2</span>
+                <h3>2. دفاتر اليومية (Journals) وتسلسلات الرقم التلقائي</h3>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                ينقسّم أودو العمليات إلى 5 دفاتر محددة:
+                <br />• <b>Customer Invoices:</b> فواتير العملاء
+                <br />• <b>Vendor Bills:</b> فواتير الموردين
+                <br />• <b>Bank / Cash:</b> البنك والصندوق
+                <br />• <b>Miscellaneous:</b> العمليات المتنوعة والتسويات
+              </p>
+            </div>
+
+            {/* Chapter 3 */}
+            <div className="p-5 rounded-2xl bg-[#150d24] border border-purple-500/30 space-y-2 hover:border-[#00A09D] transition-colors shadow-lg">
+              <div className="flex items-center gap-2 font-black text-base text-amber-300">
+                <span className="w-7 h-7 rounded-xl bg-amber-600 text-white flex items-center justify-center text-xs">3</span>
+                <h3>3. شجرة الحسابات والربط الآلي لضريبة 14%</h3>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                يحتوي أودو على دليل حسابات مرقم (Chart of Accounts). عند تحديد منتج خاضع لضريبة القيمة المضافة، يحسب أودو 14% تلقائياً ويوجّهها لحساب مصلحة الضرائب الدائنة أو المدينة فور اعتماد القيد.
+              </p>
+            </div>
+
+            {/* Chapter 4 */}
+            <div className="p-5 rounded-2xl bg-[#150d24] border border-purple-500/30 space-y-2 hover:border-[#00A09D] transition-colors shadow-lg">
+              <div className="flex items-center gap-2 font-black text-base text-emerald-300">
+                <span className="w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xs">4</span>
+                <h3>4. دورة حياة القيد: مسودة (Draft) وترحيل (Posted)</h3>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                • <b>Draft (مسودة):</b> القيد قابل للتعديل والإلغاء وتغيير القيم ولا يؤثر على القوائم المالية المعتمدة.
+                <br />• <b>Posted (مرحّل):</b> القيد مغلق والمعتمد ويُرحل فوراً للأستاذ العام وميزان المراجعة والميزانية.
+              </p>
+            </div>
+
+            {/* Chapter 5 */}
+            <div className="p-5 rounded-2xl bg-[#150d24] border border-purple-500/30 space-y-2 hover:border-[#00A09D] transition-colors shadow-lg">
+              <div className="flex items-center gap-2 font-black text-base text-indigo-300">
+                <span className="w-7 h-7 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xs">5</span>
+                <h3>5. المحاسبة التحليلية ومراكز التكلفة (Analytic Accounting)</h3>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                تسمح أودو بربط أسطر القيد بمركز تكلفة (Analytic Account) مثل "الإدارة العامة"، "مشروع أ"، "فرع القاهرة"، مما يعطي تقارير ربحية دقيقة لكل قسم بدون تعقيد شجرة الحسابات.
+              </p>
+            </div>
+
+            {/* Chapter 6 */}
+            <div className="p-5 rounded-2xl bg-[#150d24] border border-purple-500/30 space-y-2 hover:border-[#00A09D] transition-colors shadow-lg">
+              <div className="flex items-center gap-2 font-black text-base text-pink-300">
+                <span className="w-7 h-7 rounded-xl bg-pink-600 text-white flex items-center justify-center text-xs">6</span>
+                <h3>6. التسويات البنكية ومطابقة حسابات المتعاملين (Reconciliation)</h3>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                يقوم أودو بمطابقة الدفعات النقدية مع فواتير البيع والشراء لتقفيل الديون واستخراج تقارير أعمار الديون (Aged Receivables / Payables) بدقة عالية.
+              </p>
+            </div>
+
+            {/* Chapter 7 */}
+            <div className="p-5 rounded-2xl bg-[#150d24] border border-purple-500/30 md:col-span-2 space-y-2 hover:border-[#00A09D] transition-colors shadow-lg">
+              <div className="flex items-center gap-2 font-black text-base text-yellow-300">
+                <span className="w-7 h-7 rounded-xl bg-yellow-600 text-black font-black flex items-center justify-center text-xs">7</span>
+                <h3>7. القوائم والتقارير المالية الختامية (Financial Reports)</h3>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                تنتج القيود المرحّلة تلقائياً: ميزان المراجعة (Trial Balance)، دفتر الأستاذ العام (General Ledger)، قائمة الدخل (Profit & Loss)، والميزانية العمومية (Balance Sheet) التي يمكن تصديرها إلى Excel بنقرة زر!
+              </p>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* MAIN SECTION TAB 4: ODOO CHART OF ACCOUNTS (شجرة الحسابات المحاسبية) */}
+      {mainSectionTab === "coa" && (
+        <div className="space-y-6 animate-fadeIn">
+          
+          {/* Header Banner */}
+          <div className="bg-gradient-to-r from-[#1E1231] via-[#2A1845] to-[#120B20] border-2 border-purple-500/30 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-gradient-to-br from-[#714B67] to-[#00A09D] text-white shadow-lg shadow-purple-900/50">
+                  <Grid className="w-6 h-6 text-emerald-300" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                    <span>شجرة الحسابات (Odoo Chart of Accounts - COA)</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs border border-emerald-500/30 font-bold">
+                      دليل إلكتروني ديناميكي
+                    </span>
+                  </h2>
+                  <p className="text-xs text-slate-300 font-medium mt-0.5">
+                    إدارة دليل الحسابات الموحد، إضافة حسابات فرعية، ومتابعة الأرصدة الحالية التراكمية الناتجة من القيود المرحّلة تلقائياً.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => { playSound.click(); setIsAddAccountModalOpen(true); }}
+                className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-[#714B67] to-[#00A09D] hover:opacity-90 text-white font-black text-xs sm:text-sm flex items-center gap-2 shadow-xl shadow-purple-900/40 transition-all cursor-pointer hover:scale-105"
+              >
+                <Plus className="w-4 h-4 text-emerald-300" />
+                <span>+ إضافة حساب جديد لشجرة أودو</span>
+              </button>
+            </div>
+
+            {/* Financial Overview Stat Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {[
+                { type: "Asset", title: "إجمالي الأصول (Assets)", color: "cyan", icon: Landmark },
+                { type: "Liability", title: "إجمالي الخصوم (Liabilities)", color: "amber", icon: Scale },
+                { type: "Equity", title: "حقوق الملكية (Equity)", color: "indigo", icon: Building2 },
+                { type: "Revenue", title: "إجمالي الإيرادات (Revenue)", color: "emerald", icon: TrendingUp },
+                { type: "Expense", title: "إجمالي المصروفات (Expense)", color: "rose", icon: DollarSign },
+              ].map((card) => {
+                const typeAccounts = accountsList.filter((a) => a.type === card.type);
+                const totalTypeBalance = typeAccounts.reduce((sum, acc) => {
+                  const balInfo = calculateAccountBalances(acc.code, acc.type, acc.openingBalance);
+                  return sum + balInfo.netBalance;
+                }, 0);
+
+                const IconComponent = card.icon;
+
+                return (
+                  <div
+                    key={card.type}
+                    onClick={() => { playSound.click(); setCoaTypeFilter(coaTypeFilter === card.type ? "all" : card.type); }}
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
+                      coaTypeFilter === card.type
+                        ? "bg-purple-600/30 border-purple-400 ring-2 ring-purple-400/30 shadow-lg"
+                        : "bg-[#110A1A] border-white/10 hover:border-purple-500/40"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                      <span className="font-bold">{card.title}</span>
+                      <IconComponent className="w-4 h-4 text-purple-300" />
+                    </div>
+                    <div className="text-base font-black font-mono text-white mt-1">
+                      {totalTypeBalance.toLocaleString("ar-EG")} <span className="text-[10px] text-slate-400 font-sans">ج.م</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 font-bold mt-1">
+                      عدد الحسابات: <span className="text-purple-300 font-mono">{typeAccounts.length}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Search & Type Filter Toolbar */}
+          <div className="bg-[#150F21] border border-purple-500/20 rounded-2xl p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              {/* Type Filter Pills */}
+              <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold">
+                <span className="text-slate-400 ml-1">تصفية حسب النوع:</span>
+                {[
+                  { id: "all", label: "الكل" },
+                  { id: "Asset", label: "الأصول (Asset)" },
+                  { id: "Liability", label: "الخصوم (Liability)" },
+                  { id: "Equity", label: "حقوق الملكية (Equity)" },
+                  { id: "Revenue", label: "الإيرادات (Revenue)" },
+                  { id: "Expense", label: "المصروفات (Expense)" },
+                ].map((pill) => (
+                  <button
+                    key={pill.id}
+                    onClick={() => { playSound.click(); setCoaTypeFilter(pill.id); }}
+                    className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                      coaTypeFilter === pill.id
+                        ? "bg-gradient-to-r from-[#714B67] to-[#00A09D] text-white shadow-md font-black"
+                        : "bg-white/5 hover:bg-white/10 text-slate-300"
+                    }`}
+                  >
+                    {pill.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Search Box */}
+              <div className="relative w-full sm:w-64">
+                <Search className="w-4 h-4 text-slate-400 absolute right-3 top-2.5 pointer-events-none" />
+                <input
+                  type="text"
+                  value={coaSearchQuery}
+                  onChange={(e) => setCoaSearchQuery(e.target.value)}
+                  placeholder="ابحث برمز أو اسم الحساب..."
+                  className="w-full bg-[#0d0717] border border-white/10 rounded-xl pr-9 pl-3 py-2 text-xs text-white outline-none focus:border-purple-400"
+                />
+                {coaSearchQuery && (
+                  <button
+                    onClick={() => setCoaSearchQuery("")}
+                    className="absolute left-2.5 top-2.5 text-slate-400 hover:text-white text-xs"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Dynamic Accounts Table */}
+          <div className="overflow-x-auto rounded-3xl border border-white/10 bg-[#0d0717] shadow-2xl">
+            <table className="w-full text-right text-xs">
+              <thead className="bg-[#1C132B] text-purple-200 font-black border-b border-white/10">
+                <tr>
+                  <th className="p-3.5 w-28">رمز الحساب (Code)</th>
+                  <th className="p-3.5 min-w-[220px]">اسم الحساب (Account Name)</th>
+                  <th className="p-3.5 w-28 text-center">النوع (Type)</th>
+                  <th className="p-3.5 min-w-[140px]">الفئة (Category)</th>
+                  <th className="p-3.5 text-left font-mono">الرصيد الافتتاحي</th>
+                  <th className="p-3.5 text-left font-mono text-red-300">حركات المدين</th>
+                  <th className="p-3.5 text-left font-mono text-emerald-300">حركات الدائن</th>
+                  <th className="p-3.5 text-left font-mono text-amber-300">الرصيد التراكمي الحالي</th>
+                  <th className="p-3.5 text-center w-28">دفتر الحساب</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5 font-bold text-slate-200">
+                {accountsList
+                  .filter((acc) => {
+                    const matchesQuery =
+                      acc.code.includes(coaSearchQuery.trim()) ||
+                      acc.name.toLowerCase().includes(coaSearchQuery.toLowerCase().trim()) ||
+                      acc.category.toLowerCase().includes(coaSearchQuery.toLowerCase().trim());
+                    const matchesType = coaTypeFilter === "all" || acc.type === coaTypeFilter;
+                    return matchesQuery && matchesType;
+                  })
+                  .map((acc) => {
+                    const balInfo = calculateAccountBalances(acc.code, acc.type, acc.openingBalance);
+
+                    return (
+                      <tr key={acc.code} className="hover:bg-purple-500/10 transition-colors group">
+                        <td className="p-3.5 font-mono font-black text-purple-300">
+                          <div className="flex items-center gap-1.5">
+                            <span>{acc.code}</span>
+                            {acc.isCustom && (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                                مخصص
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="p-3.5 text-white font-black text-sm group-hover:text-amber-200 transition-colors">
+                          {acc.name}
+                        </td>
+
+                        <td className="p-3.5 text-center">
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-black border inline-block ${
+                              acc.type === "Asset" ? "bg-cyan-500/20 text-cyan-300 border-cyan-400/30" :
+                              acc.type === "Liability" ? "bg-amber-500/20 text-amber-300 border-amber-400/30" :
+                              acc.type === "Expense" ? "bg-rose-500/20 text-rose-300 border-rose-400/30" :
+                              acc.type === "Revenue" ? "bg-emerald-500/20 text-emerald-300 border-emerald-400/30" :
+                              "bg-indigo-500/20 text-indigo-300 border-indigo-400/30"
+                            }`}
+                          >
+                            {acc.type}
+                          </span>
+                        </td>
+
+                        <td className="p-3.5 text-slate-300">{acc.category}</td>
+
+                        <td className="p-3.5 text-left font-mono text-slate-400">
+                          {(acc.openingBalance || 0).toLocaleString("ar-EG")} ج.م
+                        </td>
+
+                        <td className="p-3.5 text-left font-mono text-red-400">
+                          {balInfo.totalDebit.toLocaleString("ar-EG")} ج.م
+                        </td>
+
+                        <td className="p-3.5 text-left font-mono text-emerald-400">
+                          {balInfo.totalCredit.toLocaleString("ar-EG")} ج.م
+                        </td>
+
+                        <td className="p-3.5 text-left font-mono font-black text-amber-300 text-sm">
+                          {balInfo.netBalance.toLocaleString("ar-EG")} ج.م
+                        </td>
+
+                        <td className="p-3.5 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              onClick={() => { playSound.click(); setSelectedLedgerAccountCode(acc.code); }}
+                              className="px-2.5 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 text-xs font-black flex items-center gap-1 cursor-pointer transition-all hover:scale-105"
+                              title="استخراج كشف حساب تفصيلي لجميع القيود"
+                            >
+                              <BookOpen className="w-3.5 h-3.5 text-cyan-300" />
+                              <span>الكشف ({balInfo.txCount})</span>
+                            </button>
+
+                            {acc.isCustom && (
+                              <button
+                                onClick={() => handleDeleteCustomAccount(acc.code)}
+                                className="p-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 text-red-300 cursor-pointer"
+                                title="حذف الحساب المخصص"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      )}
+
+      {/* MODAL: ADD NEW ACCOUNT TO ODOO CHART OF ACCOUNTS */}
+      {isAddAccountModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="bg-[#150d24] border-2 border-purple-500/40 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl shadow-purple-950/80">
+            <div className="bg-gradient-to-r from-[#25153a] to-[#12091d] p-5 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-purple-600 text-white">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-black text-white">إضافة حساب جديد لشجرة أودو (Odoo COA)</h3>
+              </div>
+              <button
+                onClick={() => setIsAddAccountModalOpen(false)}
+                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddNewAccount} className="p-5 space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="text-slate-300 font-bold">كود / رمز الحساب المحاسبي (Code) *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="مثال: 103000"
+                  value={newAccountForm.code}
+                  onChange={(e) => setNewAccountForm({ ...newAccountForm, code: e.target.value })}
+                  className="w-full bg-[#0d0717] border border-white/10 rounded-xl px-3 py-2 text-white font-mono outline-none focus:border-purple-400"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-bold">اسم الحساب (Account Name) *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="مثال: البنك العربي الأفريقي الدولي"
+                  value={newAccountForm.name}
+                  onChange={(e) => setNewAccountForm({ ...newAccountForm, name: e.target.value })}
+                  className="w-full bg-[#0d0717] border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-purple-400 font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-slate-300 font-bold">نوع الحساب (Type) *</label>
+                  <select
+                    value={newAccountForm.type}
+                    onChange={(e) => setNewAccountForm({ ...newAccountForm, type: e.target.value as any })}
+                    className="w-full bg-[#0d0717] border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-purple-400 cursor-pointer font-bold"
+                  >
+                    <option value="Asset" className="bg-[#120B1A]">أصول (Asset)</option>
+                    <option value="Liability" className="bg-[#120B1A]">خصوم (Liability)</option>
+                    <option value="Equity" className="bg-[#120B1A]">حقوق ملكية (Equity)</option>
+                    <option value="Revenue" className="bg-[#120B1A]">إيرادات (Revenue)</option>
+                    <option value="Expense" className="bg-[#120B1A]">مصروفات (Expense)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-slate-300 font-bold">الفئة الرئيسية (Category)</label>
+                  <input
+                    type="text"
+                    placeholder="أصول متداولة / خصوم متداولة"
+                    value={newAccountForm.category}
+                    onChange={(e) => setNewAccountForm({ ...newAccountForm, category: e.target.value })}
+                    className="w-full bg-[#0d0717] border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-purple-400"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-bold">الرصيد الافتتاحي (Opening Balance)</label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={newAccountForm.openingBalance || ""}
+                  onChange={(e) => setNewAccountForm({ ...newAccountForm, openingBalance: parseFloat(e.target.value) || 0 })}
+                  className="w-full bg-[#0d0717] border border-emerald-500/30 rounded-xl px-3 py-2 text-emerald-300 font-mono font-black outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setIsAddAccountModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold cursor-pointer"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#714B67] to-[#00A09D] hover:opacity-90 text-white font-black cursor-pointer shadow-lg shadow-purple-900/40"
+                >
+                  حفظ الحساب الآن 💾
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ACCOUNT LEDGER STATEMENT (كشف حساب تفصيلي) */}
+      {selectedLedgerAccountCode && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="bg-[#120a1f] border-2 border-purple-500/40 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl shadow-purple-950/80">
+            {(() => {
+              const accObj = accountsList.find((a) => a.code === selectedLedgerAccountCode);
+              const txs: Array<{ entry: OdooEntryRecord; item: OdooJournalItem }> = [];
+
+              entries.forEach((entry) => {
+                if (entry.status === "posted") {
+                  entry.items.forEach((item) => {
+                    if (item.accountCode === selectedLedgerAccountCode) {
+                      txs.push({ entry, item });
+                    }
+                  });
+                }
+              });
+
+              let runningBal = accObj?.openingBalance || 0;
+
+              return (
+                <>
+                  <div className="bg-gradient-to-r from-[#211235] via-[#2d1847] to-[#1a0e2a] p-5 border-b border-purple-500/30 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-2xl bg-gradient-to-br from-cyan-400 to-purple-600 text-black shadow-lg">
+                        <BookOpen className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                          <span>دفتر الأستاذ للحساب (General Ledger)</span>
+                          <span className="px-2 py-0.5 rounded-full bg-cyan-400/20 text-cyan-300 text-[10px] border border-cyan-400/30 font-mono">
+                            {selectedLedgerAccountCode}
+                          </span>
+                        </h3>
+                        <p className="text-xs text-amber-300 font-bold">
+                          {accObj?.name || selectedLedgerAccountCode}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedLedgerAccountCode(null)}
+                      className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="p-4 bg-[#0b0614] border-b border-white/10 flex flex-wrap items-center justify-between text-xs font-bold text-slate-300">
+                    <div>الرصيد الافتتاحي: <span className="font-mono text-purple-300">{(accObj?.openingBalance || 0).toLocaleString("ar-EG")} ج.م</span></div>
+                    <div>عدد القيود المرحّلة: <span className="font-mono text-amber-300">{txs.length}</span></div>
+                  </div>
+
+                  <div className="overflow-y-auto p-4 flex-1">
+                    {txs.length === 0 ? (
+                      <div className="py-12 text-center text-slate-400 font-bold space-y-2">
+                        <p>لا توجد قيود مرحّلة تؤثر على هذا الحساب حتى الآن.</p>
+                        <p className="text-xs text-slate-500">قم بترحيـل (Post) القيود المحاسبية من محاكي أودو لظهر حركاتها هنا تلقائياً.</p>
+                      </div>
+                    ) : (
+                      <table className="w-full text-right text-xs">
+                        <thead className="bg-[#1e1333] text-purple-200 font-black border-b border-white/10">
+                          <tr>
+                            <th className="p-2.5">التاريخ</th>
+                            <th className="p-2.5">رقم القيد</th>
+                            <th className="p-2.5">المتعامل / الشريك</th>
+                            <th className="p-2.5">البيان / الشرح</th>
+                            <th className="p-2.5 text-left text-red-400">مدين</th>
+                            <th className="p-2.5 text-left text-emerald-400">دائن</th>
+                            <th className="p-2.5 text-left text-amber-300">الرصيد التراكمي</th>
+                            <th className="p-2.5 text-center">فتح القيد</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5 font-bold text-slate-200">
+                          {txs.map(({ entry, item }, idx) => {
+                            const d = Number(item.debit) || 0;
+                            const c = Number(item.credit) || 0;
+
+                            if (accObj?.type === "Asset" || accObj?.type === "Expense") {
+                              runningBal += d - c;
+                            } else {
+                              runningBal += c - d;
+                            }
+
+                            return (
+                              <tr key={idx} className="hover:bg-purple-500/10">
+                                <td className="p-2.5 font-mono text-slate-400">{entry.date}</td>
+                                <td className="p-2.5 font-mono text-purple-300 font-black">{entry.name}</td>
+                                <td className="p-2.5 text-white">{item.partner || entry.partner}</td>
+                                <td className="p-2.5 text-slate-300">{item.label || entry.explanation}</td>
+                                <td className="p-2.5 text-left font-mono text-red-400">{d.toLocaleString("ar-EG")}</td>
+                                <td className="p-2.5 text-left font-mono text-emerald-400">{c.toLocaleString("ar-EG")}</td>
+                                <td className="p-2.5 text-left font-mono font-black text-amber-300">
+                                  {runningBal.toLocaleString("ar-EG")} ج.م
+                                </td>
+                                <td className="p-2.5 text-center">
+                                  <button
+                                    onClick={() => {
+                                      loadEntry(entries.indexOf(entry));
+                                      setMainSectionTab("editor");
+                                      setSelectedLedgerAccountCode(null);
+                                    }}
+                                    className="px-2.5 py-1 rounded-lg bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 text-[11px] font-bold cursor-pointer"
+                                  >
+                                    معاينة
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+
+                  <div className="p-4 bg-[#0d0717] border-t border-purple-500/20 flex justify-end">
+                    <button
+                      onClick={() => setSelectedLedgerAccountCode(null)}
+                      className="px-5 py-2 rounded-xl bg-purple-700 text-white font-bold text-xs cursor-pointer"
+                    >
+                      إغلاق الكشف
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
         </div>
       )}
 
@@ -2162,6 +3680,97 @@ export function OdooJournalEntrySection({ onAwardXp }: OdooJournalEntrySectionPr
               </div>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* SMART FIELD HELPER MODAL / DRAWER */}
+      {fieldHelperOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn dir-rtl">
+          <div className="bg-[#1C132B] border-2 border-[#714B67] rounded-3xl max-w-xl w-full p-6 space-y-5 shadow-2xl text-slate-100">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-[#714B67] to-[#00A09D] text-white font-black shadow-md">
+                  <HelpCircle className="w-6 h-6 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-white">دليل المساعد التفاعلي لحقول Odoo</h3>
+                  <p className="text-xs text-slate-400">شرح وظيفة كل عنصر في شاشة قيود اليومية محاسبياً وتنفيذياً</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setFieldHelperOpen(false)}
+                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Field Explanations List */}
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1 text-xs sm:text-sm">
+              <div className="p-3 rounded-2xl bg-[#25183b] border border-purple-500/30 space-y-1">
+                <span className="font-black text-purple-300 flex items-center gap-1.5">
+                  <BookOpen className="w-4 h-4 text-purple-300" />
+                  <span>دفتر اليومية (Journal)</span>
+                </span>
+                <p className="text-slate-300 leading-relaxed">
+                  في Odoo، ينظم كل قيد داخل دفتر محاسبي محدد (مثل المبيعات Customer Invoices، الموردين Vendor Bills، البنك Bank، الخزينة Cash، العمليات المتنوعة Miscellaneous). يحدد الدفتر السلسلة الرقمية ونوع الحساب المالي الافتراضي.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-[#25183b] border border-purple-500/30 space-y-1">
+                <span className="font-black text-cyan-300 flex items-center gap-1.5">
+                  <User className="w-4 h-4 text-cyan-300" />
+                  <span>اسم الشريك / المتعامل (Partner)</span>
+                </span>
+                <p className="text-slate-300 leading-relaxed">
+                  يُمثل العميل أو المورد أو الموظف المرتبط بالقيد. يساعد أودو في توجيه ميزان المراجعة التحليلي وشاشة متابعة أعمار الديون (Aged Receivables / Payables).
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-[#25183b] border border-purple-500/30 space-y-1">
+                <span className="font-black text-amber-300 flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-amber-300" />
+                  <span>تاريخ القيد (Accounting Date)</span>
+                </span>
+                <p className="text-slate-300 leading-relaxed">
+                  التاريخ الذي يؤثر فيه القيد على القوائم المالية والدورة المحاسبية المغلقة أو المفتوحة في Odoo.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-[#25183b] border border-purple-500/30 space-y-1">
+                <span className="font-black text-emerald-300 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-emerald-300" />
+                  <span>أسطر القيد (Journal Items - Debit vs Credit)</span>
+                </span>
+                <p className="text-slate-300 leading-relaxed">
+                  • <b>المدين (Debit):</b> يُستخدم لتسجيل الزيادة في الأصول والمصروفات، أو النقص في الالتزامات.
+                  <br />• <b>الدائن (Credit):</b> يُستخدم لتسجيل الزيادة في الإيرادات والالتزامات ورأس المال، أو النقص في الأصول.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-[#25183b] border border-purple-500/30 space-y-1">
+                <span className="font-black text-indigo-300 flex items-center gap-1.5">
+                  <FileSpreadsheet className="w-4 h-4 text-indigo-300" />
+                  <span>الحساب التحليلي / مركز التكلفة (Analytic Account)</span>
+                </span>
+                <p className="text-slate-300 leading-relaxed">
+                  يسمح أودو بتوزيع المصروف أو الإيراد على مراكز تكلفة (مثل: الإدارة العامة، خط الإنتاج، مشروع أ، قسم التسويق) دون تغيير شجرة الحسابات الرئيسية.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-white/10 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setFieldHelperOpen(false)}
+                className="px-5 py-2 rounded-xl bg-[#714B67] hover:bg-[#5e3d55] text-white font-black text-xs cursor-pointer shadow-lg"
+              >
+                فهمت ذلك، إغلاق المساعد ✓
+              </button>
+            </div>
           </div>
         </div>
       )}
