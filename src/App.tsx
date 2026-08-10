@@ -40,6 +40,14 @@ import { checkNewlyUnlockedBadges } from "./data/achievements";
 import { Language, getSavedLanguage, applyLanguageSettings } from "./data/translations";
 import { ArrowUp, Smartphone, Download } from "lucide-react";
 
+interface AppHistoryState {
+  tab: ActiveTab;
+  sectorId?: string;
+  stageId?: number;
+  lessonIdx?: number;
+  lessonTab?: "read" | "flashcards" | "quiz" | "notes" | "ai";
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("hero");
   const [selectedSectorId, setSelectedSectorId] = useState<string>("contracting");
@@ -293,12 +301,44 @@ export default function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleSelectTab = (tab: ActiveTab) => {
+  const navigateTo = (tab: ActiveTab, extra?: Omit<AppHistoryState, "tab">) => {
+    if (tab === activeTab) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    window.history.pushState({ tab, ...extra } as AppHistoryState, "");
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleSelectTab = (tab: ActiveTab) => {
+    navigateTo(tab);
+  };
+
+  // Browser history integration: push an entry per screen so the browser
+  // Back button returns to the screen the user was on before.
+  useEffect(() => {
+    window.history.pushState({ tab: "hero" }, "");
+  }, []);
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const state = event.state as AppHistoryState | null;
+      if (!state || !state.tab) return;
+      if (state.sectorId !== undefined) setSelectedSectorId(state.sectorId);
+      if (state.stageId !== undefined) setSelectedStageId(state.stageId);
+      if (state.lessonIdx !== undefined) setActiveLessonIdx(state.lessonIdx);
+      if (state.lessonTab) setInitialLessonTab(state.lessonTab);
+      setIsFocusReadingMode(false);
+      setActiveTab(state.tab);
+      window.scrollTo({ top: 0, behavior: "auto" });
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   const handleOpenSector = (sectorId: string) => {
+    window.history.pushState({ tab: "sectorDetail", sectorId }, "");
     setSelectedSectorId(sectorId);
     setActiveTab("sectorDetail");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -309,6 +349,7 @@ export default function App() {
     lessonIndex: number = 0,
     tab: "read" | "flashcards" | "quiz" | "notes" | "ai" = "read"
   ) => {
+    window.history.pushState({ tab: "lessonView", stageId, lessonIdx: lessonIndex, lessonTab: tab }, "");
     setSelectedStageId(stageId);
     setActiveLessonIdx(lessonIndex);
     setInitialLessonTab(tab);
@@ -463,7 +504,7 @@ export default function App() {
             initialTab={initialLessonTab}
             onBackToPath={() => {
               setIsFocusReadingMode(false);
-              setActiveTab("path");
+              handleSelectTab("path");
             }}
             onSelectStageLesson={(sId, lIdx) => handleOpenStage(sId, lIdx, "read")}
             onFocusModeChange={setIsFocusReadingMode}
