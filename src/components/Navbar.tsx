@@ -90,9 +90,7 @@ export function Navbar({
     { id: "hero", label: isEn ? "Home" : "الرئيسية", icon: Scale },
     { id: "sectors", label: isEn ? "Sectors" : "التخصصات", icon: Briefcase },
     { id: "path", label: isEn ? "Stages (32)" : "المراحل", icon: Layers, badge: "32" },
-    { id: "lab", label: isEn ? "Lab" : "المعمل", icon: Calculator },
     { id: "taxGuide", label: isEn ? "Tax" : "الضرائب", icon: Receipt, badge: isEn ? "2026" : "2026" },
-    { id: "interviewQuestions", label: isEn ? "Interviews" : "المقابلات", icon: MessageCircleQuestion, badge: "جديد" },
   ];
 
   // Categorized items for the "All Tools & Sections" Dropdown
@@ -285,13 +283,25 @@ export function Navbar({
                         {isEn ? "Meezan Suite Navigation" : "دليل وأدوات منصة ميزان الشاملة"}
                       </h4>
                     </div>
-                    <button
-                      onClick={() => setQuickSearchOpen(true)}
-                      className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-cyan-300 font-bold border border-white/10 flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Search className="w-3 h-3" />
-                      <span>{isEn ? "Quick Search" : "بحث سريع (Cmd+K)"}</span>
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setQuickSearchOpen(true)}
+                        className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-cyan-300 font-bold border border-white/10 flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Search className="w-3 h-3" />
+                        <span>{isEn ? "Quick Search" : "بحث سريع"}</span>
+                      </button>
+                      {onToggleTheme && (
+                        <button
+                          onClick={onToggleTheme}
+                          className="px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-amber-300 font-bold border border-white/10 flex items-center gap-1.5 cursor-pointer"
+                          title={theme === "dark" ? (isEn ? "Switch to Light Mode" : "التبديل إلى الوضع الفاتح") : (isEn ? "Switch to Dark Mode" : "التبديل إلى الوضع الداكن")}
+                        >
+                          {theme === "dark" ? <Sun className="w-3 h-3" /> : <Moon className="w-3 h-3" />}
+                          <span>{theme === "dark" ? (isEn ? "Light" : "فاتح") : (isEn ? "Dark" : "داكن")}</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
@@ -371,16 +381,6 @@ export function Navbar({
 
           {/* ROW B: UTILITIES */}
           <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
-            
-            {/* QUICK SEARCH BUTTON */}
-            <button
-              onClick={() => setQuickSearchOpen(true)}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
-              title={isEn ? "Quick Search Sections" : "البحث السريع في الأقسام"}
-            >
-              <Search className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="hidden xl:inline">{isEn ? "Search" : "بحث..."}</span>
-            </button>
 
             {/* ACHIEVEMENTS & XP BADGE */}
             {onOpenAchievements && (
@@ -399,21 +399,6 @@ export function Navbar({
             <div>
               <PomodoroTimer />
             </div>
-
-            {/* THEME TOGGLE */}
-            {onToggleTheme && (
-              <button
-                onClick={onToggleTheme}
-                className="p-2 sm:p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/12 text-amber-300 transition-all cursor-pointer shadow-sm flex items-center justify-center group"
-                title={theme === "dark" ? (isEn ? "Switch to Light Mode" : "التبديل إلى الوضع الفاتح") : (isEn ? "Switch to Dark Mode" : "التبديل إلى الوضع الداكن")}
-              >
-                {theme === "dark" ? (
-                  <Sun className="w-4 h-4 text-amber-300 group-hover:rotate-45 transition-transform" />
-                ) : (
-                  <Moon className="w-4 h-4 text-indigo-300 group-hover:-rotate-12 transition-transform" />
-                )}
-              </button>
-            )}
 
             {/* LANGUAGE TOGGLE */}
             {onToggleLanguage && (
@@ -500,6 +485,32 @@ export function Navbar({
               >
                 {currentUser?.isLoggedIn ? (isEn ? "My Account" : "حسابي") : (isEn ? "Log In" : "تسجيل الدخول")}
               </button>
+            </div>
+
+            {/* MOBILE QUICK SEARCH + THEME */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setQuickSearchOpen(true);
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-white/5 border border-white/10 text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span>{isEn ? "Quick Search" : "بحث سريع"}</span>
+              </button>
+              {onToggleTheme && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onToggleTheme();
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-white/5 border border-white/10 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  {theme === "dark" ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+                  <span>{theme === "dark" ? (isEn ? "Light Mode" : "الوضع الفاتح") : (isEn ? "Dark Mode" : "الوضع الداكن")}</span>
+                </button>
+              )}
             </div>
 
             {/* MOBILE QUICK GRID */}
