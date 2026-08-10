@@ -141,6 +141,25 @@ export function AccountingStandardsSection({
     ? ALL_STANDARDS.find((s) => s.id === detailId)
     : null;
 
+  const fullText = useMemo(() => {
+    const s = detailStandard;
+    if (!s) return "";
+    return [
+      `${s.code} — ${s.titleAr}`,
+      s.summaryAr,
+      `نطاق التطبيق: ${s.scopeAr}`,
+      "أبرز النقاط:",
+      ...s.pointsAr,
+      s.recognitionAr ? `الاعتراف: ${s.recognitionAr}` : null,
+      s.measurementAr ? `القياس: ${s.measurementAr}` : null,
+      s.disclosureAr ? `الإفصاح: ${s.disclosureAr}` : null,
+      ...(s.examplesAr?.length ? ["أمثلة عملية:", ...s.examplesAr] : []),
+      s.entryAr ? `القيد المحاسبي: ${s.entryAr}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+  }, [detailStandard]);
+
   const searching = searchQuery.trim().length > 0;
 
   const searchResults = useMemo(() => {
@@ -188,24 +207,6 @@ export function AccountingStandardsSection({
     const idx = list.findIndex((s) => s.id === detailStandard.id);
     const prev = list[(idx - 1 + list.length) % list.length];
     const next = list[(idx + 1) % list.length];
-
-    const fullText = useMemo(() => {
-      const s = detailStandard;
-      return [
-        `${s.code} — ${s.titleAr}`,
-        s.summaryAr,
-        `نطاق التطبيق: ${s.scopeAr}`,
-        "أبرز النقاط:",
-        ...s.pointsAr,
-        s.recognitionAr ? `الاعتراف: ${s.recognitionAr}` : null,
-        s.measurementAr ? `القياس: ${s.measurementAr}` : null,
-        s.disclosureAr ? `الإفصاح: ${s.disclosureAr}` : null,
-        ...(s.examplesAr?.length ? ["أمثلة عملية:", ...s.examplesAr] : []),
-        s.entryAr ? `القيد المحاسبي: ${s.entryAr}` : null,
-      ]
-        .filter(Boolean)
-        .join("\n\n");
-    }, [detailStandard]);
 
     return (
       <section className="space-y-5 animate-fadeIn pb-12 relative">
