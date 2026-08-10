@@ -241,7 +241,7 @@ export function Navbar({
                   key={item.id}
                   id={`nav-${item.id}`}
                   onClick={() => handleTabClick(item.id)}
-                  className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl font-black text-xs xl:text-sm whitespace-nowrap transition-all duration-200 cursor-pointer border ${
+                  className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl font-black text-sm whitespace-nowrap transition-all duration-200 cursor-pointer border ${
                     isActive
                       ? "bg-gradient-to-r from-indigo-600/40 via-purple-600/30 to-indigo-600/40 text-indigo-100 border-indigo-400/60 shadow-lg shadow-indigo-500/20 font-black scale-105"
                       : "text-slate-300 hover:text-white hover:bg-white/8 border-transparent"
@@ -262,20 +262,20 @@ export function Navbar({
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs xl:text-sm whitespace-nowrap transition-all cursor-pointer border ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-black text-sm whitespace-nowrap transition-all cursor-pointer border ${
                   moreMenuOpen
                     ? "bg-purple-600/30 text-purple-200 border-purple-400/60 shadow-lg shadow-purple-500/20"
                     : "bg-white/5 hover:bg-white/10 text-slate-200 border-white/10"
                 }`}
               >
                 <Grid className="w-3.5 h-3.5 text-purple-400" />
-                <span>{isEn ? "All Tools & Sections" : "كل الأقسام والأدوات"}</span>
+                <span className="hidden xl:inline">{isEn ? "All Tools & Sections" : "كل الأقسام والأدوات"}</span>
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreMenuOpen ? "rotate-180 text-purple-300" : "text-slate-400"}`} />
               </button>
 
               {/* MEGA DROPDOWN MENU */}
               {moreMenuOpen && (
-                <div className="fixed top-[105px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4">
+                <div className="fixed top-[112px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4">
                   <div className="flex items-center justify-between border-b border-white/10 pb-3">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-amber-400" />
@@ -380,13 +380,13 @@ export function Navbar({
           </div>
 
           {/* ROW B: UTILITIES */}
-          <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
+          <div className="flex items-center justify-start lg:justify-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none">
 
             {/* ACHIEVEMENTS & XP BADGE */}
             {onOpenAchievements && (
               <button
                 onClick={onOpenAchievements}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-indigo-500/20 border border-amber-400/40 text-amber-300 font-extrabold text-xs hover:bg-amber-500/30 transition-all cursor-pointer shadow-md"
+                className="shrink-0 h-9 flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-indigo-500/20 border border-amber-400/40 text-amber-300 font-extrabold text-xs hover:bg-amber-500/30 transition-all cursor-pointer shadow-md"
                 title="لوحة الإنجازات والتحديات اليومية"
               >
                 <Award className="w-4 h-4 text-amber-400 animate-pulse" />
@@ -396,7 +396,7 @@ export function Navbar({
             )}
 
             {/* POMODORO TIMER */}
-            <div>
+            <div className="shrink-0">
               <PomodoroTimer />
             </div>
 
@@ -404,7 +404,7 @@ export function Navbar({
             {onToggleLanguage && (
               <button
                 onClick={onToggleLanguage}
-                className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/12 text-emerald-300 hover:text-emerald-200 transition-all cursor-pointer shadow-sm flex items-center gap-1 text-xs font-bold"
+                className="shrink-0 h-9 px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/12 text-emerald-300 hover:text-emerald-200 transition-all cursor-pointer shadow-sm flex items-center gap-1 text-xs font-bold"
                 title={isEn ? "Switch to Arabic" : "تغيير للإنجليزية"}
               >
                 <Languages className="w-3.5 h-3.5 text-emerald-400" />
@@ -416,7 +416,7 @@ export function Navbar({
             {currentUser && currentUser.isLoggedIn ? (
               <button
                 onClick={() => handleTabClick("profile")}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#0e162f] border border-indigo-500/40 text-white hover:border-indigo-400 transition-all cursor-pointer shadow-md"
+                className="shrink-0 h-9 flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#0e162f] border border-indigo-500/40 text-white hover:border-indigo-400 transition-all cursor-pointer shadow-md"
               >
                 <span className="text-lg">{currentUser.avatar}</span>
                 <div className="hidden sm:flex flex-col text-right">
@@ -425,10 +425,10 @@ export function Navbar({
                 </div>
               </button>
             ) : (
-              <div className="flex items-center gap-1.5">
+              <div className="shrink-0 flex items-center gap-1.5">
                 <button
                   onClick={() => handleTabClick("profile")}
-                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-400/40 text-indigo-200 hover:bg-indigo-500/20 transition-all cursor-pointer"
+                  className="h-9 flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-400/40 text-indigo-200 hover:bg-indigo-500/20 transition-all cursor-pointer"
                   title={isEn ? "My Account" : "حسابي الشخصي"}
                 >
                   <User className="w-3.5 h-3.5 text-indigo-300" />
@@ -437,7 +437,7 @@ export function Navbar({
 
                 <button
                   onClick={() => onOpenAuth("LOGIN")}
-                  className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-indigo-400/50 text-white font-black text-xs transition-all cursor-pointer"
+                  className="h-9 flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-indigo-400/50 text-white font-black text-xs transition-all cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5 text-indigo-400" />
                   <span className="hidden lg:inline">{isEn ? "Log In" : "دخول"}</span>
@@ -445,7 +445,7 @@ export function Navbar({
 
                 <button
                   onClick={() => onOpenAuth("SIGNUP")}
-                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-black text-xs shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all cursor-pointer border border-white/20"
+                  className="h-9 flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-black text-xs shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all cursor-pointer border border-white/20"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">{isEn ? "Sign Up" : "حساب جديد"}</span>
