@@ -87,13 +87,11 @@ export function Navbar({
   // Primary Nav Items shown directly on the top bar
   const primaryNavItems: { id: ActiveTab; label: string; icon: any; badge?: string }[] = [
     { id: "hero", label: isEn ? "Home" : "الرئيسية", icon: Scale },
-    { id: "sectors", label: isEn ? "Sectors Roadmap" : "تخصصات المحاسبة", icon: Briefcase, badge: "جديد" },
+    { id: "sectors", label: isEn ? "Sectors" : "التخصصات", icon: Briefcase },
     { id: "path", label: isEn ? "Stages (32)" : "المراحل", icon: Layers, badge: "32" },
     { id: "lab", label: isEn ? "Lab" : "المعمل", icon: Calculator },
-    { id: "taxGuide", label: isEn ? "Tax Guide" : "دليل الضرائب", icon: Receipt, badge: isEn ? "2026" : "2026" },
-    { id: "odooJournal", label: isEn ? "Odoo" : "قيود أودو", icon: Building2 },
-    { id: "socpaExam", label: isEn ? "SOCPA" : "اختبار SOCPA", icon: ShieldCheck },
-    { id: "ai", label: isEn ? "AI Assistant" : "المساعد الذكي", icon: Bot, badge: "AI" },
+    { id: "taxGuide", label: isEn ? "Tax" : "الضرائب", icon: Receipt, badge: isEn ? "2026" : "2026" },
+    { id: "interviewQuestions", label: isEn ? "Interviews" : "المقابلات", icon: MessageCircleQuestion, badge: "جديد" },
   ];
 
   // Categorized items for the "All Tools & Sections" Dropdown
@@ -130,6 +128,7 @@ export function Navbar({
         { id: "library" as ActiveTab, label: isEn ? "Digital Library" : "المكتبة الرقمية والكتب PDF", icon: Library, desc: "ملخصات ومعايير وملازم للتحميل" },
         { id: "community" as ActiveTab, label: isEn ? "Accountants Community" : "مجتمع المحاسبين والخبراء", icon: Users, desc: "نقاشات واستشارات ومشاركات الممارسين" },
         { id: "appDownload" as ActiveTab, label: isEn ? "Download Mobile App" : "تحميل تطبيق الهاتف (Android)", icon: Smartphone, badge: "APK", desc: "تثبيت تطبيق ميزان على جوالك" },
+        { id: "ai" as ActiveTab, label: isEn ? "AI Assistant" : "المساعد الذكي للمحاسب", icon: Bot, badge: "AI", desc: "إجابات فورية على استفساراتك المحاسبية" },
       ]
     }
   ];
@@ -263,7 +262,7 @@ export function Navbar({
 
               {/* MEGA DROPDOWN MENU */}
               {moreMenuOpen && (
-                <div className="absolute top-full left-0 right-auto rtl:right-0 rtl:left-auto mt-2 w-[680px] bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-50 animate-fadeIn space-y-4">
+                <div className="fixed top-[72px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4">
                   <div className="flex items-center justify-between border-b border-white/10 pb-3">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-amber-400" />
