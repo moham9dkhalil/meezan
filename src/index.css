@@ -379,6 +379,26 @@ html.light .glass-panel {
   .max-w-4xl, .max-w-5xl {
     max-width: 92vw !important;
   }
+
+  .max-w-6xl, .max-w-7xl {
+    max-width: 96vw !important;
+  }
+}
+
+/* 4. Extra Small Phones (Up to 380px) — compress grids to avoid overflow */
+@media screen and (max-width: 380px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .px-4 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
 }
 
 /* 3. Utility helper classes for screen bounds protection */

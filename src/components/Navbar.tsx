@@ -86,13 +86,13 @@ export function Navbar({
   }, []);
 
   // Primary Nav Items shown directly on the top bar
-  const primaryNavItems: { id: ActiveTab; label: string; icon: any; badge?: string }[] = [
+  const primaryNavItems: { id: ActiveTab; label: string; icon: any; badge?: string; lgHidden?: boolean }[] = [
     { id: "hero", label: isEn ? "Home" : "الرئيسية", icon: Scale },
-    { id: "sectors", label: isEn ? "Sectors" : "التخصصات", icon: Briefcase },
+    { id: "sectors", label: isEn ? "Sectors" : "التخصصات", icon: Briefcase, lgHidden: true },
     { id: "path", label: isEn ? "Stages (32)" : "المراحل", icon: Layers, badge: "32" },
     { id: "lab", label: isEn ? "Lab" : "المعمل", icon: Calculator },
     { id: "taxGuide", label: isEn ? "Tax" : "الضرائب", icon: Receipt, badge: isEn ? "2026" : "2026" },
-    { id: "interviewQuestions", label: isEn ? "Interviews" : "المقابلات", icon: MessageCircleQuestion, badge: "جديد" },
+    { id: "interviewQuestions", label: isEn ? "Interviews" : "المقابلات", icon: MessageCircleQuestion, badge: "جديد", lgHidden: true },
   ];
 
   // Categorized items for the "All Tools & Sections" Dropdown
@@ -201,33 +201,33 @@ export function Navbar({
     <>
       {/* Floating Modern Header */}
       <header className="sticky top-0 z-50 w-full px-2 sm:px-4 py-2 transition-all">
-        <div className="max-w-7xl mx-auto bg-[#070b1a]/90 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl shadow-indigo-950/40 px-3 sm:px-4 h-16 flex items-center justify-between gap-2 sm:gap-3 transition-all relative">
+        <div className="max-w-7xl mx-auto bg-[#070b1a]/90 backdrop-blur-2xl border border-white/12 rounded-2xl shadow-2xl shadow-indigo-950/40 px-3 sm:px-4 h-16 flex items-center justify-between gap-1 sm:gap-3 transition-all relative">
           
-          {/* BRAND LOGO */}
-          <div
-            onClick={() => handleTabClick("hero")}
-            className="flex items-center gap-2.5 cursor-pointer shrink-0 group py-1"
-          >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-xl shadow-lg shadow-indigo-500/25 group-hover:scale-105 group-hover:rotate-3 transition-all border border-white/25">
-              ⚖️
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-black text-2xl tracking-tight bg-gradient-to-r from-white via-indigo-200 to-pink-300 bg-clip-text text-transparent">
-                  {isEn ? "Meezan" : "ميزان"}
-                </span>
-                <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-full text-[9px] font-black bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 shadow-inner">
-                  2026
+            {/* BRAND LOGO */}
+            <div
+              onClick={() => handleTabClick("hero")}
+              className="flex items-center gap-2 cursor-pointer shrink-0 group py-1"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-lg sm:text-xl shadow-lg shadow-indigo-500/25 group-hover:scale-105 group-hover:rotate-3 transition-all border border-white/25">
+                ⚖️
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-black text-xl sm:text-2xl tracking-tight bg-gradient-to-r from-white via-indigo-200 to-pink-300 bg-clip-text text-transparent">
+                    {isEn ? "Meezan" : "ميزان"}
+                  </span>
+                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded-full text-[9px] font-black bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 shadow-inner">
+                    2026
+                  </span>
+                </div>
+                <span className="text-[10px] font-semibold text-indigo-300/80 -mt-1 hidden sm:inline">
+                  {isEn ? "Smart Accounting Platform" : "منصة المحاسبة المالية الذكية"}
                 </span>
               </div>
-              <span className="text-[10px] font-semibold text-indigo-300/80 -mt-1 hidden sm:inline">
-                {isEn ? "Smart Accounting Platform" : "منصة المحاسبة المالية الذكية"}
-              </span>
             </div>
-          </div>
 
           {/* DESKTOP NAVIGATION BAR */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1">
             {primaryNavItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -241,7 +241,9 @@ export function Navbar({
                   key={item.id}
                   id={`nav-${item.id}`}
                   onClick={() => handleTabClick(item.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-black text-xs xl:text-sm whitespace-nowrap transition-all duration-200 cursor-pointer border ${
+                  className={`${
+                    item.lgHidden ? "hidden xl:flex" : "flex"
+                  } items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl font-black text-xs xl:text-sm whitespace-nowrap transition-all duration-200 cursor-pointer border ${
                     isActive
                       ? "bg-gradient-to-r from-indigo-600/40 via-purple-600/30 to-indigo-600/40 text-indigo-100 border-indigo-400/60 shadow-lg shadow-indigo-500/20 font-black scale-105"
                       : "text-slate-300 hover:text-white hover:bg-white/8 border-transparent"
@@ -372,16 +374,17 @@ export function Navbar({
             {onOpenAchievements && (
               <button
                 onClick={onOpenAchievements}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-indigo-500/20 border border-amber-400/40 text-amber-300 font-extrabold text-xs hover:bg-amber-500/30 transition-all cursor-pointer shadow-md"
+                className="hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-indigo-500/20 border border-amber-400/40 text-amber-300 font-extrabold text-xs hover:bg-amber-500/30 transition-all cursor-pointer shadow-md"
                 title="لوحة الإنجازات والتحديات اليومية"
               >
                 <Award className="w-4 h-4 text-amber-400 animate-pulse" />
-                <span className="font-mono font-black text-amber-300">+{xp} XP</span>
+                <span className="font-mono font-black text-amber-300 hidden xl:inline">+{xp} XP</span>
+                <span className="font-mono font-black text-amber-300 xl:hidden">+{xp}</span>
               </button>
             )}
 
             {/* POMODORO TIMER */}
-            <div className="hidden sm:block">
+            <div className="hidden md:block">
               <PomodoroTimer />
             </div>
 
@@ -428,24 +431,24 @@ export function Navbar({
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => handleTabClick("profile")}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-400/40 text-indigo-200 hover:bg-indigo-500/20 transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-400/40 text-indigo-200 hover:bg-indigo-500/20 transition-all cursor-pointer"
                   title={isEn ? "My Account" : "حسابي الشخصي"}
                 >
                   <User className="w-3.5 h-3.5 text-indigo-300" />
-                  <span className="hidden sm:inline">{isEn ? "Account" : "حسابي"}</span>
+                  <span className="hidden lg:inline">{isEn ? "Account" : "حسابي"}</span>
                 </button>
 
                 <button
                   onClick={() => onOpenAuth("LOGIN")}
-                  className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-indigo-400/50 text-white font-black text-xs transition-all cursor-pointer flex items-center gap-1"
+                  className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-indigo-400/50 text-white font-black text-xs transition-all cursor-pointer flex items-center gap-1"
                 >
                   <LogIn className="w-3.5 h-3.5 text-indigo-400" />
-                  <span className="hidden sm:inline">{isEn ? "Log In" : "دخول"}</span>
+                  <span className="hidden lg:inline">{isEn ? "Log In" : "دخول"}</span>
                 </button>
 
                 <button
                   onClick={() => onOpenAuth("SIGNUP")}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-black text-xs shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all cursor-pointer border border-white/20"
+                  className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-black text-xs shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/40 transition-all cursor-pointer border border-white/20"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>{isEn ? "Sign Up" : "حساب جديد"}</span>
