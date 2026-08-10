@@ -56,8 +56,8 @@ const MODE_CONFIGS: Record<TimerMode, { label: string; duration: number; color: 
   }
 };
 
-export function PomodoroTimer() {
-  const [isOpen, setIsOpen] = useState(false);
+export function PomodoroTimer({ expanded = false }: { expanded?: boolean }) {
+  const [isOpen, setIsOpen] = useState(expanded);
   const [mode, setMode] = useState<TimerMode>("work");
   const [timeLeft, setTimeLeft] = useState(MODE_CONFIGS.work.duration);
   const [isRunning, setIsRunning] = useState(false);
@@ -80,7 +80,7 @@ export function PomodoroTimer() {
         setIsOpen(false);
       }
     };
-    if (isOpen) {
+    if (isOpen && !expanded) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
@@ -143,25 +143,27 @@ export function PomodoroTimer() {
   return (
     <div className="relative" ref={popoverRef}>
       {/* TRIGGER BUTTON IN NAVBAR */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer shadow-md ${
-          isRunning
-            ? "bg-gradient-to-r from-purple-600/30 via-indigo-600/30 to-pink-600/30 border-purple-400/50 text-purple-200 ring-2 ring-purple-400/30 animate-pulse"
-            : "bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:border-purple-400/40"
-        }`}
-        title="مؤقت المذاكرة والتركيز (Pomodoro)"
-      >
-        <Timer className={`w-3.5 h-3.5 ${isRunning ? "text-purple-400 animate-spin" : "text-purple-300"}`} />
-        <span className="font-mono text-xs font-black tracking-wider">{formatTime(timeLeft)}</span>
-        {isRunning && (
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-        )}
-      </button>
+      {!expanded && (
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-black transition-all cursor-pointer shadow-md ${
+            isRunning
+              ? "bg-gradient-to-r from-purple-600/30 via-indigo-600/30 to-pink-600/30 border-purple-400/50 text-purple-200 ring-2 ring-purple-400/30 animate-pulse"
+              : "bg-white/5 border-white/10 text-slate-200 hover:bg-white/10 hover:border-purple-400/40"
+          }`}
+          title="مؤقت المذاكرة والتركيز (Pomodoro)"
+        >
+          <Timer className={`w-3.5 h-3.5 ${isRunning ? "text-purple-400 animate-spin" : "text-purple-300"}`} />
+          <span className="font-mono text-xs font-black tracking-wider">{formatTime(timeLeft)}</span>
+          {isRunning && (
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          )}
+        </button>
+      )}
 
       {/* EXPANDED POPOVER MODAL MENU */}
       {isOpen && (
-        <div className="absolute top-12 left-0 sm:left-auto sm:right-0 z-50 w-80 p-5 rounded-3xl bg-gradient-to-br from-[#0c1226] via-[#0a1024] to-[#070b1a] border border-purple-500/30 shadow-2xl backdrop-blur-2xl text-white space-y-4 animate-fadeIn">
+        <div className={`${expanded ? "relative" : "absolute top-12 left-0 sm:left-auto sm:right-0"} z-50 w-80 p-5 rounded-3xl bg-gradient-to-br from-[#0c1226] via-[#0a1024] to-[#070b1a] border border-purple-500/30 shadow-2xl backdrop-blur-2xl text-white space-y-4 animate-fadeIn`}>
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div className="flex items-center gap-2">

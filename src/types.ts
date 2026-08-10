@@ -23,6 +23,7 @@ export type ActiveTab =
   | "excel"
   | "ai"
   | "testimonials"
+  | "studyTimer"
   | "profile";
 
 export interface StageLesson {

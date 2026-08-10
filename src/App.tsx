@@ -30,6 +30,7 @@ import { CommunitySection } from "./components/CommunitySection";
 import { BookReaderModal } from "./components/BookReaderModal";
 import { AuthModal } from "./components/AuthModal";
 import { UserProfileSection } from "./components/UserProfileSection";
+import { StudyTimerSection } from "./components/StudyTimerSection";
 import { AchievementsModal } from "./components/AchievementsModal";
 import { CertificateModal } from "./components/CertificateModal";
 import { DataBackupModal } from "./components/DataBackupModal";
@@ -558,6 +559,8 @@ export default function App() {
         {activeTab === "excel" && <ExcelSection />}
 
         {activeTab === "ai" && <AiAssistantSection />}
+
+        {activeTab === "studyTimer" && <StudyTimerSection />}
 
         {activeTab === "profile" && (
           <UserProfileSection

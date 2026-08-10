@@ -31,7 +31,8 @@ import {
   Grid,
   Zap,
   Briefcase,
-  MessageCircleQuestion
+  MessageCircleQuestion,
+  Timer
 } from "lucide-react";
 import { Language } from "../data/translations";
 
@@ -131,6 +132,14 @@ export function Navbar({
         { id: "appDownload" as ActiveTab, label: isEn ? "Download Mobile App" : "تحميل تطبيق الهاتف (Android)", icon: Smartphone, badge: "APK", desc: "تثبيت تطبيق ميزان على جوالك" },
         { id: "ai" as ActiveTab, label: isEn ? "AI Assistant" : "المساعد الذكي للمحاسب", icon: Bot, badge: "AI", desc: "إجابات فورية على استفساراتك المحاسبية" },
       ]
+    },
+    {
+      categoryAr: "👤 حسابك والتركيز في المذاكرة",
+      categoryEn: "👤 Your Account & Study Focus",
+      items: [
+        { id: "profile" as ActiveTab, label: isEn ? "My Profile & Account" : "ملفي الشخصي وإعدادات حسابي", icon: User, desc: "بياناتك، إنجازاتك، شهاداتك، وتفضيلاتك" },
+        { id: "studyTimer" as ActiveTab, label: isEn ? "Study Focus Timer" : "مؤقت المذاكرة والتركيز (بومودورو)", icon: Timer, desc: "جلسات تركيز 25 دقيقة مع راحة ذكية وعدّاد جلسات" },
+      ]
     }
   ];
 
@@ -167,6 +176,7 @@ export function Navbar({
     { id: "library" as ActiveTab, label: isEn ? "Library" : "المكتبة الرقمية", icon: Library },
     { id: "ai" as ActiveTab, label: isEn ? "AI Assistant" : "المساعد الذكي", icon: Bot, badge: "AI" },
     { id: "appDownload" as ActiveTab, label: isEn ? "Mobile App" : "تطبيق الجوال", icon: Smartphone },
+    { id: "studyTimer" as ActiveTab, label: isEn ? "Focus Timer" : "مؤقت المذاكرة", icon: Timer },
     { id: "profile" as ActiveTab, label: isEn ? "My Account" : "حسابي الشخصي", icon: User },
   ];
 
