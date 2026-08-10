@@ -440,7 +440,7 @@ export function Navbar({
 
                 <button
                   onClick={() => onOpenAuth("LOGIN")}
-                  className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-indigo-400/50 text-white font-black text-xs transition-all cursor-pointer flex items-center gap-1"
+                  className="hidden sm:flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-indigo-400/50 text-white font-black text-xs transition-all cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5 text-indigo-400" />
                   <span className="hidden lg:inline">{isEn ? "Log In" : "دخول"}</span>

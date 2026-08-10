@@ -304,6 +304,28 @@ html.light .glass-panel {
   box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06) !important;
 }
 
+/* Light mode top bar readability: dark text + indigo icons inside navbar
+   (excluding gradient and solid-color buttons which must keep white text) */
+html.light header button:not([class*="bg-gradient-to"]):not([class*="bg-indigo-600"]):not([class*="bg-indigo-500"]):not([class*="bg-purple-600"]),
+html.light header nav a {
+  color: #1e293b !important;
+}
+
+html.light header button:not([class*="bg-gradient-to"]):not([class*="bg-indigo-600"]):not([class*="bg-indigo-500"]):not([class*="bg-purple-600"]) svg,
+html.light header nav a svg {
+  color: #4f46e5 !important;
+}
+
+html.light header button.bg-gradient-to-r,
+html.light header button.bg-gradient-to-r * {
+  color: #ffffff !important;
+}
+
+html.light header .text-amber-300,
+html.light header .text-amber-200 {
+  color: #b45309 !important;
+}
+
 /* ==========================================================================
    Responsive Auto-Scaling Media Queries (Mobile, Tablet, Desktop)
    ========================================================================== */
