@@ -392,7 +392,6 @@ export default function App() {
           theme={theme}
           onToggleTheme={toggleTheme}
           appLanguage={language}
-          onToggleLanguage={() => setLanguage((prev) => (prev === "ar" ? "en" : "ar"))}
         />
       )}
 

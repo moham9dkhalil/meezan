@@ -26,7 +26,6 @@ import {
   Users,
   Sun,
   Moon,
-  Languages,
   Search,
   Grid,
   Zap,
@@ -48,7 +47,6 @@ interface NavbarProps {
   theme?: "dark" | "light";
   onToggleTheme?: () => void;
   appLanguage?: Language;
-  onToggleLanguage?: () => void;
 }
 
 export function Navbar({
@@ -62,8 +60,7 @@ export function Navbar({
   onOpenAchievements,
   theme = "dark",
   onToggleTheme,
-  appLanguage = "ar",
-  onToggleLanguage
+  appLanguage = "ar"
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -393,18 +390,6 @@ export function Navbar({
             <div className="shrink-0">
               <PomodoroTimer />
             </div>
-
-            {/* LANGUAGE TOGGLE */}
-            {onToggleLanguage && (
-              <button
-                onClick={onToggleLanguage}
-                className="shrink-0 h-9 px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/12 text-emerald-300 hover:text-emerald-200 transition-all cursor-pointer shadow-sm flex items-center gap-1 text-xs font-bold"
-                title={isEn ? "Switch to Arabic" : "تغيير للإنجليزية"}
-              >
-                <Languages className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{appLanguage === "ar" ? "EN" : "عربي"}</span>
-              </button>
-            )}
 
             {/* USER LOGIN / PROFILE CHIP */}
             {currentUser && currentUser.isLoggedIn ? (
