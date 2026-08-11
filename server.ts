@@ -5,13 +5,32 @@ import { GoogleGenAI } from "@google/genai";
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: "25mb" }));
+
+  // Guards to bound the cost of each Gemini call (message / history / image)
+  const MAX_TEXT_CHARS = 6000;
+  const MAX_HISTORY_TURNS = 30;
+  const MAX_IMAGE_BASE64_LEN = 14_000_000;
+const MAX_JOURNAL_ENTRY_JSON_LEN = 250_000;
+  const aiGuard = (body: any): string | null => {
+    if (!body || typeof body !== "object") return "البيانات غير صالحة.";
+    const message = typeof body.message === "string" ? body.message.trim() : "";
+    if (message.length > MAX_TEXT_CHARS) return "الرسالة طويلة جداً. يرجى تقصيرها وإعادة المحاولة.";
+    if (Array.isArray(body.history) && body.history.length > MAX_HISTORY_TURNS) return "سجل المحادثة كبير جداً. ابدأ محادثة جديدة.";
+    const imgData = typeof body.image?.data === "string" ? body.image.data : "";
+    if (imgData.length > MAX_IMAGE_BASE64_LEN) return "حجم الصورة يتجاوز الحد المسموح (10 ميجابايت).";
+    return null;
+  };
 
   // Gemini AI Assistant Endpoint
   app.post("/api/chat", async (req, res) => {
     try {
+      const guardError = aiGuard(req.body);
+      if (guardError) {
+        return res.status(400).json({ error: guardError });
+      }
       const { message, history, persona, image } = req.body;
       if (!message && !image) {
         return res.status(400).json({ error: "الرسالة أو الصورة مطلوب إرسالها" });
@@ -110,8 +129,7 @@ async function startServer() {
     } catch (error: any) {
       console.error("Gemini API Error:", error);
       return res.status(500).json({
-        error: "حدث خطأ أثناء التواصل مع مساعد ميزان الذكي.",
-        details: error?.message,
+        error: "حدث خطأ أثناء التواصل مع مساعد ميزان الذكي. حاول مرة أخرى.",
       });
     }
   });
@@ -122,6 +140,15 @@ async function startServer() {
       const { entry } = req.body;
       if (!entry) {
         return res.status(400).json({ error: "تفاصيل القيد المحاسبي مطلوبة" });
+      }
+      let entryDetailsStr: string;
+      try {
+        entryDetailsStr = JSON.stringify(entry, null, 2);
+      } catch {
+        return res.status(400).json({ error: "تفاصيل القيد المحاسبي غير صالحة." });
+      }
+      if (entryDetailsStr.length > MAX_JOURNAL_ENTRY_JSON_LEN) {
+        return res.status(400).json({ error: "تفاصيل القيد كبيرة جداً." });
       }
 
       const apiKey = process.env.GEMINI_API_KEY;
@@ -139,8 +166,6 @@ async function startServer() {
           },
         },
       });
-
-      const entryDetailsStr = JSON.stringify(entry, null, 2);
 
       const prompt = `قم بتحليل القيد المحاسبي المحفوظ التالي بشكل تفصيلي وشرح المنطق المحاسبي للمتعلم:
 
@@ -171,8 +196,7 @@ ${entryDetailsStr}
     } catch (error: any) {
       console.error("Gemini Journal Explanation Error:", error);
       return res.status(500).json({
-        error: "حدث خطأ أثناء تحليل القيد بواسطة الذكاء الاصطناعي.",
-        details: error?.message,
+        error: "حدث خطأ أثناء تحليل القيد بواسطة الذكاء الاصطناعي. حاول مرة أخرى.",
       });
     }
   });
@@ -180,6 +204,10 @@ ${entryDetailsStr}
   // Odoo AI Interactive Chatter Endpoint
   app.post("/api/odoo-chat", async (req, res) => {
     try {
+      const guardError = aiGuard(req.body);
+      if (guardError) {
+        return res.status(400).json({ error: guardError });
+      }
       const { message, currentEntry, history } = req.body;
       if (!message) {
         return res.status(400).json({ error: "الرسالة مطلوبة" });
@@ -246,7 +274,6 @@ ${history && history.length > 0 ? history.map((h: any) => `${h.role === 'user' ?
       console.error("Odoo AI Chat Error:", error);
       return res.status(500).json({
         error: "حدث خطأ أثناء معالجة استفسارك بواسطة مساعد Odoo الذكي.",
-        details: error?.message,
       });
     }
   });

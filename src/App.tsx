@@ -43,14 +43,16 @@ const CertificateModal = lazy(() => import("./components/CertificateModal").then
 const DataBackupModal = lazy(() => import("./components/DataBackupModal").then((m) => ({ default: m.DataBackupModal })));
 const SocpaExamSimulator = lazy(() => import("./components/SocpaExamSimulator").then((m) => ({ default: m.SocpaExamSimulator })));
 
-function ScreenLoader() {
+function SectionFallback() {
   return (
-    <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
+    <div className="w-full py-20 flex flex-col items-center justify-center gap-3">
       <div className="w-10 h-10 rounded-full border-2 border-indigo-500/30 border-t-indigo-400 animate-spin" />
       <span className="text-xs font-bold text-slate-400">سيتم تحميل القسم...</span>
     </div>
   );
 }
+
+const ModalFallback = () => null;
 
 interface AppHistoryState {
   tab: ActiveTab;
@@ -467,7 +469,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#080C1C] text-[#F3F4F6] relative pb-12 selection:bg-indigo-500/30 selection:text-indigo-200">
-      <Suspense fallback={<ScreenLoader />}>
 
       {/* Dynamic Background Particles */}
       <ParticlesBg />
@@ -495,6 +496,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="relative z-10">
+        <Suspense fallback={<SectionFallback />}>
         {(activeTab === "hero" || activeTab === "features" || activeTab === "testimonials") && (
           <div className="space-y-12">
             <HeroSection
@@ -712,6 +714,7 @@ export default function App() {
             onOpenDataBackupModal={() => setDataBackupModalOpen(true)}
           />
         )}
+        </Suspense>
       </main>
 
       {/* Footer Branding */}
@@ -755,6 +758,7 @@ export default function App() {
       )}
 
       {/* App Download Modal */}
+      <Suspense fallback={<ModalFallback />}>
       <AppDownloadModal
         isOpen={downloadModalOpen}
         onClose={() => setDownloadModalOpen(false)}

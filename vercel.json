@@ -2,6 +2,9 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" }
+    { "source": "/api/(.*)", "destination": "/api/index" },
+    { "source": "/verify.html", "destination": "/verify.html" },
+    { "source": "/verify/:certId", "destination": "/verify.html" },
+    { "source": "/verify/:certId/", "destination": "/verify.html" }
   ]
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { COURSES_DATA } from "../data/courses";
 import { Course, CourseModule, CourseTopic, QuizQuestion } from "../types";
+import { getToken } from "../utils/cloudSync";
 import {
   ArrowRight,
   CheckCircle,
@@ -3340,7 +3341,38 @@ interface CourseraCertificateModalProps {
 }
 
 export function CourseraCertificateModal({ course, studentName, onClose }: CourseraCertificateModalProps) {
-  const certId = `MEEZAN-${course.id.toUpperCase()}-2026-${Math.floor(100000 + Math.random() * 900000)}`;
+  const [certId, setCertId] = useState(
+    `MIZAN-${course.id.toUpperCase().replace(/[^A-Z0-9-]/g, "")}-${Math.floor(100000 + Math.random() * 900000)}`
+  );
+  const verifyUrl = `${window.location.origin}/verify/${certId}`;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = getToken();
+        const res = await fetch("/api/certificates", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            studentName: studentName.trim() || "متداول ميزان",
+            trackName: course.name,
+            jobTitle: course.org,
+          }),
+        });
+        const data = await res.json();
+        if (!cancelled && res.ok && data.certificate?.id) setCertId(data.certificate.id);
+      } catch {
+        // keep the local id when offline
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [course.name, studentName]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn overflow-y-auto">
@@ -3358,7 +3390,7 @@ export function CourseraCertificateModal({ course, studentName, onClose }: Cours
               <Award className="w-6 h-6 text-amber-400" />
             </div>
             <div>
-              <div className="text-xs font-black text-amber-400">Coursera Verified Certificate / شهادة توثيق رسمية</div>
+              <div className="text-xs font-black text-amber-400">شهادة توثيق رسمية من منصة ميزان</div>
               <h3 className="text-base font-black text-white">الشهادة المعتمدة القابلة للمشاركة ورابط التوثيق</h3>
             </div>
           </div>
@@ -3383,7 +3415,7 @@ export function CourseraCertificateModal({ course, studentName, onClose }: Cours
           <div className="absolute bottom-3 left-3 text-2xl text-[#d4af37]">⚜️</div>
 
           <div className="space-y-1">
-            <div className="text-xs tracking-widest text-[#8c6d1f] font-bold uppercase">COURSERA SPECIALIZATION CERTIFICATE</div>
+            <div className="text-xs tracking-widest text-[#8c6d1f] font-bold uppercase">MEEZAN ACADEMY - CERTIFIED COURSE COMPLETION</div>
             <h2 className="text-2xl sm:text-3xl font-black text-[#2b2413]">شهادة إتمام وتخصص محاسبي معتمد</h2>
             <div className="text-xs text-[#6e5d33] font-sans font-bold">تُمنح هذه الشهادة الرسمية توثيقاً لاستيفاء كافة المتطلبات والمشاريع العملية</div>
           </div>
@@ -3437,13 +3469,13 @@ export function CourseraCertificateModal({ course, studentName, onClose }: Cours
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={() => {
-                navigator.clipboard.writeText(`https://coursera.org/verify/${certId}`);
-                alert("تم نسخ رابط الشهادة الموثقة بنجاح!");
+                navigator.clipboard.writeText(verifyUrl);
+                alert("تم نسخ رابط التحقق الرسمي من منصة ميزان بنجاح!");
               }}
               className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
             >
               <Share2 className="w-4 h-4" />
-              <span>مشاركة على LinkedIn</span>
+              <span>مشاركة رابط التحقق</span>
             </button>
           </div>
         </div>

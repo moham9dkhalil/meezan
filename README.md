@@ -1,20 +1,46 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# منصة ميزان لتعلم المحاسبة
 
-# Run and deploy your AI Studio app
+منصة تفاعلية لتعلم المحاسبة والضرائب باللغة العربية: دروس مشوّقة، بطاقات حفظ، أسئلة تفاعلية، تتبّع تقدم، سجل تجارب (XP) وتسلسل يومي، شهادات إتمام قابلة للتحقق، ومزامنة سحابية عبر الحساب.
 
-This contains everything you need to run your app locally.
+## المميزات
 
-View your app in AI Studio: https://ai.studio/apps/fac1a036-a00a-4f9f-be71-f52b9f69cfb5
+- تعلم تفاعلي: دروس، فيديوهات، بطاقات SRS، مسابقات واختبارات عملية.
+- محفظة تجارب: XP، شارات، تسلسل يومي (streak) ولوحات متصدرين.
+- دورة كاملة للنظام المحاسبي Odoo وقيود وفواتير عملية.
+- مساعد ذكي (Gemini): شرح القيود المحاسبية، مساعد Odoo، وحلول أسئلتك.
+- شهادات إتمام موثّقة برمز تحقق عام (`/verify/{id}`).
+- مزامنة سحابية للتقدم عبر Vercel Blob (اختياري) مع نسخ احتياطي محلي (JSON/Excel).
+- تنزيل تطبيق أندرويد مباشر (APK) مع دعم ربط رابط مخصص.
 
-## Run Locally
+## التشغيل محلياً
 
-**Prerequisites:**  Node.js
+المتطلبات: Node.js 18+
 
-
-1. Install dependencies:
+1. تثبيت الاعتماديات:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+2. ضبط المفاتيح في `.env` / `.env.local`:
+   - `GEMINI_API_KEY` — مفتاح Gemini (إلزامي لخدمات الذكاء الاصطناعي).
+   - `BLOB_READ_WRITE_TOKEN` — اختياري: لتفعيل التخزين السحابي الدائم عبر Vercel Blob.
+3. التشغيل للتطوير:
    `npm run dev`
+
+## النشر على Vercel
+
+- الربط التلقائي: `npm run build` يبني واجهة Vite وأحرف السيرفر `dist/server.cjs`.
+- يتم نشر مجلد `api/` كـ Serverless Functions مستقلة (لا يسمح بـ imports من `src/`).
+- `BASE_URL` / `VITE_APK_URL` اختيارية لتخصيص رابط تنزيل APK عند البناء.
+
+## الأوامر
+
+- `npm run dev` — تشغيل خادم التطوير بالسيرفر الموحد.
+- `npm run build` — بناء الإنتاج (Vite + esbuild).
+- `npm run start` — تشغيل بناء الإنتاج.
+- `npm run lint` — فحص الأنواع عبر tsc.
+- `npm run clean` — مسح مجلدات البناء.
+
+## البنية
+
+- `src/` — تطبيق React (Vite + Tailwind v4).
+- `api/` — endpoints Serverless Functions (Vercel).
+- `server.ts` — خادم Express موحد للتشغيل المحلي/الخاص.
+- `dist/` — مخرجات البناء.

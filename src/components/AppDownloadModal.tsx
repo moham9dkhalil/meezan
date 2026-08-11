@@ -46,6 +46,7 @@ export const DEFAULT_APK_URL =
 
 const getSavedOrDefaultApkUrl = () => {
   const saved = localStorage.getItem("meezan_custom_apk_url");
+  if (saved && saved.startsWith("blob:")) return DEFAULT_APK_URL;
   return saved || DEFAULT_APK_URL;
 };
 
@@ -86,7 +87,9 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({
   const handleSaveCustomSettings = (e: React.FormEvent) => {
     e.preventDefault();
     const finalUrl = getDirectDownloadUrl(customApkUrl);
-    localStorage.setItem("meezan_custom_apk_url", finalUrl);
+    if (!finalUrl.startsWith("blob:")) {
+      localStorage.setItem("meezan_custom_apk_url", finalUrl);
+    }
     localStorage.setItem("meezan_custom_app_name", customAppName);
     localStorage.setItem("meezan_custom_app_version", customAppVersion);
     localStorage.setItem("meezan_custom_app_size", appSize);
@@ -101,7 +104,6 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({
       const fileUrl = URL.createObjectURL(file);
       setCustomApkUrl(fileUrl);
       setUploadedFileName(file.name);
-      localStorage.setItem("meezan_custom_apk_url", fileUrl);
       const cleanName = file.name.replace(/\.[^/.]+$/, "");
       localStorage.setItem("meezan_custom_app_name", cleanName);
       setCustomAppName(cleanName);
@@ -510,7 +512,7 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({
                       <p className="text-xs text-slate-300 font-bold">
                         {uploadedFileName ? `الملف المحدد: ${uploadedFileName}` : "اختر ملف .apk من هاتف أو جهازك"}
                       </p>
-                      <span className="text-[10px] text-slate-400">سيتم تجهيز رابط التحميل فوراً</span>
+                      <span className="text-[10px] text-slate-400">الملف المحلي يعمل للتنزيل الفوري في هذه الجلسة فقط — لحفظه بشكل دائم استخدم رابط Google Drive أو MediaFire</span>
                     </div>
                   </div>
 

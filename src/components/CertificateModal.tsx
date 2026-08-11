@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Language } from "../data/translations";
+import { getToken } from "../utils/cloudSync";
 import {
   Award,
   Download,
@@ -36,8 +37,47 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
   const [jobTitle, setJobTitle] = useState(isEn ? "Certified Financial Accountant / Auditor" : "محاسب مالي معتمد / مراجع حسابات");
   const [trackName, setTrackName] = useState(isEn ? "Financial Accounting & IFRS Diploma" : "دبلوم المحاسبة المالية والمعايير الدولية (IFRS)");
   const [issueDate, setIssueDate] = useState(new Date().toLocaleDateString(isEn ? "en-US" : "ar-SA"));
-  const [certId, setCertId] = useState(`MIZAN-2026-${Math.floor(10000 + Math.random() * 90000)}`);
+  const [certId, setCertId] = useState(`MIZAN-${Math.floor(10000 + Math.random() * 90000)}`);
   const [isCopied, setIsCopied] = useState(false);
+  const [verifyState, setVerifyState] = useState<"pending" | "registered" | "local">("pending");
+
+  const verifyUrl = `${window.location.origin}/verify/${certId}`;
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+
+    (async () => {
+      const token = getToken();
+      try {
+        const res = await fetch("/api/certificates", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            studentName: studentName.trim() || "متداول ميزان",
+            trackName: trackName,
+            jobTitle: jobTitle,
+          }),
+        });
+        const data = await res.json();
+        if (!cancelled && res.ok && data.certificate?.id) {
+          setCertId(data.certificate.id);
+          setVerifyState("registered");
+          return;
+        }
+      } catch {
+        // offline / server unreachable → local certificate only
+      }
+      if (!cancelled) setVerifyState("local");
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -46,7 +86,7 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
   };
 
   const handleShare = () => {
-    navigator.clipboard.writeText(`https://mizan-accounting.app/verify/${certId}`);
+    navigator.clipboard.writeText(verifyUrl);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2500);
   };
@@ -199,10 +239,16 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
                 <div className="p-2 bg-white rounded-xl text-slate-900">
                   <QrCode className="w-8 h-8" />
                 </div>
-                <div className="text-right">
+<div className="text-right">
                   <div className="text-[10px] text-slate-400 font-bold print:text-slate-600">كود التحقق الرقمي:</div>
                   <div className="font-mono text-amber-400 font-black text-xs print:text-slate-900">{certId}</div>
-                  <div className="text-[9px] text-emerald-400 font-extrabold print:text-emerald-800">ساري وصالح للاستخدام المهني</div>
+                  <div className="text-[9px] text-emerald-400 font-extrabold print:text-emerald-800">
+                    {verifyState === "registered"
+                      ? "موثقة ومسجلة في سجل منصة ميزان"
+                      : verifyState === "pending"
+                      ? "جاري توثيق الشهادة..."
+                      : "نسخة محلية — وثّقها بالاتصال بالإنترنت"}
+                  </div>
                 </div>
               </div>
 
@@ -216,9 +262,20 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
               </div>
             </div>
 
+            {/* Verification footer */}
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-[10px] text-slate-400 print:text-slate-600">
+              <span>🔗 رابط التحقق الرسمي:</span>
+              <a
+                href={verifyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-indigo-300 underline decoration-indigo-400/50 underline-offset-4 hover:text-indigo-200"
+              >
+                {verifyUrl}
+              </a>
+            </div>
           </div>
         </div>
-
       </div>
     </div>
   );

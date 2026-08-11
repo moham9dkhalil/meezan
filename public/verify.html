@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>تحقق الشهادة الرقمية | ميزان</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+        background: linear-gradient(160deg, #0a0f1d, #0e1526 60%, #11182d);
+        color: #e5e7eb;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .card {
+        background: #0d1322;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        border-radius: 20px;
+        padding: 32px 28px;
+        max-width: 560px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 24px 60px rgba(0,0,0,.45);
+      }
+      .seal { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 50%;
+        background: linear-gradient(135deg, #f59e0b, #b45309); color: #0a0f1d;
+        display: flex; align-items: center; justify-content: center; font-size: 32px; }
+      .valid { background: linear-gradient(135deg, #10b981, #047857); color: #fff; }
+      .title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+      .sub { color: #94a3b8; font-size: 13px; margin-bottom: 24px; }
+      .label { color: #94a3b8; font-size: 11px; font-weight: 700; margin-top: 14px; }
+      .value { color: #fbbf24; font-weight: 800; font-size: 15px; margin-top: 2px; }
+      .value.plain { color: #e2e8f0; }
+      .badge {
+        display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+        border-radius: 999px; font-size: 12px; font-weight: 800; margin-top: 20px;
+      }
+      .badge.ok { background: rgba(16,185,129,.15); color: #34d399; border: 1px solid rgba(16,185,129,.4); }
+      .badge.err { background: rgba(239,68,68,.12); color: #f87171; border: 1px solid rgba(239,68,68,.4); }
+      .divider { height: 1px; background: rgba(255,255,255,.08); margin: 20px 0; }
+      .footer { color: #64748b; font-size: 11px; line-height: 1.8; }
+      .mono { direction: ltr; font-family: Consolas, monospace; }
+      a { color: #818cf8; text-decoration: none; }
+      .loading { color: #94a3b8; padding: 40px 0; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <div class="card" id="app">
+      <div class="seal" id="seal">📜</div>
+      <div class="title" id="title">جاري التحقق...</div>
+      <div class="sub" id="sub">التحقق من سجل شهادات منصة ميزان</div>
+      <div id="body"><div class="loading">⏳ يتم الاستعلام عن سجل الشهادة...</div></div>
+    </div>
+
+    <script>
+      (async function () {
+        const params = new URLSearchParams(window.location.search);
+        const id = (params.get("id") || "").trim();
+
+        const title = document.getElementById("title");
+        const sub = document.getElementById("sub");
+        const body = document.getElementById("body");
+        const seal = document.getElementById("seal");
+
+        if (!/^MIZAN-[A-Z0-9-]+$/.test(id)) {
+          title.textContent = "معرف غير صالح";
+          seal.textContent = "❌";
+          body.innerHTML = '<div class="value plain">رابط التحقق لا يحتوي على معرّف شهادة صحيح.</div>';
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/certificates/" + encodeURIComponent(id));
+          const data = await res.json();
+          if (!res.ok || !data.certificate) {
+            title.textContent = "الشهادة غير موجودة";
+            seal.textContent = "❓";
+            body.innerHTML =
+              '<div class="value plain">لم يتم العثور على شهادة بهذا المعرّف في سجل منصة ميزان.<br/>إذا كنت تعتقد أن هذا خطأ، تواصل مع فريق المنصة.</div>';
+            return;
+          }
+
+          const c = data.certificate;
+          title.textContent = "شهادة موثقة ✓";
+          seal.classList.add("valid");
+          seal.textContent = "✓";
+          sub.textContent = c.id;
+          body.innerHTML =
+            '<div class="label">اسم المتدرب</div>' +
+            '<div class="value" style="color:#fff;font-size:18px;">' + escapeHtml(c.studentName) + "</div>" +
+            '<div class="label">المسار / الدبلوم</div>' +
+            '<div class="value">' + escapeHtml(c.trackName) + "</div>" +
+            '<div class="label">المسمى المهني</div>' +
+            '<div class="value plain">' + escapeHtml(c.jobTitle || "") + "</div>" +
+            '<div class="label">تاريخ الإصدار</div>' +
+            '<div class="value plain">' + escapeHtml(c.issueDate) + "</div>" +
+            '<div class="badge ok">✓ شهادة موثقة ومسجلة رسمياً في سجل منصة ميزان</div>' +
+            '<div class="divider"></div>' +
+            '<div class="footer">هذه الشهادة تُصدر عند إتمام متطلبات المسار التعليمي في منصة ميزان،<br/>ويُتحقق منها عبر هذا الرابط الرسمي. <a href="/">العودة إلى المنصة</a></div>';
+        } catch (err) {
+          title.textContent = "تعذر التحقق";
+          seal.textContent = "⚠️";
+          body.innerHTML =
+            '<div class="value plain">حدث خطأ أثناء الاتصال بسجل الشهادات. حاول مرة أخرى بعد قليل.</div>';
+        }
+
+        function escapeHtml(str) {
+          return String(str || "").replace(/[&<>"']/g, function (m) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

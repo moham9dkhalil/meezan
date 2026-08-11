@@ -133,6 +133,42 @@ const geminiLimiter = rateLimiter(60 * 1000, 15);
 const reviewLimiter = rateLimiter(60 * 1000, 5);
 const authLimiter = rateLimiter(60 * 1000, 15);
 
+// ---------------------------------------------------------------------------
+// AI payload guards: bound the cost of each Gemini call (message length,
+// conversation history, and inline image size). Details are never echoed.
+// ---------------------------------------------------------------------------
+const MAX_TEXT_CHARS = 6000;
+const MAX_HISTORY_TURNS = 20;
+const MAX_IMAGE_BASE64_LEN = 14_000_000; // ~10MB file encoded as base64
+const MAX_JOURNAL_ENTRY_JSON_LEN = 250_000;
+
+function aiPayloadError(body: any): string | null {
+  if (!body || typeof body !== "object") return "البيانات غير صالحة.";
+  const message = typeof body.message === "string" ? body.message.trim() : "";
+  if (message.length > MAX_TEXT_CHARS) return "الرسالة طويلة جداً. يرجى تقصيرها وإعادة المحاولة.";
+  if (Array.isArray(body.history)) {
+    if (body.history.length > MAX_HISTORY_TURNS) return "سجل المحادثة كبير جداً. ابدأ محادثة جديدة.";
+    for (const h of body.history) {
+      const t = h?.text || "";
+      const img = h?.image?.data || "";
+      if ((typeof t === "string" && t.length > MAX_TEXT_CHARS) || (typeof img === "string" && img.length > MAX_IMAGE_BASE64_LEN)) {
+        return "أحد عناصر سجل المحادثة يتجاوز الحد المسموح.";
+      }
+    }
+  }
+  const imgData = typeof body.image?.data === "string" ? body.image.data : "";
+  if (imgData.length > MAX_IMAGE_BASE64_LEN) return "حجم الصورة يتجاوز الحد المسموح (10 ميجابايت).";
+  if (body.entry !== undefined) {
+    try {
+      const size = JSON.stringify(body.entry)?.length || 0;
+      if (size > MAX_JOURNAL_ENTRY_JSON_LEN) return "تفاصيل القيد كبيرة جداً.";
+    } catch {
+      return "تفاصيل القيد غير صالحة.";
+    }
+  }
+  return null;
+}
+
 // Reviews Endpoint - GET all reviews
 app.get("/api/reviews", async (_req, res) => {
   const reviews = await loadReviews();
@@ -166,6 +202,10 @@ app.post("/api/reviews", reviewLimiter, async (req, res) => {
 // ---------------------------------------------------------------------------
 app.post("/api/chat", geminiLimiter, async (req, res) => {
   try {
+    const payloadError = aiPayloadError(req.body);
+    if (payloadError) {
+      return res.status(400).json({ error: payloadError });
+    }
     const { message, history, persona, image } = req.body;
     if (!message && !image) {
       return res.status(400).json({ error: "الرسالة أو الصورة مطلوب إرسالها" });
@@ -263,8 +303,7 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     return res.status(500).json({
-      error: "حدث خطأ أثناء التواصل مع مساعد ميزان الذكي.",
-      details: error?.message,
+      error: "حدث خطأ أثناء التواصل مع مساعد ميزان الذكي. حاول مرة أخرى.",
     });
   }
 });
@@ -272,6 +311,10 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
 // Gemini AI Journal Entry Explanation Endpoint
 app.post("/api/explain-journal", geminiLimiter, async (req, res) => {
   try {
+    const payloadError = aiPayloadError(req.body);
+    if (payloadError) {
+      return res.status(400).json({ error: payloadError });
+    }
     const { entry } = req.body;
     if (!entry) {
       return res.status(400).json({ error: "تفاصيل القيد المحاسبي مطلوبة" });
@@ -324,8 +367,7 @@ ${entryDetailsStr}
   } catch (error: any) {
     console.error("Gemini Journal Explanation Error:", error);
     return res.status(500).json({
-      error: "حدث خطأ أثناء تحليل القيد بواسطة الذكاء الاصطناعي.",
-      details: error?.message,
+      error: "حدث خطأ أثناء تحليل القيد بواسطة الذكاء الاصطناعي. حاول مرة أخرى.",
     });
   }
 });
@@ -597,6 +639,95 @@ app.put("/api/sync", async (req, res) => {
     memoryState.set(user.id, payload);
     res.json({ ok: true, persisted: false });
   }
+});
+
+// ---------------------------------------------------------------------------
+// Digital certificates registry (verifiable share links)
+// ---------------------------------------------------------------------------
+const CERTS_BLOB = "meezan/certificates.json";
+let memoryCerts: Record<string, any> | null = null;
+
+async function loadCerts(): Promise<Record<string, any>> {
+  if (!hasBlobToken()) return memoryCerts || {};
+  try {
+    const blob = await blobGet(CERTS_BLOB, { access: "public" });
+    if (blob?.blob?.url) {
+      const res = await fetch(blob.blob.url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data === "object") {
+          memoryCerts = data;
+          return data;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Certificates blob read failed:", e);
+  }
+  return memoryCerts || {};
+}
+
+async function saveCerts(map: Record<string, any>) {
+  memoryCerts = map;
+  if (!hasBlobToken()) return;
+  try {
+    await blobPut(CERTS_BLOB, JSON.stringify(map), {
+      contentType: "application/json",
+      access: "public",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    });
+  } catch (e) {
+    console.error("Certificates blob write failed:", e);
+  }
+}
+
+// Issue a certificate (best-effort; bound to the logged-in user when possible)
+app.post("/api/certificates", async (req, res) => {
+  const { studentName, trackName, jobTitle } = req.body || {};
+  const cleanName = String(studentName || "").trim().slice(0, 80);
+  if (!cleanName) {
+    return res.status(400).json({ error: "اسم المتدرب مطلوب" });
+  }
+
+  const id = `MIZAN-${Date.now().toString(36).toUpperCase()}${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+  let ownerEmail: string | undefined;
+  const token = getBearerToken(req);
+  if (token) {
+    const users = await loadUsers();
+    const user = findUserByToken(users, token);
+    if (user) ownerEmail = user.email;
+  }
+
+  const record = {
+    id,
+    studentName: cleanName,
+    jobTitle: String(jobTitle || "محاسب مالي معتمد / مراجع حسابات").trim().slice(0, 120),
+    trackName: String(trackName || "دبلوم المحاسبة المالية والمعايير الدولية (IFRS)").trim().slice(0, 200),
+    issueDate: new Date().toLocaleDateString("ar-SA"),
+    issuedAt: new Date().toISOString(),
+    ownerEmail,
+  };
+
+  const certs = await loadCerts();
+  certs[id] = record;
+  await saveCerts(certs);
+
+  res.json({ certificate: record });
+});
+
+// Public verification page API
+app.get("/api/certificates/:id", async (req, res) => {
+  const certId = String(req.params.id || "").trim().slice(0, 64);
+  if (!/^MIZAN-[A-Z0-9-]+$/.test(certId)) {
+    return res.status(400).json({ error: "معرف شهادة غير صالح." });
+  }
+  const certs = await loadCerts();
+  const cert = certs[certId];
+  if (!cert) {
+    return res.status(404).json({ error: "لم يتم العثور على هذه الشهادة في سجل المنصة." });
+  }
+  res.json({ certificate: cert });
 });
 
 // Health check endpoint
