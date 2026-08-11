@@ -28,6 +28,8 @@ export type ActiveTab =
   | "trust"
   | "support"
   | "contentLibrary"
+  | "privacy"
+  | "terms"
   | "admin";
 
 export interface StageLesson {

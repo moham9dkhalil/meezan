@@ -7,6 +7,7 @@ import { DailyChallengeSection } from "./components/DailyChallengeSection";
 import { FeaturesSection } from "./components/FeaturesSection";
 import { AppDownloadSection } from "./components/AppDownloadSection";
 import { GamificationToast, GamificationToastEvent } from "./components/GamificationToast";
+import { CookieConsentBanner } from "./components/CookieConsentBanner";
 import { checkNewlyUnlockedBadges } from "./data/achievements";
 import { Language, getSavedLanguage, applyLanguageSettings } from "./data/translations";
 import { getToken, setToken, fetchMe, fetchSync, pushSync, CloudSyncState } from "./utils/cloudSync";
@@ -46,6 +47,8 @@ const SocpaExamSimulator = lazy(() => import("./components/SocpaExamSimulator").
 const SupportSection = lazy(() => import("./components/SupportSection").then((m) => ({ default: m.SupportSection })));
 const ContentLibrarySection = lazy(() => import("./components/ContentLibrarySection").then((m) => ({ default: m.ContentLibrarySection })));
 const AdminDashboardSection = lazy(() => import("./components/AdminDashboardSection").then((m) => ({ default: m.AdminDashboardSection })));
+const PrivacyPolicySection = lazy(() => import("./components/PrivacyPolicySection").then((m) => ({ default: m.PrivacyPolicySection })));
+const TermsSection = lazy(() => import("./components/TermsSection").then((m) => ({ default: m.TermsSection })));
 const TrustCenterSection = lazy(() => import("./components/TrustCenterSection").then((m) => ({ default: m.TrustCenterSection })));
 
 function SectionFallback() {
@@ -714,6 +717,10 @@ export default function App() {
 
         {activeTab === "admin" && <AdminDashboardSection currentUser={currentUser} />}
 
+        {activeTab === "privacy" && <PrivacyPolicySection />}
+
+        {activeTab === "terms" && <TermsSection />}
+
         {activeTab === "trust" && <TrustCenterSection />}
 
         {activeTab === "profile" && (
@@ -745,14 +752,26 @@ export default function App() {
                   : "منصة تعليم المحاسبة الأولى بالذكاء الاصطناعي"}
               </span>
             </p>
-            <button
+<button
               onClick={() => setDownloadModalOpen(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/30 transition-all text-xs font-black cursor-pointer"
             >
               <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
               <span>{isEn ? "Download Mobile App (APK)" : "تنزيل تطبيق الهاتف (APK)"}</span>
             </button>
-            <button onClick={() => handleSelectTab("trust")} className="text-slate-300 hover:text-white transition-colors cursor-pointer">{isEn ? "Trust & Privacy" : "الثقة والخصوصية"}</button>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <button onClick={() => handleSelectTab("privacy")} className="text-[11px] text-indigo-300 hover:text-white transition-colors cursor-pointer">
+              {isEn ? "Privacy Policy" : "سياسة الخصوصية"}
+            </button>
+            <span className="text-gray-600">•</span>
+            <button onClick={() => handleSelectTab("terms")} className="text-[11px] text-indigo-300 hover:text-white transition-colors cursor-pointer">
+              {isEn ? "Terms of Use" : "شروط الاستخدام"}
+            </button>
+            <span className="text-gray-600">•</span>
+            <button onClick={() => handleSelectTab("support")} className="text-[11px] text-indigo-300 hover:text-white transition-colors cursor-pointer">
+              {isEn ? "Support" : "الدعم والتواصل"}
+            </button>
           </div>
           <p className="text-[11px] text-gray-400">
             {isEn
@@ -846,6 +865,9 @@ export default function App() {
         onClose={() => setToastEvent(null)}
       />
       </Suspense>
+
+      {/* GDPR-style consent banner (first visit only) */}
+      <CookieConsentBanner onNavigate={handleSelectTab} />
     </div>
   );
 }
