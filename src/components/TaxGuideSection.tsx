@@ -503,6 +503,23 @@ export function TaxGuideSection({ onSelectTab }: TaxGuideSectionProps) {
         </div>
       </div>
 
+      {currentCountry.id === "saudi" && (
+        <section className="rounded-3xl border border-emerald-400/25 bg-emerald-500/5 p-5 sm:p-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-emerald-300 text-xs font-black"><ShieldAlert className="w-4 h-4" /> مصدر وتحديثات السعودية</div>
+              <h2 className="text-lg font-black text-white mt-2">ابدأ من المرجع الرسمي قبل تقديم أي إقرار</h2>
+              <p className="text-xs text-slate-300 leading-relaxed mt-2 max-w-3xl">راجعت هذه الروابط في 11 أغسطس 2026. استخدم المحاكيات للتعلّم فقط، ثم راجع البوابة والتعليمات الرسمية أو استشر مختصًا قبل أي تقديم أو سداد.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <a href="https://zatca.gov.sa/en/eServices/Pages/eServices-009.aspx" target="_blank" rel="noreferrer" className="px-3 py-2 rounded-xl border border-emerald-400/30 text-emerald-200 text-xs font-bold hover:bg-emerald-500/10 transition-colors">تقديم إقرار VAT</a>
+              <a href="https://zatca.gov.sa/en/E-Invoicing/Introduction/Pages/What-is-e-invoicing.aspx" target="_blank" rel="noreferrer" className="px-3 py-2 rounded-xl border border-emerald-400/30 text-emerald-200 text-xs font-bold hover:bg-emerald-500/10 transition-colors">دليل فاتورة</a>
+              <a href="https://zatca.gov.sa/en/HelpCenter/CustomerJourney/Pages/tax-journey.aspx" target="_blank" rel="noreferrer" className="px-3 py-2 rounded-xl border border-emerald-400/30 text-emerald-200 text-xs font-bold hover:bg-emerald-500/10 transition-colors">رحلة المكلف</a>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* SEARCH BAR & COUNTRY TABS BAR */}
       <div className="space-y-4">
         
