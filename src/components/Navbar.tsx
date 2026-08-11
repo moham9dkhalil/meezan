@@ -32,7 +32,10 @@ import {
   Zap,
   Briefcase,
   MessageCircleQuestion,
-  Timer
+  Timer,
+  LifeBuoy,
+  LayoutDashboard,
+  Newspaper
 } from "lucide-react";
 import { Language } from "../data/translations";
 
@@ -139,6 +142,9 @@ export function Navbar({
       items: [
         { id: "profile" as ActiveTab, label: isEn ? "My Profile & Account" : "ملفي الشخصي وإعدادات حسابي", icon: User, desc: "بياناتك، إنجازاتك، شهاداتك، وتفضيلاتك" },
         { id: "studyTimer" as ActiveTab, label: isEn ? "Study Focus Timer" : "مؤقت المذاكرة والتركيز (بومودورو)", icon: Timer, desc: "جلسات تركيز 25 دقيقة مع راحة ذكية وعدّاد جلسات" },
+        { id: "support" as ActiveTab, label: isEn ? "Support & Tickets" : "الدعم والتواصل والتذاكر", icon: LifeBuoy, desc: "تواصل معنا، أسئلة شائعة، والإبلاغ عن خطأ بمحتوى" },
+        { id: "contentLibrary" as ActiveTab, label: isEn ? "Curated Content Library" : "مكتبة المحتوى المنسّق", icon: Newspaper, desc: "دروس ومواد ضريبية ومعايير وأسئلة مختارة ومنشورة" },
+        ...(currentUser?.isAdmin ? [{ id: "admin" as ActiveTab, label: isEn ? "Admin Panel" : "لوحة إدارة المشرف", icon: LayoutDashboard, badge: isEn ? "ADMIN" : "إدارة", desc: "إدارة المحتوى والدروس والضرائب والأسئلة والتذاكر" }] : []),
       ]
     }
   ];
@@ -178,6 +184,9 @@ export function Navbar({
     { id: "appDownload" as ActiveTab, label: isEn ? "Mobile App" : "تطبيق الجوال", icon: Smartphone },
     { id: "studyTimer" as ActiveTab, label: isEn ? "Focus Timer" : "مؤقت المذاكرة", icon: Timer },
     { id: "profile" as ActiveTab, label: isEn ? "My Account" : "حسابي الشخصي", icon: User },
+    { id: "support" as ActiveTab, label: isEn ? "Support" : "الدعم والتواصل", icon: LifeBuoy },
+    { id: "contentLibrary" as ActiveTab, label: isEn ? "Content Library" : "المحتوى المنسّق", icon: Newspaper },
+    ...(currentUser?.isAdmin ? [{ id: "admin" as ActiveTab, label: isEn ? "Admin Panel" : "لوحة الإدارة", icon: LayoutDashboard, badge: "إدارة" }] : []),
   ];
 
   // Mobile Bottom Bar Items

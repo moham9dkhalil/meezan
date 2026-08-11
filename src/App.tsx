@@ -43,6 +43,9 @@ const AchievementsModal = lazy(() => import("./components/AchievementsModal").th
 const CertificateModal = lazy(() => import("./components/CertificateModal").then((m) => ({ default: m.CertificateModal })));
 const DataBackupModal = lazy(() => import("./components/DataBackupModal").then((m) => ({ default: m.DataBackupModal })));
 const SocpaExamSimulator = lazy(() => import("./components/SocpaExamSimulator").then((m) => ({ default: m.SocpaExamSimulator })));
+const SupportSection = lazy(() => import("./components/SupportSection").then((m) => ({ default: m.SupportSection })));
+const ContentLibrarySection = lazy(() => import("./components/ContentLibrarySection").then((m) => ({ default: m.ContentLibrarySection })));
+const AdminDashboardSection = lazy(() => import("./components/AdminDashboardSection").then((m) => ({ default: m.AdminDashboardSection })));
 const TrustCenterSection = lazy(() => import("./components/TrustCenterSection").then((m) => ({ default: m.TrustCenterSection })));
 
 function SectionFallback() {
@@ -704,6 +707,12 @@ export default function App() {
         {activeTab === "ai" && <AiAssistantSection />}
 
         {activeTab === "studyTimer" && <StudyTimerSection />}
+
+        {activeTab === "support" && <SupportSection />}
+
+        {activeTab === "contentLibrary" && <ContentLibrarySection />}
+
+        {activeTab === "admin" && <AdminDashboardSection currentUser={currentUser} />}
 
         {activeTab === "trust" && <TrustCenterSection />}
 

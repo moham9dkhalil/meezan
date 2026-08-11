@@ -25,7 +25,10 @@ export type ActiveTab =
   | "testimonials"
   | "studyTimer"
   | "profile"
-  | "trust";
+  | "trust"
+  | "support"
+  | "contentLibrary"
+  | "admin";
 
 export interface StageLesson {
   title: string;
@@ -201,6 +204,7 @@ export interface UserProfile {
   streak: number;
   joinedDate: string;
   isLoggedIn: boolean;
+  isAdmin?: boolean;
   learningTrack?: LearningTrack;
   savedCourses?: string[];
   completedStages?: number[];

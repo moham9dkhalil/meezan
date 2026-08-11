@@ -442,6 +442,14 @@ function hashPassword(password: string, salt: string): Promise<string> {
   });
 }
 
+function isAdminEmail(email: string): boolean {
+  return (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(String(email || "").trim().toLowerCase());
+}
+
 function sanitizeUser(u: StoredUser) {
   return {
     id: u.id,
@@ -453,6 +461,7 @@ function sanitizeUser(u: StoredUser) {
     streak: u.streak,
     joinedDate: u.joinedDate,
     learningTrack: u.learningTrack,
+    isAdmin: isAdminEmail(u.email),
     isLoggedIn: true,
   };
 }
@@ -733,6 +742,327 @@ app.get("/api/certificates/:id", async (req, res) => {
 // Health check endpoint
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", app: "Meezan" });
+});
+
+// ---------------------------------------------------------------------------
+// Admin role guard + content CMS (lessons / tax / quiz / references) + support
+// Content is edited from the admin panel and shown live, stored in blob
+// (meezan/cms/<collection>.json) with an in-memory fallback.
+// ---------------------------------------------------------------------------
+const CMS_COLLECTIONS = ["lesson", "tax", "quiz", "reference"] as const;
+type CmsCollection = (typeof CMS_COLLECTIONS)[number];
+
+const memoryCms: Record<string, any[]> = { lesson: [], tax: [], quiz: [], reference: [] };
+
+const CMS_SEEDS: Record<CmsCollection, any[]> = {
+  lesson: [
+    {
+      id: "lesson-seed-1",
+      title: "أساسيات القيد المزدوج",
+      body: "كل عملية مالية تؤثر في حسابين على الأقل: مدين ودائن، ويجب أن تكون المجاميع متوازنة دائماً. مثال: شراء بضاعة نقداً — بضاعة (مدين) / الصندوق (دائن).",
+      category: "مبادئ المحاسبة",
+      reference: "المعيار العام للتشغيل المحاسبي",
+      source: "مصدر المنصة",
+      reviewedBy: "",
+      published: true,
+      updatedAt: "",
+    },
+  ],
+  tax: [
+    {
+      id: "tax-seed-1",
+      title: "الزكاة والضريبة في السعودية 2026",
+      body: "تُفرض الزكاة على الأنشطة الخاضعة بنسبة 2.5%، والضريبة الأساسية 15%. الالتزام يتم عبر الإقرارات الموحدة مع هيئة الزكاة والضريبة والجمارك حسب ميعاد كل نشاط.",
+      category: "الأنظمة السعودية",
+      reference: "هيئة الزكاة والضريبة والجمارك",
+      source: "zatca.gov.sa",
+      reviewedBy: "",
+      published: true,
+      updatedAt: "",
+    },
+  ],
+  quiz: [
+    {
+      id: "quiz-seed-1",
+      title: "سؤال: أنواع الحسابات",
+      body: "أي من الآتية يُعد حساب أصل؟\nأ) الموردون  ب) النقدية  ج) رأس المال  د) الإيرادات\nالإجابة النموذجية: ب) النقدية.",
+      category: "مبادئ المحاسبة",
+      reference: "المنهج الأساسي",
+      source: "مصدر المنصة",
+      reviewedBy: "",
+      published: true,
+      updatedAt: "",
+    },
+  ],
+  reference: [
+    {
+      id: "reference-seed-1",
+      title: "دليل المعايير الدولية IFRS",
+      body: "روابط وأسس الاعتراف والقياس الأساسية لكل معيار IFRS/IAS مع ملخصات وارتباط نصي لكل قيد تطبيقي.",
+      category: "المعايير الدولية",
+      reference: "IFRS Foundation",
+      source: "ifrs.org",
+      reviewedBy: "",
+      published: true,
+      updatedAt: "",
+    },
+  ],
+};
+
+async function loadCms(collection: CmsCollection): Promise<any[]> {
+  if (!hasBlobToken()) return memoryCms[collection];
+  try {
+    const blob = await blobGet(`meezan/cms/${collection}.json`, { access: "public" });
+    if (blob?.blob?.url) {
+      const res = await fetch(blob.blob.url);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          memoryCms[collection] = data;
+          return data;
+        }
+      }
+    }
+  } catch (e) {
+    console.error(`CMS ${collection} read failed:`, e);
+  }
+  return memoryCms[collection];
+}
+
+async function saveCms(collection: CmsCollection, items: any[]) {
+  memoryCms[collection] = items;
+  if (!hasBlobToken()) return;
+  try {
+    await blobPut(`meezan/cms/${collection}.json`, JSON.stringify(items), {
+      contentType: "application/json",
+      access: "public",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    });
+  } catch (e) {
+    console.error(`CMS ${collection} write failed:`, e);
+  }
+}
+
+async function resolveAdminUser(req: express.Request, res: express.Response): Promise<StoredUser | null> {
+  const token = getBearerToken(req);
+  if (!token) {
+    res.status(401).json({ error: "غير مصرح به. سجل دخولك أولاً." });
+    return null;
+  }
+  const users = await loadUsers();
+  const user = findUserByToken(users, token);
+  if (!user) {
+    res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+    return null;
+  }
+  if (!isAdminEmail(user.email)) {
+    res.status(403).json({ error: "ليست لديك صلاحية المشرف." });
+    return null;
+  }
+  return user;
+}
+
+function sanitizeCmsItem(raw: any, existingId?: string) {
+  const clean = existingId || `c-${Date.now().toString(36)}-${crypto.randomBytes(3).toString("hex")}`;
+  return {
+    id: String(raw.id || clean),
+    title: String(raw.title || "").trim().slice(0, 200),
+    body: String(raw.body || "").trim().slice(0, 20000),
+    category: String(raw.category || "عام").trim().slice(0, 80),
+    reference: String(raw.reference || "").trim().slice(0, 200),
+    source: String(raw.source || "").trim().slice(0, 300),
+    reviewedBy: String(raw.reviewedBy || "").trim().slice(0, 120),
+    published: !!raw.published,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+// Public CMS read (published items only)
+app.get("/api/cms/:collection", async (req, res) => {
+  const collection = String(req.params.collection || "").toLowerCase() as CmsCollection;
+  if (!(CMS_COLLECTIONS as readonly string[]).includes(collection)) {
+    return res.status(400).json({ error: "مجموعة محتوى غير معروفة." });
+  }
+  const seeded = CMS_SEEDS[collection] || [];
+  const stored = await loadCms(collection);
+  const merged = [...stored, ...seeded.filter((s) => !stored.some((i) => i.id === s.id))];
+  res.json({ items: merged.filter((i) => i.published) });
+});
+
+// Admin CMS read (all items, drafts included)
+app.get("/api/admin/cms/:collection", async (req, res) => {
+  const admin = await resolveAdminUser(req, res);
+  if (!admin) return;
+  const collection = String(req.params.collection || "").toLowerCase() as CmsCollection;
+  if (!(CMS_COLLECTIONS as readonly string[]).includes(collection)) {
+    return res.status(400).json({ error: "مجموعة محتوى غير معروفة." });
+  }
+  const seeded = CMS_SEEDS[collection] || [];
+  const stored = await loadCms(collection);
+  const merged = [...stored, ...seeded.filter((s) => !stored.some((i) => i.id === s.id))];
+  res.json({ items: merged });
+});
+
+// Admin CMS upsert (create or update)
+app.post("/api/admin/cms/:collection", async (req, res) => {
+  const admin = await resolveAdminUser(req, res);
+  if (!admin) return;
+  const collection = String(req.params.collection || "").toLowerCase() as CmsCollection;
+  if (!(CMS_COLLECTIONS as readonly string[]).includes(collection)) {
+    return res.status(400).json({ error: "مجموعة محتوى غير معروفة." });
+  }
+  const items = await loadCms(collection);
+  const raw = req.body?.item || {};
+  const existingId = String(raw.id || "") || undefined;
+  const item = sanitizeCmsItem(raw, existingId);
+  const idx = items.findIndex((i) => i.id === item.id);
+  if (idx >= 0) items[idx] = item;
+  else items.unshift(item);
+  await saveCms(collection, items);
+  res.json({ item });
+});
+
+// Admin CMS delete
+app.delete("/api/admin/cms/:collection/:id", async (req, res) => {
+  const admin = await resolveAdminUser(req, res);
+  if (!admin) return;
+  const collection = String(req.params.collection || "").toLowerCase() as CmsCollection;
+  if (!(CMS_COLLECTIONS as readonly string[]).includes(collection)) {
+    return res.status(400).json({ error: "مجموعة محتوى غير معروفة." });
+  }
+  const id = String(req.params.id || "").trim();
+  const items = await loadCms(collection);
+  const filtered = items.filter((i) => i.id !== id);
+  await saveCms(collection, filtered);
+  res.json({ ok: true });
+});
+
+// ---------------------------------------------------------------------------
+// Support: FAQ + tickets
+// ---------------------------------------------------------------------------
+const FAQ_BLOB = "meezan/faq.json";
+const TICKETS_BLOB = "meezan/tickets.json";
+let memoryFaq: any[] | null = null;
+let memoryTickets: Record<string, any> | null = null;
+
+const FAQ_SEEDS = [
+  { id: "faq-1", question: "كيف أسجل حساباً جديداً؟", answer: "من أيقونة الحساب في الشريط العلوي اختر إنشاء حساب ثم أدخل بريدك وكلمة مرور (6 أحرف على الأقل)." },
+  { id: "faq-2", question: "هل المنصة مجانية؟", answer: "نعم، التعلم الأساسي والمكتبة والاختبارات متاحة مجاناً، وتوجد مسارات احترافية مدفوعة قريباً." },
+  { id: "faq-3", question: "كيف أحصل على شهادتي؟", answer: "بعد إكمال مسار متخصص ستتمكن من توليد شهادة موثّقة برابط تحقق عام من قسم الحساب > الشهادات." },
+  { id: "faq-4", question: "أين يمكنني التبليغ عن خطأ في المحتوى أو اقتراح؟", answer: "استخدم نموذج التبليغ في صفحة الدعم وسيصلك تتبع عبر بريدك أو ارجع لدعم منصتنا." },
+];
+
+async function loadFaq(): Promise<any[]> {
+  if (!hasBlobToken()) return memoryFaq && memoryFaq.length ? memoryFaq : FAQ_SEEDS;
+  try {
+    const blob = await blobGet(FAQ_BLOB, { access: "public" });
+    if (blob?.blob?.url) {
+      const res = await fetch(blob.blob.url);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          memoryFaq = data;
+          return data;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("FAQ read failed:", e);
+  }
+  return FAQ_SEEDS;
+}
+
+async function loadTickets(): Promise<Record<string, any>> {
+  if (!hasBlobToken()) return memoryTickets || {};
+  try {
+    const blob = await blobGet(TICKETS_BLOB, { access: "public" });
+    if (blob?.blob?.url) {
+      const res = await fetch(blob.blob.url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data === "object") {
+          memoryTickets = data;
+          return data;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Tickets read failed:", e);
+  }
+  return memoryTickets || {};
+}
+
+async function saveTickets(map: Record<string, any>) {
+  memoryTickets = map;
+  if (!hasBlobToken()) return;
+  try {
+    await blobPut(TICKETS_BLOB, JSON.stringify(map), {
+      contentType: "application/json",
+      access: "public",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    });
+  } catch (e) {
+    console.error("Tickets write failed:", e);
+  }
+}
+
+// Public FAQ
+app.get("/api/support/faq", async (_req, res) => {
+  const faq = await loadFaq();
+  res.json({ items: faq });
+});
+
+// Create a support ticket (public, rate-limited)
+app.post("/api/support/tickets", rateLimiter(60 * 1000, 10), async (req, res) => {
+  const { name, email, subject, message, category } = req.body || {};
+  const cleanEmail = String(email || "").trim().toLowerCase().slice(0, 120);
+  const cleanName = String(name || "").trim().slice(0, 80);
+  const cleanSubject = String(subject || "").trim().slice(0, 200);
+  const cleanMessage = String(message || "").trim().slice(0, 8000);
+  if (!cleanName || !cleanEmail.includes("@") || !cleanSubject || !cleanMessage) {
+    return res.status(400).json({ error: "يرجى إكمال كافة الحقول المطلوبة." });
+  }
+
+  const tickets = await loadTickets();
+  const id = `TCK-${Date.now().toString(36).toUpperCase()}${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+  tickets[id] = {
+    id,
+    name: cleanName,
+    email: cleanEmail,
+    subject: cleanSubject,
+    message: cleanMessage,
+    category: String(category || "عام").slice(0, 60),
+    status: "open",
+    createdAt: new Date().toISOString(),
+    notes: "",
+  };
+  await saveTickets(tickets);
+  res.json({ ticket: { id, status: "open", createdAt: new Date().toISOString() } });
+});
+
+// Admin: list tickets
+app.get("/api/admin/tickets", async (_req, res) => {
+  const admin = await resolveAdminUser(_req, res);
+  if (!admin) return;
+  const tickets = await loadTickets();
+  res.json({ items: Object.values(tickets).sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))) });
+});
+
+// Admin: update ticket status/notes
+app.patch("/api/admin/tickets/:id", async (req, res) => {
+  const admin = await resolveAdminUser(req, res);
+  if (!admin) return;
+  const id = String(req.params.id || "").trim();
+  const tickets = await loadTickets();
+  const ticket = tickets[id];
+  if (!ticket) return res.status(404).json({ error: "التذكرة غير موجودة." });
+  if (typeof req.body?.status === "string") ticket.status = String(req.body.status).slice(0, 20);
+  if (typeof req.body?.notes === "string") ticket.notes = String(req.body.notes).slice(0, 3000);
+  tickets[id] = ticket;
+  await saveTickets(tickets);
+  res.json({ ticket });
 });
 
 const handler = (req: express.Request, res: express.Response) => {
