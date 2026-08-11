@@ -1,4 +1,5 @@
 ﻿import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ActiveTab, UserProfile } from "../types";
 import { PomodoroTimer } from "./PomodoroTimer";
 import {
@@ -67,6 +68,7 @@ export function Navbar({
   const [quickSearchOpen, setQuickSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const morePanelRef = useRef<HTMLDivElement>(null);
 
   const isEn = appLanguage === "en";
 
@@ -74,7 +76,10 @@ export function Navbar({
   useEffect(() => {
 
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const insideButton = dropdownRef.current && dropdownRef.current.contains(target);
+      const insidePanel = morePanelRef.current && morePanelRef.current.contains(target);
+      if (!insideButton && !insidePanel) {
         setMoreMenuOpen(false);
       }
     }
@@ -279,9 +284,13 @@ export function Navbar({
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreMenuOpen ? "rotate-180 text-purple-300" : "text-slate-400"}`} />
               </button>
 
-              {/* MEGA DROPDOWN MENU */}
-              {moreMenuOpen && (
-                <div className="fixed top-[72px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4">
+              {/* MEGA DROPDOWN MENU (portal to body so it is never clipped/contained by the navbar's overflow+blur) */}
+              {moreMenuOpen &&
+                createPortal(
+                  <div
+                    ref={morePanelRef}
+                    className="fixed top-[72px] left-1/2 -translate-x-1/2 mt-2 w-[min(760px,calc(100vw-1.5rem))] max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-[#090e24] border border-white/15 rounded-3xl p-5 shadow-2xl shadow-black/90 backdrop-blur-3xl z-[70] animate-fadeIn space-y-4"
+                  >
                   <div className="flex items-center justify-between border-b border-white/10 pb-3">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-amber-400" />
@@ -368,8 +377,9 @@ export function Navbar({
                       {isEn ? "Start Learning" : "ابدأ الآن 🚀"}
                     </button>
                   </div>
-                </div>
-              )}
+                </div>,
+                  document.body
+                )}
             </div>
           </nav>
 
