@@ -534,12 +534,18 @@ app.patch("/api/auth/profile", async (req, res) => {
 });
 
 // Read cloud-saved learning state for the logged-in user
+const memoryState = new Map<string, any>();
+
 app.get("/api/sync", async (req, res) => {
   const token = getBearerToken(req);
   if (!token) return res.status(401).json({ error: "غير مصرح به." });
   const users = await loadUsers();
   const user = findUserByToken(users, token);
   if (!user) return res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+
+  if (!hasBlobToken()) {
+    return res.json({ state: memoryState.get(user.id) || null });
+  }
 
   const STATE_BLOB = `meezan/state/${user.id}.json`;
   try {
@@ -570,19 +576,26 @@ app.put("/api/sync", async (req, res) => {
     return res.status(400).json({ error: "بيانات المزامنة غير صالحة." });
   }
 
+  const payload = { ...state, savedAt: state.savedAt || new Date().toISOString() };
+
+  if (!hasBlobToken()) {
+    memoryState.set(user.id, payload);
+    return res.json({ ok: true, persisted: false });
+  }
+
   const STATE_BLOB = `meezan/state/${user.id}.json`;
   try {
-    const payload = { ...state, savedAt: state.savedAt || new Date().toISOString() };
     await blobPut(STATE_BLOB, JSON.stringify(payload), {
       contentType: "application/json",
       access: "public",
       addRandomSuffix: false,
       allowOverwrite: true,
     });
-    res.json({ ok: true });
+    res.json({ ok: true, persisted: true });
   } catch (e) {
     console.error("Sync write failed:", e);
-    res.status(500).json({ error: "تعذر حفظ البيانات سحابياً حالياً." });
+    memoryState.set(user.id, payload);
+    res.json({ ok: true, persisted: false });
   }
 });
 
