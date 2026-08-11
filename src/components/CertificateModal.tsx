@@ -28,8 +28,8 @@ export const CertificateModal: React.FC<CertificateModalProps> = ({
   isOpen,
   onClose,
   userName,
-  totalXp = 1250,
-  completedLessonsCount = 18,
+  totalXp = 0,
+  completedLessonsCount = 0,
   appLanguage = "ar"
 }) => {
   const isEn = appLanguage === "en";

@@ -10,6 +10,7 @@ import { GamificationToast, GamificationToastEvent } from "./components/Gamifica
 import { checkNewlyUnlockedBadges } from "./data/achievements";
 import { Language, getSavedLanguage, applyLanguageSettings } from "./data/translations";
 import { getToken, setToken, fetchMe, fetchSync, pushSync, CloudSyncState } from "./utils/cloudSync";
+import { trackLocalEvent } from "./utils/analytics";
 import { ArrowUp, Smartphone, Download, Loader2 } from "lucide-react";
 
 // Code-split all heavy screens & modals so only the section the user opens is loaded.
@@ -42,6 +43,7 @@ const AchievementsModal = lazy(() => import("./components/AchievementsModal").th
 const CertificateModal = lazy(() => import("./components/CertificateModal").then((m) => ({ default: m.CertificateModal })));
 const DataBackupModal = lazy(() => import("./components/DataBackupModal").then((m) => ({ default: m.DataBackupModal })));
 const SocpaExamSimulator = lazy(() => import("./components/SocpaExamSimulator").then((m) => ({ default: m.SocpaExamSimulator })));
+const TrustCenterSection = lazy(() => import("./components/TrustCenterSection").then((m) => ({ default: m.TrustCenterSection })));
 
 function SectionFallback() {
   return (
@@ -410,6 +412,7 @@ export default function App() {
   };
 
   const handleSelectTab = (tab: ActiveTab) => {
+    trackLocalEvent(`navigate:${tab}`);
     navigateTo(tab);
   };
 
@@ -447,6 +450,7 @@ export default function App() {
     lessonIndex: number = 0,
     tab: "read" | "flashcards" | "quiz" | "notes" | "ai" = "read"
   ) => {
+    trackLocalEvent(`lesson_open:${stageId}`);
     window.history.pushState({ tab: "lessonView", stageId, lessonIdx: lessonIndex, lessonTab: tab }, "");
     setSelectedStageId(stageId);
     setActiveLessonIdx(lessonIndex);
@@ -701,6 +705,8 @@ export default function App() {
 
         {activeTab === "studyTimer" && <StudyTimerSection />}
 
+        {activeTab === "trust" && <TrustCenterSection />}
+
         {activeTab === "profile" && (
           <UserProfileSection
             currentUser={currentUser}
@@ -737,6 +743,7 @@ export default function App() {
               <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
               <span>{isEn ? "Download Mobile App (APK)" : "تنزيل تطبيق الهاتف (APK)"}</span>
             </button>
+            <button onClick={() => handleSelectTab("trust")} className="text-slate-300 hover:text-white transition-colors cursor-pointer">{isEn ? "Trust & Privacy" : "الثقة والخصوصية"}</button>
           </div>
           <p className="text-[11px] text-gray-400">
             {isEn
@@ -804,6 +811,15 @@ export default function App() {
       <CertificateModal
         isOpen={certificateModalOpen}
         onClose={() => setCertificateModalOpen(false)}
+        totalXp={userXP}
+        completedLessonsCount={(() => {
+          try {
+            const saved = localStorage.getItem("meezan_completed_lessons");
+            return saved ? JSON.parse(saved).length : 0;
+          } catch {
+            return 0;
+          }
+        })()}
         userName={currentUser?.name || (language === "en" ? "Distinguished Accountant" : "المحاسب المالي المتميز")}
         appLanguage={language}
       />

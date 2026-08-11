@@ -24,7 +24,8 @@ export type ActiveTab =
   | "ai"
   | "testimonials"
   | "studyTimer"
-  | "profile";
+  | "profile"
+  | "trust";
 
 export interface StageLesson {
   title: string;
@@ -250,4 +251,3 @@ export interface ChatMessage {
     data: string;
   };
 }
-
