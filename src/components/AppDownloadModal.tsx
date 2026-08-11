@@ -40,6 +40,15 @@ export function getDirectDownloadUrl(rawUrl: string): string {
   return rawUrl;
 }
 
+// Default APK shipped with the deploy — override via VITE_APK_URL at build time
+export const DEFAULT_APK_URL =
+  (import.meta.env.VITE_APK_URL as string | undefined) || "/MeezanApp.apk";
+
+const getSavedOrDefaultApkUrl = () => {
+  const saved = localStorage.getItem("meezan_custom_apk_url");
+  return saved || DEFAULT_APK_URL;
+};
+
 export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({
   isOpen,
   onClose,
@@ -52,9 +61,7 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({
   const [selectedTab, setSelectedTab] = useState<"apk" | "custom" | "qr" | "store" | "pwa">("apk");
 
   // Real App URL State (persisted in localStorage)
-  const [customApkUrl, setCustomApkUrl] = useState<string>(() => {
-    return localStorage.getItem("meezan_custom_apk_url") || "";
-  });
+  const [customApkUrl, setCustomApkUrl] = useState<string>(getSavedOrDefaultApkUrl);
   const [customAppName, setCustomAppName] = useState<string>(() => {
     return localStorage.getItem("meezan_custom_app_name") || "تطبيق ميزان المحاسبي";
   });
@@ -166,7 +173,7 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({
   };
 
   const handleCopyLink = () => {
-    const targetUrl = customApkUrl || window.location.href;
+    const targetUrl = customApkUrl || DEFAULT_APK_URL;
     navigator.clipboard.writeText(targetUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
@@ -182,7 +189,7 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({
     }, 4000);
   };
 
-  const currentDownloadLink = customApkUrl || window.location.href;
+  const currentDownloadLink = customApkUrl || DEFAULT_APK_URL;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in dir-rtl overflow-y-auto">

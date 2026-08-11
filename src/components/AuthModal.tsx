@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { UserProfile, LearningTrack } from "../types";
 import { AvatarPicker } from "./AvatarPicker";
+import { loginAccount, registerAccount, updateProfile, getToken } from "../utils/cloudSync";
 import {
   User,
   Lock,
@@ -32,7 +33,7 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: UserProfile | null;
-  onLoginSuccess: (user: UserProfile) => void;
+  onLoginSuccess: (user: UserProfile, token?: string) => void;
   onLogout: () => void;
   initialMode?: "LOGIN" | "SIGNUP";
 }
@@ -146,13 +147,24 @@ export function AuthModal({
         // ignore
       }
 
+      // Sync profile updates to cloud when the account is a real one
+      const token = getToken();
+      if (token) {
+        updateProfile(
+          { name: editName.trim(), avatar: editAvatar, role: editRole, learningTrack: editTrack },
+          token
+        ).catch(() => {
+          // cloud sync is best-effort; local profile stays authoritative offline
+        });
+      }
+
       setIsEditingProfile(false);
       setSuccessMsg("تم تحديث معلوماتك ومسارك المفضل بنجاح! ✨");
       setTimeout(() => setSuccessMsg(""), 3000);
     }, 400);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
 
@@ -161,37 +173,22 @@ export function AuthModal({
       return;
     }
 
-    if (loginPassword.length < 4) {
-      setErrorMsg("كلمة المرور يجب أن تتكون من 4 خانات على الأقل.");
-      return;
-    }
-
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const { token, user } = await loginAccount(loginEmail, loginPassword);
       setLoading(false);
-
-      // Create or retrieve user profile
-      const userProfile: UserProfile = {
-        id: `usr_${Date.now()}`,
-        name: loginEmail.split("@")[0] || "المستخدم المحاسبي",
-        email: loginEmail,
-        role: "محاسب متدرب",
-        avatar: "👨‍💼",
-        xp: 350,
-        streak: 5,
-        joinedDate: new Date().toLocaleDateString("ar-SA"),
-        isLoggedIn: true
-      };
-
-      onLoginSuccess(userProfile);
+      onLoginSuccess(user, token);
       setSuccessMsg("تم تسجيل الدخول بنجاح! مرحباً بك في ميزان ✨");
       setTimeout(() => {
         onClose();
       }, 1000);
-    }, 600);
+    } catch (err: any) {
+      setLoading(false);
+      setErrorMsg(err?.message || "تعذر الاتصال بالخادم. تحقق من اتصالك وحاول مجدداً.");
+    }
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
 
@@ -209,21 +206,15 @@ export function AuthModal({
     }
 
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-
-      const newUser: UserProfile = {
-        id: `usr_${Date.now()}`,
+    try {
+      const { token, user } = await registerAccount({
         name: signupName.trim(),
         email: signupEmail.trim(),
+        password: signupPassword,
         role: signupRole,
         avatar: signupAvatar,
-        xp: 100, // Welcome signup bonus!
-        streak: 1,
-        joinedDate: new Date().toLocaleDateString("ar-SA"),
-        isLoggedIn: true,
         learningTrack: signupTrack
-      };
+      });
 
       try {
         localStorage.setItem("meezan_preferred_track", signupTrack);
@@ -231,12 +222,16 @@ export function AuthModal({
         // ignore
       }
 
-      onLoginSuccess(newUser);
+      setLoading(false);
+      onLoginSuccess(user, token);
       setSuccessMsg("تم إنشاء الحساب بنجاح! تم منحك +100 XP هدية الترحيب 🎉");
       setTimeout(() => {
         onClose();
       }, 1200);
-    }, 700);
+    } catch (err: any) {
+      setLoading(false);
+      setErrorMsg(err?.message || "تعذر الاتصال بالخادم. تحقق من اتصالك وحاول مجدداً.");
+    }
   };
 
   const handleQuickDemoLogin = (demo: typeof DEMO_USERS[0]) => {

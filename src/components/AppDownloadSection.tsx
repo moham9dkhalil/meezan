@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getDirectDownloadUrl } from "./AppDownloadModal";
+import { getDirectDownloadUrl, DEFAULT_APK_URL } from "./AppDownloadModal";
 import { Language } from "../data/translations";
 import { PhoneDeviceMockup } from "./PhoneDeviceMockup";
 import {
@@ -30,7 +30,13 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
   appLanguage = "ar"
 }) => {
   const isEn = appLanguage === "en";
-  const [customApkUrl, setCustomApkUrl] = useState<string>("");
+  const [customApkUrl, setCustomApkUrl] = useState<string>(() => {
+    try {
+      return localStorage.getItem("meezan_custom_apk_url") || DEFAULT_APK_URL;
+    } catch {
+      return DEFAULT_APK_URL;
+    }
+  });
   const [customAppName, setCustomAppName] = useState<string>(isEn ? "Meezan Mobile App" : "تطبيق ميزان المحاسبي");
   const [inlineLinkInput, setInlineLinkInput] = useState("");
   const [showQuickAdd, setShowQuickAdd] = useState(false);
@@ -57,7 +63,7 @@ export const AppDownloadSection: React.FC<AppDownloadSectionProps> = ({
   };
 
   const handleDirectDownload = () => {
-    const finalUrl = getDirectDownloadUrl(customApkUrl);
+    const finalUrl = getDirectDownloadUrl(customApkUrl) || DEFAULT_APK_URL;
     if (finalUrl) {
       const a = document.createElement("a");
       a.href = finalUrl;

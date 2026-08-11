@@ -1,44 +1,56 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { ActiveTab, Book, UserProfile, Badge } from "./types";
 import { ParticlesBg } from "./components/ParticlesBg";
 import { Navbar } from "./components/Navbar";
 import { HeroSection } from "./components/HeroSection";
 import { DailyChallengeSection } from "./components/DailyChallengeSection";
 import { FeaturesSection } from "./components/FeaturesSection";
-import { PathSection } from "./components/PathSection";
-import { AccountingSectorsSection } from "./components/AccountingSectorsSection";
-import { SectorDetailSection } from "./components/SectorDetailSection";
-import { InterviewQuestionsSection } from "./components/InterviewQuestionsSection";
-import { AccountingStandardsSection } from "./components/AccountingStandardsSection";
-import { CoursesSection } from "./components/CoursesSection";
-import { FlashcardsSection } from "./components/FlashcardsSection";
-import { GlossarySection } from "./components/GlossarySection";
-import { StageFlashcardsSection } from "./components/StageFlashcardsSection";
-import { LabSection } from "./components/LabSection";
-import { OdooJournalEntrySection } from "./components/OdooJournalEntrySection";
-import { ToolsSection } from "./components/ToolsSection";
-import { TaxGuideSection } from "./components/TaxGuideSection";
 import { AppDownloadSection } from "./components/AppDownloadSection";
-import { AppDownloadModal } from "./components/AppDownloadModal";
-import { LibrarySection } from "./components/LibrarySection";
-import { ExcelSection } from "./components/ExcelSection";
-import { AiAssistantSection } from "./components/AiAssistantSection";
-import { TestimonialsSection } from "./components/TestimonialsSection";
-import { LessonDetailSection } from "./components/LessonDetailSection";
-import { SmartQuizzesSection } from "./components/SmartQuizzesSection";
-import { CommunitySection } from "./components/CommunitySection";
-import { BookReaderModal } from "./components/BookReaderModal";
-import { AuthModal } from "./components/AuthModal";
-import { UserProfileSection } from "./components/UserProfileSection";
-import { StudyTimerSection } from "./components/StudyTimerSection";
-import { AchievementsModal } from "./components/AchievementsModal";
-import { CertificateModal } from "./components/CertificateModal";
-import { DataBackupModal } from "./components/DataBackupModal";
-import { SocpaExamSimulator } from "./components/SocpaExamSimulator";
 import { GamificationToast, GamificationToastEvent } from "./components/GamificationToast";
 import { checkNewlyUnlockedBadges } from "./data/achievements";
 import { Language, getSavedLanguage, applyLanguageSettings } from "./data/translations";
-import { ArrowUp, Smartphone, Download } from "lucide-react";
+import { getToken, setToken, fetchMe, fetchSync, pushSync, CloudSyncState } from "./utils/cloudSync";
+import { ArrowUp, Smartphone, Download, Loader2 } from "lucide-react";
+
+// Code-split all heavy screens & modals so only the section the user opens is loaded.
+const PathSection = lazy(() => import("./components/PathSection").then((m) => ({ default: m.PathSection })));
+const AccountingSectorsSection = lazy(() => import("./components/AccountingSectorsSection").then((m) => ({ default: m.AccountingSectorsSection })));
+const SectorDetailSection = lazy(() => import("./components/SectorDetailSection").then((m) => ({ default: m.SectorDetailSection })));
+const InterviewQuestionsSection = lazy(() => import("./components/InterviewQuestionsSection").then((m) => ({ default: m.InterviewQuestionsSection })));
+const AccountingStandardsSection = lazy(() => import("./components/AccountingStandardsSection").then((m) => ({ default: m.AccountingStandardsSection })));
+const CoursesSection = lazy(() => import("./components/CoursesSection").then((m) => ({ default: m.CoursesSection })));
+const FlashcardsSection = lazy(() => import("./components/FlashcardsSection").then((m) => ({ default: m.FlashcardsSection })));
+const GlossarySection = lazy(() => import("./components/GlossarySection").then((m) => ({ default: m.GlossarySection })));
+const StageFlashcardsSection = lazy(() => import("./components/StageFlashcardsSection").then((m) => ({ default: m.StageFlashcardsSection })));
+const LabSection = lazy(() => import("./components/LabSection").then((m) => ({ default: m.LabSection })));
+const OdooJournalEntrySection = lazy(() => import("./components/OdooJournalEntrySection").then((m) => ({ default: m.OdooJournalEntrySection })));
+const ToolsSection = lazy(() => import("./components/ToolsSection").then((m) => ({ default: m.ToolsSection })));
+const TaxGuideSection = lazy(() => import("./components/TaxGuideSection").then((m) => ({ default: m.TaxGuideSection })));
+const AppDownloadModal = lazy(() => import("./components/AppDownloadModal").then((m) => ({ default: m.AppDownloadModal })));
+const LibrarySection = lazy(() => import("./components/LibrarySection").then((m) => ({ default: m.LibrarySection })));
+const ExcelSection = lazy(() => import("./components/ExcelSection").then((m) => ({ default: m.ExcelSection })));
+const AiAssistantSection = lazy(() => import("./components/AiAssistantSection").then((m) => ({ default: m.AiAssistantSection })));
+const TestimonialsSection = lazy(() => import("./components/TestimonialsSection").then((m) => ({ default: m.TestimonialsSection })));
+const LessonDetailSection = lazy(() => import("./components/LessonDetailSection").then((m) => ({ default: m.LessonDetailSection })));
+const SmartQuizzesSection = lazy(() => import("./components/SmartQuizzesSection").then((m) => ({ default: m.SmartQuizzesSection })));
+const CommunitySection = lazy(() => import("./components/CommunitySection").then((m) => ({ default: m.CommunitySection })));
+const BookReaderModal = lazy(() => import("./components/BookReaderModal").then((m) => ({ default: m.BookReaderModal })));
+const AuthModal = lazy(() => import("./components/AuthModal").then((m) => ({ default: m.AuthModal })));
+const UserProfileSection = lazy(() => import("./components/UserProfileSection").then((m) => ({ default: m.UserProfileSection })));
+const StudyTimerSection = lazy(() => import("./components/StudyTimerSection").then((m) => ({ default: m.StudyTimerSection })));
+const AchievementsModal = lazy(() => import("./components/AchievementsModal").then((m) => ({ default: m.AchievementsModal })));
+const CertificateModal = lazy(() => import("./components/CertificateModal").then((m) => ({ default: m.CertificateModal })));
+const DataBackupModal = lazy(() => import("./components/DataBackupModal").then((m) => ({ default: m.DataBackupModal })));
+const SocpaExamSimulator = lazy(() => import("./components/SocpaExamSimulator").then((m) => ({ default: m.SocpaExamSimulator })));
+
+function ScreenLoader() {
+  return (
+    <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3">
+      <div className="w-10 h-10 rounded-full border-2 border-indigo-500/30 border-t-indigo-400 animate-spin" />
+      <span className="text-xs font-bold text-slate-400">سيتم تحميل القسم...</span>
+    </div>
+  );
+}
 
 interface AppHistoryState {
   tab: ActiveTab;
@@ -173,6 +185,19 @@ export default function App() {
   const [achievementsModalOpen, setAchievementsModalOpen] = useState<boolean>(false);
   const [toastEvent, setToastEvent] = useState<GamificationToastEvent | null>(null);
 
+  // Throttled best-effort cloud sync of the user's progress
+  const lastCloudPushAt = useRef(0);
+  const pushCloudState = (xp: number, streak: number) => {
+    const token = getToken();
+    if (!token) return;
+    const now = Date.now();
+    if (now - lastCloudPushAt.current < 15000) return;
+    lastCloudPushAt.current = now;
+    pushSync({ savedAt: new Date().toISOString(), xp, streak }, token).catch(() => {
+      // offline/cloud failure: local progress stays authoritative until next sync
+    });
+  };
+
   const awardXPAndCheckBadges = (
     amount: number,
     title: string,
@@ -191,6 +216,7 @@ export default function App() {
     } catch {
       // ignore
     }
+    pushCloudState(newXP, streakCount);
 
     if (currentUser) {
       const updatedUser = { ...currentUser, xp: newXP };
@@ -268,23 +294,93 @@ export default function App() {
     setAuthModalOpen(true);
   };
 
-  const handleLoginSuccess = (user: UserProfile) => {
+  const handleLoginSuccess = (user: UserProfile, token?: string) => {
     setCurrentUser(user);
     try {
       localStorage.setItem("meezan_auth_user", JSON.stringify(user));
     } catch {
       // ignore
     }
+    if (token) setToken(token);
+    setUserXP(user.xp || 0);
+    setStreakCount(user.streak || 0);
+
+    // Pull the user's cloud-saved progress the moment they sign in
+    const savedToken = token || getToken();
+    if (savedToken) {
+      fetchSync(savedToken)
+        .catch(() => ({ state: null }))
+        .then(({ state }) => {
+          if (state) adoptCloudState(state);
+        });
+    }
+  };
+
+  const adoptCloudState = (state: CloudSyncState) => {
+    if (typeof state.xp === "number" && Number.isFinite(state.xp)) {
+      setUserXP(state.xp);
+      try {
+        localStorage.setItem("meezan_user_xp", state.xp.toString());
+      } catch {}
+      setCurrentUser((prev) => {
+        if (!prev) return prev;
+        const updated = { ...prev, xp: state.xp };
+        try {
+          localStorage.setItem("meezan_auth_user", JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+    }
+    if (typeof state.streak === "number" && Number.isFinite(state.streak)) {
+      setStreakCount(state.streak);
+      try {
+        localStorage.setItem("meezan_daily_streak", state.streak.toString());
+      } catch {}
+    }
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
+    setToken(null);
     try {
       localStorage.removeItem("meezan_auth_user");
     } catch {
       // ignore
     }
   };
+
+  // Restore/validate a cloud session on first load when a token exists
+  useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+    let cancelled = false;
+    fetchMe(token)
+      .then(({ user }) => {
+        if (cancelled) return;
+        setCurrentUser(user);
+        setUserXP(user.xp || 0);
+        setStreakCount(user.streak || 0);
+        try {
+          localStorage.setItem("meezan_auth_user", JSON.stringify(user));
+        } catch {}
+        return fetchSync(token).catch(() => ({ state: null }));
+      })
+      .then((sync) => {
+        if (cancelled || !sync) return;
+        if (sync.state) adoptCloudState(sync.state);
+      })
+      .catch(() => {
+        // token invalid/expired → clear the broken session
+        setCurrentUser(null);
+        setToken(null);
+        try {
+          localStorage.removeItem("meezan_auth_user");
+        } catch {}
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
 
   // Scroll listener for back-to-top button
@@ -371,7 +467,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#080C1C] text-[#F3F4F6] relative pb-12 selection:bg-indigo-500/30 selection:text-indigo-200">
-      
+      <Suspense fallback={<ScreenLoader />}>
+
       {/* Dynamic Background Particles */}
       <ParticlesBg />
 
@@ -719,6 +816,7 @@ export default function App() {
         event={toastEvent}
         onClose={() => setToastEvent(null)}
       />
+      </Suspense>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import express from "express";
+import crypto from "crypto";
 import { GoogleGenAI } from "@google/genai";
 import { get as blobGet, put as blobPut } from "@vercel/blob";
 import { INITIAL_REVIEWS } from "../src/data/seedReviews";
@@ -26,9 +27,6 @@ const rateLimiter = (windowMs: number, maxRequests: number) => {
     return next();
   };
 };
-
-const geminiLimiter = rateLimiter(60 * 1000, 15);
-const reviewLimiter = rateLimiter(60 * 1000, 5);
 
 // ---------------------------------------------------------------------------
 // Reviews persistent storage
@@ -78,6 +76,10 @@ async function saveReviews(reviews: any[]) {
     console.error("Blob write failed:", e);
   }
 }
+
+const geminiLimiter = rateLimiter(60 * 1000, 15);
+const reviewLimiter = rateLimiter(60 * 1000, 5);
+const authLimiter = rateLimiter(60 * 1000, 15);
 
 // Reviews Endpoint - GET all reviews
 app.get("/api/reviews", async (_req, res) => {
@@ -273,6 +275,262 @@ ${entryDetailsStr}
       error: "حدث خطأ أثناء تحليل القيد بواسطة الذكاء الاصطناعي.",
       details: error?.message,
     });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Auth + cloud sync storage (Vercel Blob when BLOB_READ_WRITE_TOKEN is set)
+// ---------------------------------------------------------------------------
+interface StoredUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  avatar: string;
+  xp: number;
+  streak: number;
+  joinedDate: string;
+  learningTrack?: string;
+  passwordHash: string;
+  salt: string;
+  tokens: string[];
+}
+
+type UsersMap = Record<string, StoredUser>;
+
+// ---------------------------------------------------------------------------
+// Auth + cloud sync storage (Vercel Blob when BLOB_READ_WRITE_TOKEN is set)
+// ---------------------------------------------------------------------------
+const USERS_BLOB = "meezan/users.json";
+let memoryUsers: UsersMap | null = null;
+
+async function loadUsers(): Promise<UsersMap> {
+  if (!hasBlobToken()) return memoryUsers || {};
+  try {
+    const blob = await blobGet(USERS_BLOB, { access: "public" });
+    if (blob?.blob?.url) {
+      const res = await fetch(blob.blob.url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data === "object") {
+          memoryUsers = data;
+          return data;
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Users blob read failed:", e);
+  }
+  return memoryUsers || {};
+}
+
+async function saveUsers(map: UsersMap) {
+  memoryUsers = map;
+  if (!hasBlobToken()) return;
+  try {
+    await blobPut(USERS_BLOB, JSON.stringify(map), {
+      contentType: "application/json",
+      access: "public",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    });
+  } catch (e) {
+    console.error("Users blob write failed:", e);
+  }
+}
+
+function hashPassword(password: string, salt: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(password, salt, 64, (err, derived) => {
+      if (err) return reject(err);
+      resolve(derived.toString("hex"));
+    });
+  });
+}
+
+function sanitizeUser(u: StoredUser) {
+  return {
+    id: u.id,
+    email: u.email,
+    name: u.name,
+    role: u.role,
+    avatar: u.avatar,
+    xp: u.xp,
+    streak: u.streak,
+    joinedDate: u.joinedDate,
+    learningTrack: u.learningTrack,
+    isLoggedIn: true,
+  };
+}
+
+function findUserByToken(users: UsersMap, token: string): StoredUser | null {
+  return Object.values(users).find((u) => u.tokens.includes(token)) || null;
+}
+
+function getBearerToken(req: express.Request): string | null {
+  const header = req.headers.authorization || "";
+  if (!header.startsWith("Bearer ")) return null;
+  return header.slice(7).trim() || null;
+}
+
+// Register a real account
+app.post("/api/auth/register", authLimiter, async (req, res) => {
+  try {
+    const { name, email, password, role, avatar, learningTrack } = req.body || {};
+    const cleanEmail = String(email || "").trim().toLowerCase();
+    const cleanName = String(name || "").trim().slice(0, 60);
+    if (!cleanName || !cleanEmail.includes("@")) {
+      return res.status(400).json({ error: "يرجى إدخال اسم صحيح وبريد إلكتروني صالح." });
+    }
+    if (!password || String(password).length < 6) {
+      return res.status(400).json({ error: "كلمة المرور يجب أن تكون 6 أحرف/أرقام على الأقل." });
+    }
+
+    const users = await loadUsers();
+    if (users[cleanEmail]) {
+      return res.status(409).json({ error: "يوجد حساب مسجل بالفعل بهذا البريد الإلكتروني. سجل دخولك مباشرة." });
+    }
+
+    const salt = crypto.randomBytes(16).toString("hex");
+    const passwordHash = await hashPassword(String(password), salt);
+    const token = crypto.randomBytes(24).toString("hex");
+
+    const newUser: StoredUser = {
+      id: `usr_${Date.now()}_${crypto.randomBytes(3).toString("hex")}`,
+      email: cleanEmail,
+      name: cleanName,
+      role: String(role || "محاسب متدرب").slice(0, 80),
+      avatar: String(avatar || "👨‍💼").slice(0, 8),
+      xp: 100,
+      streak: 1,
+      joinedDate: new Date().toLocaleDateString("ar-SA"),
+      learningTrack: learningTrack || undefined,
+      passwordHash,
+      salt,
+      tokens: [token],
+    };
+
+    users[cleanEmail] = newUser;
+    await saveUsers(users);
+    res.json({ token, user: sanitizeUser(newUser) });
+  } catch (error: any) {
+    console.error("Register error:", error);
+    res.status(500).json({ error: "حدث خطأ أثناء إنشاء الحساب. حاول مرة أخرى." });
+  }
+});
+
+// Login to an existing account
+app.post("/api/auth/login", authLimiter, async (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    const cleanEmail = String(email || "").trim().toLowerCase();
+    if (!cleanEmail || !password) {
+      return res.status(400).json({ error: "يرجى إدخال البريد الإلكتروني وكلمة المرور." });
+    }
+
+    const users = await loadUsers();
+    const user = users[cleanEmail];
+    if (!user) {
+      return res.status(401).json({ error: "لا يوجد حساب بهذا البريد الإلكتروني. أنشئ حساباً جديداً أولاً." });
+    }
+
+    const hash = await hashPassword(String(password), user.salt);
+    if (hash !== user.passwordHash) {
+      return res.status(401).json({ error: "كلمة المرور غير صحيحة. حاول مرة أخرى." });
+    }
+
+    const token = crypto.randomBytes(24).toString("hex");
+    user.tokens = [...user.tokens.slice(-4), token];
+    users[cleanEmail] = user;
+    await saveUsers(users);
+    res.json({ token, user: sanitizeUser(user) });
+  } catch (error: any) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى." });
+  }
+});
+
+// Get current user from token
+app.get("/api/auth/me", async (req, res) => {
+  const token = getBearerToken(req);
+  if (!token) return res.status(401).json({ error: "غير مصرح به." });
+  const users = await loadUsers();
+  const user = findUserByToken(users, token);
+  if (!user) return res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+  res.json({ user: sanitizeUser(user) });
+});
+
+// Update profile (name/avatar/role/xp/streak/learningTrack)
+app.patch("/api/auth/profile", async (req, res) => {
+  const token = getBearerToken(req);
+  if (!token) return res.status(401).json({ error: "غير مصرح به." });
+  const users = await loadUsers();
+  const user = findUserByToken(users, token);
+  if (!user) return res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+
+  const { name, avatar, role, learningTrack } = req.body || {};
+  if (typeof req.body?.xp === "number" && Number.isFinite(req.body.xp)) user.xp = Math.max(0, Math.round(req.body.xp));
+  if (typeof req.body?.streak === "number" && Number.isFinite(req.body.streak)) user.streak = Math.max(0, Math.round(req.body.streak));
+  if (name) user.name = String(name).trim().slice(0, 60);
+  if (avatar) user.avatar = String(avatar).slice(0, 8);
+  if (role) user.role = String(role).slice(0, 80);
+  if (learningTrack) user.learningTrack = learningTrack;
+
+  users[user.email] = user;
+  await saveUsers(users);
+  res.json({ user: sanitizeUser(user) });
+});
+
+// Read cloud-saved learning state for the logged-in user
+app.get("/api/sync", async (req, res) => {
+  const token = getBearerToken(req);
+  if (!token) return res.status(401).json({ error: "غير مصرح به." });
+  const users = await loadUsers();
+  const user = findUserByToken(users, token);
+  if (!user) return res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+
+  const STATE_BLOB = `meezan/state/${user.id}.json`;
+  try {
+    const blob = await blobGet(STATE_BLOB, { access: "public" });
+    if (blob?.blob?.url) {
+      const res2 = await fetch(blob.blob.url);
+      if (res2.ok) {
+        const data = await res2.json();
+        if (data && typeof data === "object") return res.json({ state: data });
+      }
+    }
+  } catch (e) {
+    console.error("Sync read failed:", e);
+  }
+  res.json({ state: null });
+});
+
+// Save cloud learning state for the logged-in user
+app.put("/api/sync", async (req, res) => {
+  const token = getBearerToken(req);
+  if (!token) return res.status(401).json({ error: "غير مصرح به." });
+  const users = await loadUsers();
+  const user = findUserByToken(users, token);
+  if (!user) return res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+
+  const state = req.body?.state;
+  if (!state || typeof state !== "object") {
+    return res.status(400).json({ error: "بيانات المزامنة غير صالحة." });
+  }
+
+  const STATE_BLOB = `meezan/state/${user.id}.json`;
+  try {
+    const payload = { ...state, savedAt: state.savedAt || new Date().toISOString() };
+    await blobPut(STATE_BLOB, JSON.stringify(payload), {
+      contentType: "application/json",
+      access: "public",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("Sync write failed:", e);
+    res.status(500).json({ error: "تعذر حفظ البيانات سحابياً حالياً." });
   }
 });
 
