@@ -2,7 +2,7 @@ import express from "express";
 import crypto from "crypto";
 import { GoogleGenAI } from "@google/genai";
 import { get as blobGet, put as blobPut } from "@vercel/blob";
-import { INITIAL_REVIEWS } from "../src/data/seedReviews";
+import { INITIAL_REVIEWS } from "./seedReviews";
 
 const app = express();
 app.use(express.json({ limit: "25mb" }));
