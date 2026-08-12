@@ -510,16 +510,16 @@ export default function App() {
         <Suspense fallback={<SectionFallback />}>
         {(activeTab === "hero" || activeTab === "features" || activeTab === "testimonials") && (
           <div className="space-y-12">
-            <OnboardingTopSection
-              onSelectTab={handleSelectTab}
-              onOpenStage={handleOpenStage}
-              onOpenSector={handleOpenSector}
-              appLanguage={language}
-            />
             <HeroSection
               onSelectTab={handleSelectTab}
               onOpenStage={handleOpenStage}
               onOpenDownloadModal={() => setDownloadModalOpen(true)}
+              onOpenSector={handleOpenSector}
+              appLanguage={language}
+            />
+            <OnboardingTopSection
+              onSelectTab={handleSelectTab}
+              onOpenStage={handleOpenStage}
               onOpenSector={handleOpenSector}
               appLanguage={language}
             />
