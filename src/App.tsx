@@ -5,6 +5,7 @@ import { Navbar } from "./components/Navbar";
 import { HeroSection } from "./components/HeroSection";
 import { DailyChallengeSection } from "./components/DailyChallengeSection";
 import { FeaturesSection } from "./components/FeaturesSection";
+import { OnboardingTopSection } from "./components/OnboardingTopSection";
 import { AppDownloadSection } from "./components/AppDownloadSection";
 import { GamificationToast, GamificationToastEvent } from "./components/GamificationToast";
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
@@ -509,6 +510,12 @@ export default function App() {
         <Suspense fallback={<SectionFallback />}>
         {(activeTab === "hero" || activeTab === "features" || activeTab === "testimonials") && (
           <div className="space-y-12">
+            <OnboardingTopSection
+              onSelectTab={handleSelectTab}
+              onOpenStage={handleOpenStage}
+              onOpenSector={handleOpenSector}
+              appLanguage={language}
+            />
             <HeroSection
               onSelectTab={handleSelectTab}
               onOpenStage={handleOpenStage}
