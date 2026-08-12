@@ -2,6 +2,7 @@ import express from "express";
 import crypto from "crypto";
 import { GoogleGenAI } from "@google/genai";
 import { get as blobGet, put as blobPut } from "@vercel/blob";
+import { supabaseServer, isSupabaseConfigured } from "./lib/supabaseServer";
 
 // Seed reviews — kept inline because Vercel only packs the api/ folder into the
 // lambda; any import reaching outside it (e.g. ../src/...) fails at runtime.
@@ -702,10 +703,9 @@ app.post("/api/certificates", async (req, res) => {
   const id = `MIZAN-${Date.now().toString(36).toUpperCase()}${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
   let ownerEmail: string | undefined;
   const token = getBearerToken(req);
-  if (token) {
-    const users = await loadUsers();
-    const user = findUserByToken(users, token);
-    if (user) ownerEmail = user.email;
+  if (token && isSupabaseConfigured()) {
+    const { data } = await supabaseServer.auth.getUser(token);
+    if (data.user?.email) ownerEmail = data.user.email;
   }
 
   const record = {
@@ -844,24 +844,40 @@ async function saveCms(collection: CmsCollection, items: any[]) {
   }
 }
 
-async function resolveAdminUser(req: express.Request, res: express.Response): Promise<StoredUser | null> {
+// Verify the caller is an admin by validating the Supabase JWT and matching
+// the user's email against the ADMIN_EMAILS environment variable.
+async function resolveAdminUser(req: express.Request, res: express.Response): Promise<string | null> {
   const token = getBearerToken(req);
   if (!token) {
     res.status(401).json({ error: "غير مصرح به. سجل دخولك أولاً." });
     return null;
   }
-  const users = await loadUsers();
-  const user = findUserByToken(users, token);
-  if (!user) {
-    res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+  if (!isSupabaseConfigured()) {
+    res.status(503).json({ error: "إعدادات Supabase غير مضبوطة على الخادم." });
     return null;
   }
-  if (!isAdminEmail(user.email)) {
+  const { data, error } = await supabaseServer.auth.getUser(token);
+  if (error || !data.user) {
+    res.status(401).json({ error: "جلسة غير صالحة. سجل دخولك مرة أخرى." });
+    return null;
+  }
+  const email = String(data.user.email || "").trim().toLowerCase();
+  if (!isAdminEmail(email)) {
     res.status(403).json({ error: "ليست لديك صلاحية المشرف." });
     return null;
   }
-  return user;
+  return email;
 }
+
+// Lightweight endpoint the client calls to learn whether the signed-in user is
+// an admin (used to reveal the admin panel in the UI).
+app.get("/api/admin/check", async (req, res) => {
+  const token = getBearerToken(req);
+  if (!token || !isSupabaseConfigured()) return res.json({ isAdmin: false });
+  const { data, error } = await supabaseServer.auth.getUser(token);
+  if (error || !data.user) return res.json({ isAdmin: false });
+  res.json({ isAdmin: isAdminEmail(String(data.user.email || "").trim().toLowerCase()) });
+});
 
 function sanitizeCmsItem(raw: any, existingId?: string) {
   const clean = existingId || `c-${Date.now().toString(36)}-${crypto.randomBytes(3).toString("hex")}`;

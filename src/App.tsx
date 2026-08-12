@@ -11,7 +11,14 @@ import { GamificationToast, GamificationToastEvent } from "./components/Gamifica
 import { CookieConsentBanner } from "./components/CookieConsentBanner";
 import { checkNewlyUnlockedBadges } from "./data/achievements";
 import { Language, getSavedLanguage, applyLanguageSettings } from "./data/translations";
-import { getToken, setToken, fetchMe, fetchSync, pushSync, CloudSyncState } from "./utils/cloudSync";
+import { supabase } from "./lib/supabase";
+import {
+  upsertProfileFromSession,
+  saveProgress,
+  loadProgress,
+  fetchAdminStatus,
+  CloudSyncState,
+} from "./lib/auth";
 import { trackLocalEvent } from "./utils/analytics";
 import { ArrowUp, Smartphone, Download, Loader2 } from "lucide-react";
 
@@ -199,12 +206,10 @@ export default function App() {
   // Throttled best-effort cloud sync of the user's progress
   const lastCloudPushAt = useRef(0);
   const pushCloudState = (xp: number, streak: number) => {
-    const token = getToken();
-    if (!token) return;
     const now = Date.now();
     if (now - lastCloudPushAt.current < 15000) return;
     lastCloudPushAt.current = now;
-    pushSync({ savedAt: new Date().toISOString(), xp, streak }, token).catch(() => {
+    saveProgress({ savedAt: new Date().toISOString(), xp, streak }).catch(() => {
       // offline/cloud failure: local progress stays authoritative until next sync
     });
   };
@@ -305,26 +310,28 @@ export default function App() {
     setAuthModalOpen(true);
   };
 
-  const handleLoginSuccess = (user: UserProfile, token?: string) => {
+  const handleLoginSuccess = (user: UserProfile) => {
     setCurrentUser(user);
     try {
       localStorage.setItem("meezan_auth_user", JSON.stringify(user));
     } catch {
       // ignore
     }
-    if (token) setToken(token);
     setUserXP(user.xp || 0);
     setStreakCount(user.streak || 0);
 
     // Pull the user's cloud-saved progress the moment they sign in
-    const savedToken = token || getToken();
-    if (savedToken) {
-      fetchSync(savedToken)
-        .catch(() => ({ state: null }))
-        .then(({ state }) => {
-          if (state) adoptCloudState(state);
-        });
-    }
+    loadProgress()
+      .then((state) => {
+        if (state) adoptCloudState(state);
+      })
+      .catch(() => {});
+
+    fetchAdminStatus()
+      .then((isAdmin) => {
+        if (isAdmin) setCurrentUser((prev) => (prev ? { ...prev, isAdmin: true } : prev));
+      })
+      .catch(() => {});
   };
 
   const adoptCloudState = (state: CloudSyncState) => {
@@ -348,49 +355,88 @@ export default function App() {
         localStorage.setItem("meezan_daily_streak", state.streak.toString());
       } catch {}
     }
-  };
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setToken(null);
-    try {
-      localStorage.removeItem("meezan_auth_user");
-    } catch {
-      // ignore
+    // Restore detailed progress captured from other devices.
+    if (state.progress && typeof state.progress === "object") {
+      const p = state.progress as Record<string, unknown>;
+      try {
+        if (Array.isArray(p.completedLessons))
+          localStorage.setItem("meezan_completed_lessons", JSON.stringify(p.completedLessons));
+        if (typeof p.solvedLabEntries === "number")
+          localStorage.setItem("meezan_solved_lab_entries_count", String(p.solvedLabEntries));
+        if (typeof p.dailyChallenges === "number")
+          localStorage.setItem("meezan_daily_challenges_count", String(p.dailyChallenges));
+        if (Array.isArray(p.unlockedBadges))
+          localStorage.setItem("meezan_unlocked_badges", JSON.stringify(p.unlockedBadges));
+      } catch {
+        // ignore
+      }
     }
   };
 
-  // Restore/validate a cloud session on first load when a token exists
-  useEffect(() => {
-    const token = getToken();
-    if (!token) return;
-    let cancelled = false;
-    fetchMe(token)
-      .then(({ user }) => {
-        if (cancelled) return;
-        setCurrentUser(user);
-        setUserXP(user.xp || 0);
-        setStreakCount(user.streak || 0);
-        try {
-          localStorage.setItem("meezan_auth_user", JSON.stringify(user));
-        } catch {}
-        return fetchSync(token).catch(() => ({ state: null }));
-      })
-      .then((sync) => {
-        if (cancelled || !sync) return;
-        if (sync.state) adoptCloudState(sync.state);
-      })
-      .catch(() => {
-        // token invalid/expired → clear the broken session
+  const handleLogout = () => {
+    supabase.auth
+      .signOut()
+      .then(() => {
         setCurrentUser(null);
-        setToken(null);
         try {
           localStorage.removeItem("meezan_auth_user");
-        } catch {}
+        } catch {
+          // ignore
+        }
+      })
+      .catch(() => {
+        setCurrentUser(null);
+        try {
+          localStorage.removeItem("meezan_auth_user");
+        } catch {
+          // ignore
+        }
       });
+  };
+
+  // Adopt the signed-in user's profile + progress from Supabase on load/change.
+  const adoptSessionUser = async () => {
+    try {
+      const user = await upsertProfileFromSession();
+      if (!user) {
+        setCurrentUser(null);
+        return;
+      }
+      setCurrentUser(user);
+      setUserXP(user.xp || 0);
+      setStreakCount(user.streak || 0);
+      try {
+        localStorage.setItem("meezan_auth_user", JSON.stringify(user));
+      } catch {
+        // ignore
+      }
+      const isAdmin = await fetchAdminStatus().catch(() => false);
+      if (isAdmin) setCurrentUser((prev) => (prev ? { ...prev, isAdmin: true } : prev));
+      const state = await loadProgress().catch(() => null);
+      if (state) adoptCloudState(state);
+    } catch {
+      // session invalid
+    }
+  };
+
+  // Restore/validate a Supabase session on first load and subscribe to changes.
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return;
+      if (data.session) adoptSessionUser();
+      else setCurrentUser(null);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) adoptSessionUser();
+      else setCurrentUser(null);
+    });
     return () => {
       cancelled = true;
+      sub.subscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
