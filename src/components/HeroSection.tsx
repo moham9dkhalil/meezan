@@ -32,6 +32,29 @@ export function HeroSection({ onSelectTab, onOpenStage, onOpenDownloadModal, onO
 
   return (
     <section className="relative pt-6 pb-16 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 mb-10">
+        <div className="rounded-3xl border border-emerald-400/25 bg-emerald-500/5 p-5 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+            <div>
+              <p className="text-emerald-300 text-xs font-black mb-1">{isEn ? "YOUR FIRST 10 MINUTES" : "أول 10 دقائق لك في ميزان"}</p>
+              <h2 className="text-xl sm:text-2xl font-black text-white">{isEn ? "Finish with one balanced journal entry." : "اخرج بقيد محاسبي متوازن تفهمه وتطبّقه."}</h2>
+            </div>
+            <span className="self-start sm:self-auto rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-bold text-slate-300">{isEn ? "Try first, sign up later" : "جرّب أولًا، وأنشئ حسابك لاحقًا"}</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { n: "1", title: isEn ? "Understand" : "افهم", desc: isEn ? "A short, guided lesson" : "درس قصير وموجّه", action: () => onOpenStage(1) },
+              { n: "2", title: isEn ? "Apply" : "طبّق", desc: isEn ? "Record a practical entry" : "سجّل قيدًا عمليًا", action: () => onSelectTab("odooJournal") },
+              { n: "3", title: isEn ? "Check yourself" : "اختبر نفسك", desc: isEn ? "Get instant feedback" : "احصل على تغذية راجعة فورية", action: () => onSelectTab("smartQuizzes") },
+            ].map((step) => (
+              <button key={step.n} onClick={step.action} className="text-right rtl:text-right ltr:text-left group flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0b1224]/70 hover:border-emerald-400/50 hover:bg-emerald-500/10 p-4 transition-colors cursor-pointer">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-sm font-black text-emerald-300">{step.n}</span>
+                <span><span className="block text-sm font-black text-white">{step.title}</span><span className="block text-xs text-slate-400 mt-0.5">{step.desc}</span></span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
@@ -179,29 +202,6 @@ export function HeroSection({ onSelectTab, onOpenStage, onOpenDownloadModal, onO
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 mt-2">
-        <div className="rounded-3xl border border-emerald-400/25 bg-emerald-500/5 p-5 sm:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
-            <div>
-              <p className="text-emerald-300 text-xs font-black mb-1">{isEn ? "YOUR FIRST 10 MINUTES" : "أول 10 دقائق لك في ميزان"}</p>
-              <h2 className="text-xl sm:text-2xl font-black text-white">{isEn ? "Finish with one balanced journal entry." : "اخرج بقيد محاسبي متوازن تفهمه وتطبّقه."}</h2>
-            </div>
-            <span className="self-start sm:self-auto rounded-full bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-bold text-slate-300">{isEn ? "Try first, sign up later" : "جرّب أولًا، وأنشئ حسابك لاحقًا"}</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              { n: "1", title: isEn ? "Understand" : "افهم", desc: isEn ? "A short, guided lesson" : "درس قصير وموجّه", action: () => onOpenStage(1) },
-              { n: "2", title: isEn ? "Apply" : "طبّق", desc: isEn ? "Record a practical entry" : "سجّل قيدًا عمليًا", action: () => onSelectTab("odooJournal") },
-              { n: "3", title: isEn ? "Check yourself" : "اختبر نفسك", desc: isEn ? "Get instant feedback" : "احصل على تغذية راجعة فورية", action: () => onSelectTab("smartQuizzes") },
-            ].map((step) => (
-              <button key={step.n} onClick={step.action} className="text-right rtl:text-right ltr:text-left group flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0b1224]/70 hover:border-emerald-400/50 hover:bg-emerald-500/10 p-4 transition-colors cursor-pointer">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-sm font-black text-emerald-300">{step.n}</span>
-                <span><span className="block text-sm font-black text-white">{step.title}</span><span className="block text-xs text-slate-400 mt-0.5">{step.desc}</span></span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
     </section>
   );
 }
