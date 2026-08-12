@@ -93,57 +93,57 @@ export function Navbar({
   // Primary Nav Items shown directly on the top bar
   const primaryNavItems: { id: ActiveTab; label: string; icon: any; badge?: string }[] = [
     { id: "hero", label: isEn ? "Home" : "الرئيسية", icon: Scale },
-    { id: "sectors", label: isEn ? "Sectors" : "التخصصات", icon: Briefcase },
     { id: "path", label: isEn ? "Stages (32)" : "المراحل", icon: Layers, badge: "32" },
+    { id: "sectors", label: isEn ? "Sectors" : "التخصصات", icon: Briefcase },
     { id: "taxGuide", label: isEn ? "Tax" : "الضرائب", icon: Receipt, badge: isEn ? "2026" : "2026" },
   ];
 
-  // Categorized items for the "All Tools & Sections" Dropdown
+  // Categorized items for the "All Tools & Sections" Dropdown (ordered by domain)
   const categorizedNavItems = [
     {
-      categoryAr: "🌱 المسار التعليمي والتقييمات",
-      categoryEn: "🌱 Learning Path & Exams",
+      categoryAr: "🎓 التعلم والمحتوى التعليمي",
+      categoryEn: "🎓 Learning & Courses",
       items: [
-        { id: "sectors" as ActiveTab, label: isEn ? "Accounting Sectors & Fields" : "تخصصات وقطاعات المحاسبة (المقاولات، المصانع، العقارات...)", icon: Briefcase, desc: "خريطة التعلم والقيود وشجرة الحسابات لكل مجال قطاعي" },
-        { id: "interviewQuestions" as ActiveTab, label: isEn ? "Accounting Job Interviews Q&A" : "أسئلة مقابلات المحاسبة (من حديث التخرج لـ CFO)", icon: MessageCircleQuestion, badge: "جديد", desc: "كل الأسئلة والإجابات النموذجية لجميع المستويات الوظيفية" },
-        { id: "accountingStandards" as ActiveTab, label: isEn ? "All Accounting Standards (IFRS/IAS/EAS/GAAP)" : "كل معايير المحاسبة (دولي، مصري، أمريكي)", icon: BookMarked, badge: "مرجع", desc: "شرح تفصيلي عميق لكل معيار: النطاق، الاعتراف، القياس، الإفصاح، أمثلة، وقيود" },
         { id: "path" as ActiveTab, label: isEn ? "32 Learning Stages" : "المراحل التعليمية (32 مرحلة)", icon: Layers, desc: "دروس تفاعلية مع أسئلة وحالات عمل" },
+        { id: "sectors" as ActiveTab, label: isEn ? "Accounting Sectors & Fields" : "تخصصات وقطاعات المحاسبة (المقاولات، المصانع، العقارات...)", icon: Briefcase, desc: "خريطة التعلم والقيود وشجرة الحسابات لكل مجال قطاعي" },
+        { id: "courses" as ActiveTab, label: isEn ? "Accredited Courses" : "الكورسات والشهادات المعتمدة", icon: Award, desc: "مسارات متخصصة شهادة الممارس والمدير" },
         { id: "smartQuizzes" as ActiveTab, label: isEn ? "Smart Quizzes" : "الاختبارات والتطبيقات الذكية", icon: Brain, desc: "اختبر مستواك المحاسبي مع التغذية الراجعة" },
         { id: "socpaExam" as ActiveTab, label: isEn ? "SOCPA Exam Simulator" : "محاكي اختبار زمالة SOCPA", icon: ShieldCheck, desc: "أسئلة وتمارين الزمالة السعودية للمحاسبين" },
-        { id: "courses" as ActiveTab, label: isEn ? "Accredited Courses" : "الكورسات والشهادات المعتمدة", icon: Award, desc: "مسارات متخصصة شهادة الممارس والمدير" },
+        { id: "interviewQuestions" as ActiveTab, label: isEn ? "Accounting Job Interviews Q&A" : "أسئلة مقابلات المحاسبة (من حديث التخرج لـ CFO)", icon: MessageCircleQuestion, badge: "جديد", desc: "كل الأسئلة والإجابات النموذجية لجميع المستويات الوظيفية" },
+        { id: "studyTimer" as ActiveTab, label: isEn ? "Study Focus Timer" : "مؤقت المذاكرة والتركيز (بومودورو)", icon: Timer, desc: "جلسات تركيز 25 دقيقة مع راحة ذكية وعدّاد جلسات" },
       ]
     },
     {
-      categoryAr: "⚡ المعمل والتطبيقات العملية",
-      categoryEn: "⚡ Practical Lab & Tools",
+      categoryAr: "⚙️ المعمل والتطبيقات العملية",
+      categoryEn: "⚙️ Practical Lab & Tools",
       items: [
         { id: "lab" as ActiveTab, label: isEn ? "Accounting Lab" : "المعمل المحاسبي الشامل", icon: Calculator, desc: "تسجيل القيود والشجرة وإعادة التوجيه" },
         { id: "odooJournal" as ActiveTab, label: isEn ? "Odoo ERP Journal" : "شاشات قيود أنظمة Odoo ERP", icon: Building2, desc: "توجيه واختيار الحسابات كما في النظام الحقيقي" },
+        { id: "taxGuide" as ActiveTab, label: isEn ? "Comprehensive Tax Guide" : "دليل الضرائب العربي والأنظمة 2026", icon: Receipt, desc: "اللوائح والإقرارات الضريبية والفوترة" },
         { id: "excel" as ActiveTab, label: isEn ? "Excel Templates" : "قوالب وإكسيل المحاسب المالي", icon: FileSpreadsheet, desc: "نماذج جاهزة للمعادلات والقوائم" },
         { id: "tools" as ActiveTab, label: isEn ? "Financial Calculators" : "حاسبات الأصول والإهلاك والرواتب", icon: Calculator, desc: "حساب الإهلاك والضريبة والرواتب والميزانية" },
-        { id: "taxGuide" as ActiveTab, label: isEn ? "Comprehensive Tax Guide" : "دليل الضرائب العربي والأنظمة 2026", icon: Receipt, desc: "اللوائح والإقرارات الضريبية والفوترة" },
       ]
     },
     {
-      categoryAr: "📚 القاموس والمكتبة والمجتمع",
-      categoryEn: "📚 Dictionary & Community",
+      categoryAr: "📚 المراجع والمعايير",
+      categoryEn: "📚 References & Standards",
       items: [
+        { id: "accountingStandards" as ActiveTab, label: isEn ? "All Accounting Standards (IFRS/IAS/EAS/GAAP)" : "كل معايير المحاسبة (دولي، مصري، أمريكي)", icon: BookMarked, badge: "مرجع", desc: "شرح تفصيلي عميق لكل معيار: النطاق، الاعتراف، القياس، الإفصاح، أمثلة، وقيود" },
         { id: "glossary" as ActiveTab, label: isEn ? "Accounting Dictionary" : "قاموس ومعجم مصطلحات المحاسبة", icon: BookMarked, desc: "شرح مبسط لكافة الحسابات والمعايير" },
         { id: "flashcards" as ActiveTab, label: isEn ? "English Accounting Terms" : "بطاقات المصطلحات الإنجليزية", icon: BookOpen, desc: "تعلم المصطلحات بالصوت والنطق الإنجليزي" },
         { id: "library" as ActiveTab, label: isEn ? "Digital Library" : "المكتبة الرقمية والكتب PDF", icon: Library, desc: "ملخصات ومعايير وملازم للتحميل" },
-        { id: "community" as ActiveTab, label: isEn ? "Accountants Community" : "مجتمع المحاسبين والخبراء", icon: Users, desc: "نقاشات واستشارات ومشاركات الممارسين" },
-        { id: "appDownload" as ActiveTab, label: isEn ? "Download Mobile App" : "تحميل تطبيق الهاتف (Android)", icon: Smartphone, badge: "APK", desc: "تثبيت تطبيق ميزان على جوالك" },
-        { id: "ai" as ActiveTab, label: isEn ? "AI Assistant" : "المساعد الذكي للمحاسب", icon: Bot, badge: "AI", desc: "إجابات فورية على استفساراتك المحاسبية" },
+        { id: "contentLibrary" as ActiveTab, label: isEn ? "Curated Content Library" : "مكتبة المحتوى المنسّق", icon: Newspaper, desc: "دروس ومواد ضريبية ومعايير وأسئلة مختارة ومنشورة" },
       ]
     },
     {
-      categoryAr: "👤 حسابك والتركيز في المذاكرة",
-      categoryEn: "👤 Your Account & Study Focus",
+      categoryAr: "🤝 المجتمع والدعم والحساب",
+      categoryEn: "🤝 Community, Support & Account",
       items: [
+        { id: "community" as ActiveTab, label: isEn ? "Accountants Community" : "مجتمع المحاسبين والخبراء", icon: Users, desc: "نقاشات واستشارات ومشاركات الممارسين" },
+        { id: "ai" as ActiveTab, label: isEn ? "AI Assistant" : "المساعد الذكي للمحاسب", icon: Bot, badge: "AI", desc: "إجابات فورية على استفساراتك المحاسبية" },
+        { id: "appDownload" as ActiveTab, label: isEn ? "Download Mobile App" : "تحميل تطبيق الهاتف (Android)", icon: Smartphone, badge: "APK", desc: "تثبيت تطبيق ميزان على جوالك" },
         { id: "profile" as ActiveTab, label: isEn ? "My Profile & Account" : "ملفي الشخصي وإعدادات حسابي", icon: User, desc: "بياناتك، إنجازاتك، شهاداتك، وتفضيلاتك" },
-        { id: "studyTimer" as ActiveTab, label: isEn ? "Study Focus Timer" : "مؤقت المذاكرة والتركيز (بومودورو)", icon: Timer, desc: "جلسات تركيز 25 دقيقة مع راحة ذكية وعدّاد جلسات" },
         { id: "support" as ActiveTab, label: isEn ? "Support & Tickets" : "الدعم والتواصل والتذاكر", icon: LifeBuoy, desc: "تواصل معنا، أسئلة شائعة، والإبلاغ عن خطأ بمحتوى" },
-        { id: "contentLibrary" as ActiveTab, label: isEn ? "Curated Content Library" : "مكتبة المحتوى المنسّق", icon: Newspaper, desc: "دروس ومواد ضريبية ومعايير وأسئلة مختارة ومنشورة" },
         { id: "privacy" as ActiveTab, label: isEn ? "Privacy Policy" : "سياسة الخصوصية", icon: ShieldCheck, desc: "كيف نتعامل مع بياناتك وقياساتك" },
         { id: "terms" as ActiveTab, label: isEn ? "Terms of Use" : "شروط الاستخدام", icon: FileSpreadsheet, desc: "الشروط والأحكام لاستخدام المنصة" },
         ...(currentUser?.isAdmin ? [{ id: "admin" as ActiveTab, label: isEn ? "Admin Panel" : "لوحة إدارة المشرف", icon: LayoutDashboard, badge: isEn ? "ADMIN" : "إدارة", desc: "إدارة المحتوى والدروس والضرائب والأسئلة والتذاكر" }] : []),
@@ -164,30 +164,31 @@ export function Navbar({
         item.keywords.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-  // All Items for Mobile Grid
+  // All Items for Mobile Grid (ordered by domain)
   const mobileAllItems = [
     { id: "hero" as ActiveTab, label: isEn ? "Home" : "الرئيسية", icon: Scale },
     { id: "path" as ActiveTab, label: isEn ? "Stages (32)" : "المراحل (32)", icon: Layers, badge: "32" },
-    { id: "interviewQuestions" as ActiveTab, label: isEn ? "Interview Q&A" : "مقابلات العمل", icon: MessageCircleQuestion },
-    { id: "accountingStandards" as ActiveTab, label: isEn ? "Accounting Standards" : "معايير المحاسبة", icon: BookMarked },
+    { id: "sectors" as ActiveTab, label: isEn ? "Sectors" : "التخصصات", icon: Briefcase },
+    { id: "courses" as ActiveTab, label: isEn ? "Courses" : "الكورسات والشهادات", icon: Award },
     { id: "smartQuizzes" as ActiveTab, label: isEn ? "Smart Quizzes" : "الاختبارات الذكية", icon: Brain },
     { id: "socpaExam" as ActiveTab, label: isEn ? "SOCPA Exam" : "اختبار SOCPA", icon: ShieldCheck },
+    { id: "interviewQuestions" as ActiveTab, label: isEn ? "Interview Q&A" : "مقابلات العمل", icon: MessageCircleQuestion },
+    { id: "studyTimer" as ActiveTab, label: isEn ? "Focus Timer" : "مؤقت المذاكرة", icon: Timer },
     { id: "lab" as ActiveTab, label: isEn ? "Accounting Lab" : "المعمل المحاسبي", icon: Calculator },
     { id: "odooJournal" as ActiveTab, label: isEn ? "Odoo ERP" : "قيود أودو", icon: Building2 },
     { id: "taxGuide" as ActiveTab, label: isEn ? "Tax Guide" : "دليل الضرائب", icon: Receipt, badge: "2026" },
     { id: "excel" as ActiveTab, label: isEn ? "Excel Templates" : "إكسيل المحاسب", icon: FileSpreadsheet },
     { id: "tools" as ActiveTab, label: isEn ? "Calculators" : "الأدوات المالية", icon: Calculator },
-    { id: "courses" as ActiveTab, label: isEn ? "Courses" : "الكورسات والشهادات", icon: Award },
-    { id: "community" as ActiveTab, label: isEn ? "Community" : "مجتمع المحاسبين", icon: Users },
+    { id: "accountingStandards" as ActiveTab, label: isEn ? "Accounting Standards" : "معايير المحاسبة", icon: BookMarked },
     { id: "glossary" as ActiveTab, label: isEn ? "Dictionary" : "قاموس المحاسبة", icon: BookMarked },
     { id: "flashcards" as ActiveTab, label: isEn ? "English Terms" : "مصطلحات إنجليزية", icon: BookOpen },
     { id: "library" as ActiveTab, label: isEn ? "Library" : "المكتبة الرقمية", icon: Library },
+    { id: "contentLibrary" as ActiveTab, label: isEn ? "Content Library" : "المحتوى المنسّق", icon: Newspaper },
+    { id: "community" as ActiveTab, label: isEn ? "Community" : "مجتمع المحاسبين", icon: Users },
     { id: "ai" as ActiveTab, label: isEn ? "AI Assistant" : "المساعد الذكي", icon: Bot, badge: "AI" },
     { id: "appDownload" as ActiveTab, label: isEn ? "Mobile App" : "تطبيق الجوال", icon: Smartphone },
-    { id: "studyTimer" as ActiveTab, label: isEn ? "Focus Timer" : "مؤقت المذاكرة", icon: Timer },
     { id: "profile" as ActiveTab, label: isEn ? "My Account" : "حسابي الشخصي", icon: User },
     { id: "support" as ActiveTab, label: isEn ? "Support" : "الدعم والتواصل", icon: LifeBuoy },
-    { id: "contentLibrary" as ActiveTab, label: isEn ? "Content Library" : "المحتوى المنسّق", icon: Newspaper },
     { id: "privacy" as ActiveTab, label: isEn ? "Privacy Policy" : "سياسة الخصوصية", icon: ShieldCheck },
     { id: "terms" as ActiveTab, label: isEn ? "Terms of Use" : "شروط الاستخدام", icon: FileSpreadsheet },
     ...(currentUser?.isAdmin ? [{ id: "admin" as ActiveTab, label: isEn ? "Admin Panel" : "لوحة الإدارة", icon: LayoutDashboard, badge: "إدارة" }] : []),
