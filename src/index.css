@@ -744,3 +744,103 @@ html.light header .text-amber-200 {
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
+
+/* ==========================================================================
+   LIGHT MODE ENHANCEMENTS — VIBRANT PALETTE, GRADIENTS & ANIMATIONS
+   (scoped to html.light so the dark theme is unaffected)
+   ========================================================================== */
+
+/* 1. Animated pastel ambient background — soft living colour mesh */
+html.light .bg-ambient-gradient {
+  background:
+    radial-gradient(720px 520px at 12% 6%, rgba(99, 102, 241, 0.18), transparent 55%),
+    radial-gradient(640px 480px at 88% 2%, rgba(236, 72, 153, 0.14), transparent 55%),
+    radial-gradient(720px 600px at 80% 94%, rgba(16, 185, 129, 0.13), transparent 55%),
+    radial-gradient(560px 480px at 16% 98%, rgba(14, 165, 233, 0.11), transparent 55%);
+  background-size: 180% 180%;
+  animation: lmAmbient 20s ease-in-out infinite;
+}
+@keyframes lmAmbient {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+}
+
+/* 2. Premium card surfaces — subtle gradient + airy shadow + entrance rise */
+html.light [class*="bg-\[\#"]:not(button):not(a):not(span),
+html.light section[class*="bg-\[\#"],
+html.light .glass-panel {
+  background: linear-gradient(160deg, #ffffff 0%, #f7f9ff 55%, #fdf2f8 100%) !important;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease, border-color 0.4s ease;
+  animation: lmRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+html.light [class*="bg-\[\#"]:not(button):not(a):not(span):hover,
+html.light section[class*="bg-\[\#"]:hover,
+html.light .glass-panel:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 48px -16px rgba(99, 102, 241, 0.30),
+    0 8px 22px -10px rgba(236, 72, 153, 0.20);
+  border-color: rgba(129, 140, 248, 0.55) !important;
+}
+@keyframes lmRise {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 3. Animated gradient shift on primary action buttons */
+html.light button.bg-indigo-600 { background-image: linear-gradient(135deg, #6366f1, #8b5cf6) !important; }
+html.light button.bg-purple-600 { background-image: linear-gradient(135deg, #8b5cf6, #ec4899) !important; }
+html.light button.bg-emerald-600 { background-image: linear-gradient(135deg, #10b981, #14b8a6) !important; }
+html.light button.bg-rose-600 { background-image: linear-gradient(135deg, #f43f5e, #ec4899) !important; }
+html.light button.bg-indigo-600,
+html.light button.bg-purple-600,
+html.light button.bg-emerald-600,
+html.light button.bg-rose-600,
+html.light button[class*="bg-gradient-to"] {
+  background-size: 200% 200% !important;
+  animation: lmBtnShift 6s ease infinite;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+html.light button.bg-indigo-600:hover,
+html.light button.bg-purple-600:hover,
+html.light button.bg-emerald-600:hover,
+html.light button.bg-rose-600:hover,
+html.light button[class*="bg-gradient-to"]:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 14px 30px -10px rgba(99, 102, 241, 0.55);
+}
+@keyframes lmBtnShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* 4. Floating decorative motion */
+html.light .animate-floaty { animation: lmFloat 7s ease-in-out infinite; }
+@keyframes lmFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+/* 5. Gradient text shimmer for headings */
+html.light .text-transparent.bg-clip-text,
+html.light [class*="bg-clip-text"] {
+  background-size: 200% 200% !important;
+  animation: lmTextShimmer 8s ease infinite;
+}
+@keyframes lmTextShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* 6. Soft pulsing aura on highlighted cards */
+html.light .animate-pulse-aura { animation: lmAura 4s ease-in-out infinite; }
+@keyframes lmAura {
+  0%, 100% { box-shadow: 0 0 18px rgba(129, 140, 248, 0.18), 0 0 30px rgba(99, 102, 241, 0.12); }
+  50% { box-shadow: 0 0 36px rgba(168, 85, 247, 0.34), 0 0 54px rgba(236, 72, 153, 0.22); }
+}
+
+/* Accessibility — respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html.light * { animation: none !important; transition: none !important; }
+}
