@@ -1401,7 +1401,7 @@ export function LessonDetailSection({
                   </span>
                 </div>
 
-                <h2 className="unit-title text-2xl sm:text-3xl font-black leading-tight">
+                <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                   {lesson.title}
                 </h2>
               </div>
@@ -1608,7 +1608,7 @@ export function LessonDetailSection({
                   <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
                     <span className={`text-xs font-black ${THEME_STYLES[readingTheme].headerText} flex items-center gap-2`}>
                       <Sparkles className="w-4 h-4 text-indigo-400" />
-                      <span>الشرح والمفهوم المحاسبي (كتابة تفاعلية حية ✍️):</span>
+                      <span className="unit-title">الشرح والمفهوم المحاسبي (كتابة تفاعلية حية ✍️):</span>
                     </span>
 
                     <div className="flex items-center gap-2">
@@ -2592,7 +2592,7 @@ export function LessonDetailSection({
                     <Sparkles className="w-4 h-4" />
                     <span>محتوى الدرس بوضع التركيز المباشر</span>
                   </span>
-                  <h1 className="unit-title text-2xl sm:text-3xl font-black leading-tight">
+                  <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                     {lesson.title}
                   </h1>
                 </div>

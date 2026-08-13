@@ -936,10 +936,10 @@ html.light .animate-pulse-aura { animation: lmAura 4s ease-in-out infinite; }
     #fbbf24, #f97316, #ec4899, #a855f7, #6366f1, #06b6d4, #10b981, #f59e0b, #fbbf24
   );
   background-size: 300% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
   animation: unitTitleFlow 7s linear infinite, unitTitlePulse 3s ease-in-out infinite;
 }
 @keyframes unitTitleFlow {
