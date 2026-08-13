@@ -1,7 +1,37 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI } from "@google/genai";
+
+// Gemini via the REST API (fetch is built into Node 18+, no SDK needed).
+async function generateGeminiText(
+  contents: any,
+  systemInstruction: string,
+  temperature: number
+): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY غير متوفر في البيئة.");
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const payload = {
+    contents:
+      typeof contents === "string"
+        ? [{ role: "user", parts: [{ text: contents }] }]
+        : contents,
+    systemInstruction: { parts: [{ text: systemInstruction }] },
+    generationConfig: { temperature },
+  };
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!resp.ok) {
+    const detail = await resp.text().catch(() => "");
+    throw new Error(`Gemini HTTP ${resp.status}: ${detail.slice(0, 300)}`);
+  }
+  const data = await resp.json();
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  return parts.map((p: any) => p.text || "").join("");
+}
 
 async function startServer() {
   const app = express();
@@ -42,15 +72,6 @@ const MAX_JOURNAL_ENTRY_JSON_LEN = 250_000;
           error: "مفتاح GEMINI_API_KEY غير متوفر في البيئة.",
         });
       }
-
-      const ai = new GoogleGenAI({
-        apiKey,
-        httpOptions: {
-          headers: {
-            "User-Agent": "aistudio-build",
-          },
-        },
-      });
 
       let personaInstruction = `أنت "مساعد ميزان"، معلم وخبير محترف في علم المحاسبة المالية وقراءة الفواتير والمستندات المحاسبية باللغة العربية.`;
       
@@ -115,16 +136,8 @@ const MAX_JOURNAL_ENTRY_JSON_LEN = 250_000;
         parts: currentParts,
       });
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
-        contents,
-        config: {
-          systemInstruction,
-          temperature: 0.7,
-        },
-      });
-
-      const reply = response.text || "عذراً، لم أستطع توليد إجابة في الوقت الحالي.";
+      const reply = (await generateGeminiText(contents, systemInstruction, 0.7))
+        || "عذراً، لم أستطع توليد إجابة في الوقت الحالي.";
       return res.json({ reply });
     } catch (error: any) {
       console.error("Gemini API Error:", error);
@@ -158,15 +171,6 @@ const MAX_JOURNAL_ENTRY_JSON_LEN = 250_000;
         });
       }
 
-      const ai = new GoogleGenAI({
-        apiKey,
-        httpOptions: {
-          headers: {
-            "User-Agent": "aistudio-build",
-          },
-        },
-      });
-
       const prompt = `قم بتحليل القيد المحاسبي المحفوظ التالي بشكل تفصيلي وشرح المنطق المحاسبي للمتعلم:
 
 بيانات القيد:
@@ -182,16 +186,8 @@ ${entryDetailsStr}
       const systemInstruction = `أنت "مساعد ميزان الخبير المحاسبي"، معلم محاسبة متخصص ومتمرس.
 تساعد الطلاب والمتعلمين على فهم المنطق المحاسبي العميق للقيود المحاسبية وتطبيق قاعدة القيد المزدوج ومعايير المحاسبة (IFRS/GAAP) بأسلوب ممتع، مشجع، وافي، ومنسق بنقاط واضحة جداً.`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
-        contents: prompt,
-        config: {
-          systemInstruction,
-          temperature: 0.5,
-        },
-      });
-
-      const explanation = response.text || "لم يتم التوصل لشرح مناسب للقيد.";
+      const explanation = (await generateGeminiText(prompt, systemInstruction, 0.5))
+        || "لم يتم التوصل لشرح مناسب للقيد.";
       return res.json({ explanation });
     } catch (error: any) {
       console.error("Gemini Journal Explanation Error:", error);
@@ -219,15 +215,6 @@ ${entryDetailsStr}
           error: "مفتاح GEMINI_API_KEY غير متوفر في البيئة.",
         });
       }
-
-      const ai = new GoogleGenAI({
-        apiKey,
-        httpOptions: {
-          headers: {
-            "User-Agent": "aistudio-build",
-          },
-        },
-      });
 
       const entryContext = currentEntry
         ? `البيانات الحالية للقيد المحاسبي المعروض بـ Odoo:
@@ -259,16 +246,8 @@ ${history && history.length > 0 ? history.map((h: any) => `${h.role === 'user' ?
 - إذا كان السؤال عن كيفية إعداد قيد معين أو تعديل حقل في أودو، وضح الخطوات المحددة بالزر والحقل.
 - اجعل الأسلوب مهنياً ودوداً ومباشراً كخبراء Odoo ERP.`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
-        contents: chatPrompt,
-        config: {
-          systemInstruction: `أنت مساعد Odoo ERP المحاسبي الذكي المدمج في نظام ميزان. تجيب بدقة عالية وبأسلوب منظم وواضح عن جميع أسئلة القيود والمحاسبة بنظام Odoo.`,
-          temperature: 0.6,
-        },
-      });
-
-      const reply = response.text || "أهلاً بك! أنا مساعد Odoo المحاسبي. كيف يمكنني مساعدتك في هذا القيد؟";
+      const reply = (await generateGeminiText(chatPrompt, `أنت مساعد Odoo ERP المحاسبي الذكي المدمج في نظام ميزان. تجيب بدقة عالية وبأسلوب منظم وواضح عن جميع أسئلة القيود والمحاسبة بنظام Odoo.`, 0.6))
+        || "أهلاً بك! أنا مساعد Odoo المحاسبي. كيف يمكنني مساعدتك في هذا القيد؟";
       return res.json({ reply });
     } catch (error: any) {
       console.error("Odoo AI Chat Error:", error);

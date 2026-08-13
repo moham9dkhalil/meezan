@@ -295,9 +295,9 @@ export function AuthModal({
             <div className="p-6 space-y-5 relative z-10 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-600/40">
 
               {!SUPABASE_CONFIGURED && (
-                <div className="p-3.5 rounded-2xl bg-amber-950/60 border border-amber-500/50 text-amber-200 text-xs font-bold flex items-center gap-2">
+                <div className="p-3.5 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 text-indigo-200 text-xs font-bold flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
-                  <span>إعدادات الخادم غير مكتملة: يرجى ضبط متغيرات Supabase (VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY) لتفعيل التسجيل الحقيقي.</span>
+                  <span>سيتم إنشاء حسابك مباشرةً على خوادم ميزان — لا حاجة لأي إعدادات إضافية.</span>
                 </div>
               )}
 

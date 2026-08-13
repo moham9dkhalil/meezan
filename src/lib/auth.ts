@@ -1,27 +1,68 @@
 import { supabase } from "./supabase";
 import { UserProfile, LearningTrack } from "../types";
 
-// ---------------------------------------------------------------------------
-// Real authentication + profile persistence backed by Supabase (Postgres).
-// The Supabase client keeps the session in localStorage and refreshes the
-// access token automatically; we mirror the access token in a module-level
-// cache so synchronous code (API headers) can read it without await.
-// ---------------------------------------------------------------------------
+const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || "";
+const SUPABASE_ANON_KEY = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || "";
+export const SUPABASE_CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
+// When the Supabase env vars are absent we fall back to the built-in API auth
+// (handled by the serverless function), so registration works with zero
+// external configuration. Set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY (and
+// run supabase/migrations/0001_profiles.sql) to switch to real Supabase auth.
+const USING_API = !SUPABASE_CONFIGURED;
+
+// ---------------------------------------------------------------------------
+// API-mode session storage (localStorage)
+// ---------------------------------------------------------------------------
+const API_TOKEN_KEY = "meezan_api_token";
+const API_USER_KEY = "meezan_auth_user";
+
+function apiToken(): string | null {
+  try {
+    return localStorage.getItem(API_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+function storeApiSession(token: string, user: UserProfile) {
+  try {
+    localStorage.setItem(API_TOKEN_KEY, token);
+    localStorage.setItem(API_USER_KEY, JSON.stringify(user));
+  } catch {}
+}
+function clearApiSession() {
+  try {
+    localStorage.removeItem(API_TOKEN_KEY);
+    localStorage.removeItem(API_USER_KEY);
+  } catch {}
+}
+function storedApiUser(): UserProfile | null {
+  try {
+    const raw = localStorage.getItem(API_USER_KEY);
+    return raw ? (JSON.parse(raw) as UserProfile) : null;
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Supabase-mode token cache (mirrored so synchronous API headers can read it)
+// ---------------------------------------------------------------------------
 let cachedToken: string | null = null;
-
 supabase.auth.getSession().then(({ data }) => {
   cachedToken = data.session?.access_token ?? null;
 });
-
 supabase.auth.onAuthStateChange((_event, session) => {
   cachedToken = session?.access_token ?? null;
 });
 
 export function getAccessToken(): string | null {
-  return cachedToken;
+  return USING_API ? apiToken() : cachedToken;
 }
 
+// ---------------------------------------------------------------------------
+// Supabase profile mapping + lookups
+// ---------------------------------------------------------------------------
 export interface SupabaseProfile {
   id: string;
   email: string;
@@ -60,9 +101,94 @@ async function getProfileById(id: string): Promise<SupabaseProfile | null> {
   return data as SupabaseProfile;
 }
 
-// Returns the current user's profile, creating it from session metadata if the
-// database row does not exist yet (defensive — the DB trigger also creates it).
+// ---------------------------------------------------------------------------
+// Sign up
+// ---------------------------------------------------------------------------
+export async function signUp(input: {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+  avatar: string;
+  learningTrack: LearningTrack;
+}): Promise<{ session: boolean }> {
+  if (USING_API) {
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    const data = await res.json().catch(() => ({} as any));
+    if (!res.ok) throw new Error(data?.error || "فشل إنشاء الحساب. حاول مرة أخرى.");
+    storeApiSession(data.token, data.user);
+    return { session: Boolean(data.token) };
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email: input.email,
+    password: input.password,
+    options: {
+      data: {
+        name: input.name,
+        avatar: input.avatar,
+        role: input.role,
+        learning_track: input.learningTrack,
+      },
+      emailRedirectTo: `${window.location.origin}/`,
+    },
+  });
+  if (error) throw error;
+  return { session: Boolean(data.session) };
+}
+
+// ---------------------------------------------------------------------------
+// Sign in
+// ---------------------------------------------------------------------------
+export async function signIn(email: string, password: string): Promise<void> {
+  if (USING_API) {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json().catch(() => ({} as any));
+    if (!res.ok) throw new Error(data?.error || "البريد أو كلمة المرور غير صحيحين.");
+    storeApiSession(data.token, data.user);
+    return;
+  }
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Sign out
+// ---------------------------------------------------------------------------
+export async function signOut(): Promise<void> {
+  if (USING_API) {
+    clearApiSession();
+    return;
+  }
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Reset password
+// ---------------------------------------------------------------------------
+export async function resetPassword(email: string): Promise<void> {
+  if (USING_API) return; // no email service in API mode
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/`,
+  });
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Upsert profile from the current session (used right after login/signup)
+// ---------------------------------------------------------------------------
 export async function upsertProfileFromSession(): Promise<UserProfile | null> {
+  if (USING_API) return storedApiUser();
+
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
   if (!user) return null;
@@ -90,54 +216,32 @@ export async function upsertProfileFromSession(): Promise<UserProfile | null> {
   return mapProfileToUser(data as SupabaseProfile);
 }
 
-export async function signUp(input: {
-  name: string;
-  email: string;
-  password: string;
-  role: string;
-  avatar: string;
-  learningTrack: LearningTrack;
-}): Promise<{ session: boolean }> {
-  const { data, error } = await supabase.auth.signUp({
-    email: input.email,
-    password: input.password,
-    options: {
-      data: {
-        name: input.name,
-        avatar: input.avatar,
-        role: input.role,
-        learning_track: input.learningTrack,
-      },
-      emailRedirectTo: `${window.location.origin}/`,
-    },
-  });
-  if (error) throw error;
-  return { session: Boolean(data.session) };
-}
-
-export async function signIn(email: string, password: string): Promise<void> {
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
-}
-
-export async function signOut(): Promise<void> {
-  const { error } = await supabase.auth.signOut();
-  if (error) throw error;
-}
-
-export async function resetPassword(email: string): Promise<void> {
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/`,
-  });
-  if (error) throw error;
-}
-
+// ---------------------------------------------------------------------------
+// Update profile
+// ---------------------------------------------------------------------------
 export async function updateMyProfile(patch: {
   name?: string;
   avatar?: string;
   role?: string;
   learningTrack?: LearningTrack;
 }): Promise<UserProfile> {
+  if (USING_API) {
+    const token = apiToken();
+    const res = await fetch("/api/auth/profile", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(patch),
+    });
+    const data = await res.json().catch(() => ({} as any));
+    if (!res.ok) throw new Error(data?.error || "تعذر تحديث الملف الشخصي.");
+    const user = data.user as UserProfile;
+    storeApiSession(token || "", user);
+    return user;
+  }
+
   const { error: authErr } = await supabase.auth.updateUser({
     data: {
       name: patch.name,
@@ -166,9 +270,8 @@ export async function updateMyProfile(patch: {
 }
 
 // ---------------------------------------------------------------------------
-// Progress cloud sync (XP / streak / detailed local progress) → Supabase.
+// Progress cloud sync
 // ---------------------------------------------------------------------------
-
 export interface CloudSyncState {
   savedAt: string;
   xp: number;
@@ -184,7 +287,6 @@ function readLocalJSON<T>(key: string, fallback: T): T {
     return fallback;
   }
 }
-
 function readLocalNumber(key: string): number | undefined {
   try {
     const raw = localStorage.getItem(key);
@@ -195,6 +297,27 @@ function readLocalNumber(key: string): number | undefined {
 }
 
 export async function saveProgress(state: CloudSyncState): Promise<void> {
+  if (USING_API) {
+    const token = apiToken();
+    const progress: Record<string, unknown> = { ...(state.progress || {}) };
+    progress.completedLessons = readLocalJSON<string[]>("meezan_completed_lessons", []);
+    const lab = readLocalNumber("meezan_solved_lab_entries_count");
+    if (lab !== undefined) progress.solvedLabEntries = lab;
+    const daily = readLocalNumber("meezan_daily_challenges_count");
+    if (daily !== undefined) progress.dailyChallenges = daily;
+    progress.unlockedBadges = readLocalJSON<string[]>("meezan_unlocked_badges", []);
+
+    await fetch("/api/sync", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ state: { ...state, progress } }),
+    });
+    return;
+  }
+
   const { data: authData } = await supabase.auth.getUser();
   if (!authData.user) return;
 
@@ -214,6 +337,21 @@ export async function saveProgress(state: CloudSyncState): Promise<void> {
 }
 
 export async function loadProgress(): Promise<CloudSyncState | null> {
+  if (USING_API) {
+    const token = apiToken();
+    if (!token) return null;
+    try {
+      const res = await fetch("/api/sync", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data?.state || null;
+    } catch {
+      return null;
+    }
+  }
+
   const { data: authData } = await supabase.auth.getUser();
   if (!authData.user) return null;
   const prof = await getProfileById(authData.user.id);
@@ -226,7 +364,9 @@ export async function loadProgress(): Promise<CloudSyncState | null> {
   };
 }
 
-// Server-side admin check (reads ADMIN_EMAILS env via the API).
+// ---------------------------------------------------------------------------
+// Server-side admin check (reads ADMIN_EMAILS env via the API)
+// ---------------------------------------------------------------------------
 export async function fetchAdminStatus(): Promise<boolean> {
   const token = getAccessToken();
   if (!token) return false;
