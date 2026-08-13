@@ -1410,22 +1410,22 @@ export function LessonDetailSection({
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => setIsFocusMode(true)}
-                  className="px-4 py-2.5 rounded-2xl font-black text-xs flex items-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-pink-500/20 hover:from-amber-500/30 hover:to-pink-500/30 text-amber-300 border border-amber-400/40 shadow-md shadow-amber-500/10"
+                  className="px-4 py-2.5 rounded-2xl font-black text-xs flex items-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-white border border-amber-300 shadow-lg shadow-amber-500/25"
                   title="تفعيل وضع التركيز الخالي من المشتتات بالقراءة"
                 >
-                  <Maximize2 className="w-4 h-4 text-amber-400" />
+                  <Maximize2 className="w-4 h-4 text-white" />
                   <span>وضع التركيز 🎯</span>
                 </button>
 
                 <button
                   onClick={toggleComplete}
-                  className={`px-4 py-2.5 rounded-2xl font-extrabold text-xs flex items-center gap-2 transition-all cursor-pointer border shadow-lg ${
+                  className={`px-4 py-2.5 rounded-2xl font-extrabold text-xs flex items-center gap-2 transition-all cursor-pointer border shadow-md ${
                     isCompleted
-                      ? "bg-emerald-600 text-white border-emerald-400 shadow-emerald-600/30"
-                      : "bg-white/5 hover:bg-white/10 text-gray-300 border-white/10"
+                      ? "bg-emerald-500 text-white border-emerald-300 shadow-emerald-500/30"
+                      : "bg-white/80 hover:bg-white text-indigo-700 border-indigo-400/40"
                   }`}
                 >
-                  <CheckCircle2 className={`w-4 h-4 ${isCompleted ? "text-white" : "text-emerald-400"}`} />
+                  <CheckCircle2 className={`w-4 h-4 ${isCompleted ? "text-white" : "text-emerald-500"}`} />
                   <span>{isCompleted ? "مكتمل ✅" : "تعليم كمكتمل"}</span>
                 </button>
               </div>
@@ -1592,12 +1592,12 @@ export function LessonDetailSection({
                       onClick={() => setIsFocusMode(!isFocusMode)}
                       className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all cursor-pointer flex items-center gap-1.5 border ${
                         isFocusMode
-                          ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20"
-                          : "bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-500/30"
+                          ? "bg-gradient-to-r from-amber-400 to-orange-500 text-white border-amber-300 shadow-md shadow-amber-500/30"
+                          : "bg-white/70 hover:bg-white text-amber-700 border-amber-400/40"
                       }`}
                       title="تفعيل وضع التركيز لإخفاء جميع القوائم والمشتتات"
                     >
-                      <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+                      <Maximize2 className={`w-3.5 h-3.5 ${isFocusMode ? "text-white" : "text-amber-500"}`} />
                       <span>{isFocusMode ? "خروج من وضع التركيز" : "وضع التركيز 🎯"}</span>
                     </button>
                   </div>
