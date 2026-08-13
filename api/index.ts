@@ -266,6 +266,9 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
       return res.status(400).json({ error: "Ø§Ù„Ø±Ø³Ø§Ù„Ø© Ø£Ùˆ Ø§Ù„ØµÙˆØ±Ø© Ù…Ø·Ù„ÙˆØ¨ Ø¥Ø±Ø³Ø§Ù„Ù‡Ø§" });
     }
 
+    console.error("CHAT_HIT_STATIC_GUARD hasKey=", Boolean(process.env.GEMINI_API_KEY));
+    return res.json({ reply: "STATIC_OK_FROM_DEPLOY" });
+
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({
