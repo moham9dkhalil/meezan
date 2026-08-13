@@ -840,6 +840,30 @@ html.light .animate-pulse-aura { animation: lmAura 4s ease-in-out infinite; }
   50% { box-shadow: 0 0 36px rgba(168, 85, 247, 0.34), 0 0 54px rgba(236, 72, 153, 0.22); }
 }
 
+/* 7. Universal hover highlight — every interactive element reacts with brand colour */
+html.light a,
+html.light button,
+html.light [role="button"],
+html.light .cursor-pointer,
+html.light li[class*="hover:"],
+html.light [class*="hover:bg-"],
+html.light [class*="hover:text-"] {
+  transition: background-color 0.25s ease, color 0.25s ease,
+    border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+html.light a:hover,
+html.light button:hover,
+html.light [role="button"]:hover,
+html.light .cursor-pointer:hover,
+html.light li[class*="hover:"]:hover,
+html.light [class*="hover:bg-"]:hover,
+html.light [class*="hover:text-"]:hover {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16),
+    0 8px 22px -10px rgba(99, 102, 241, 0.30) !important;
+  border-color: rgba(129, 140, 248, 0.55) !important;
+}
+html.light a:hover { color: #4f46e5 !important; }
+
 /* Accessibility — respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html.light * { animation: none !important; transition: none !important; }
