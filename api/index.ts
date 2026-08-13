@@ -76,10 +76,37 @@ const INITIAL_REVIEWS = [
 ];
 
 const app = express();
-app.use(express.json({ limit: "25mb" }));
 
-app.get("/api/__version", (_req, res) => {
+// Custom raw body parser (Vercel's express.json stream read is unreliable here).
+app.use((req: any, res: any, next: any) => {
+  if (req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS") {
+    return next();
+  }
+  const chunks: Buffer[] = [];
+  req.on("data", (c: Buffer) => chunks.push(c));
+  req.on("end", () => {
+    const raw = Buffer.concat(chunks).toString("utf8");
+    (req as any).rawBody = raw;
+    if (raw && raw.trim()) {
+      try {
+        req.body = JSON.parse(raw);
+      } catch (e) {
+        return res.status(400).json({ error: "Ø¬Ø³Ù… ØºÙŠØ± ØµØ§Ù„Ø­", raw: raw.slice(0, 200) });
+      }
+    } else {
+      req.body = {};
+    }
+    next();
+  });
+  req.on("error", () => next());
+});
+
+app.get("/api/__version", (req: any, res) => {
   res.json({ sha: process.env.VERCEL_GIT_COMMIT_SHA || "local", ok: true });
+});
+
+app.post("/api/__raw", (req: any, res) => {
+  res.json({ raw: (req as any).rawBody || "", ct: req.headers["content-type"], body: req.body });
 });
 
 // Simple in-memory rate limiter for API abuse protection
