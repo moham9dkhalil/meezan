@@ -78,6 +78,10 @@ const INITIAL_REVIEWS = [
 const app = express();
 app.use(express.json({ limit: "25mb" }));
 
+app.get("/api/__version", (_req, res) => {
+  res.json({ sha: process.env.VERCEL_GIT_COMMIT_SHA || "local", ok: true });
+});
+
 // Simple in-memory rate limiter for API abuse protection
 const rateLimiter = (windowMs: number, maxRequests: number) => {
   const hits = new Map<string, { count: number; resetAt: number }>();
