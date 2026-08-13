@@ -1,11 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#111B36"/>
-      <stop offset="1" stop-color="#0B1220"/>
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset="1" stop-color="#161033"/>
     </linearGradient>
+    <linearGradient id="scale" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#818CF8"/>
+      <stop offset="0.5" stop-color="#A855F7"/>
+      <stop offset="1" stop-color="#EC4899"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.75">
+      <stop offset="0" stop-color="#6366F1" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#6366F1" stop-opacity="0"/>
+    </radialGradient>
   </defs>
+
   <rect width="64" height="64" rx="14" fill="url(#bg)"/>
-  <rect x="1.5" y="1.5" width="61" height="61" rx="12.5" fill="none" stroke="#6366F1" stroke-opacity="0.55" stroke-width="2"/>
-  <text x="32" y="45" font-size="38" text-anchor="middle">⚖️</text>
+  <rect width="64" height="64" rx="14" fill="url(#glow)"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="12.5" fill="none" stroke="url(#scale)" stroke-opacity="0.5" stroke-width="1.5"/>
+
+  <!-- column -->
+  <rect x="30.3" y="12" width="3.4" height="36" rx="1.7" fill="url(#scale)"/>
+  <!-- base -->
+  <path d="M21 48 h22 l-5 8 h-12 z" fill="url(#scale)"/>
+  <!-- top knob -->
+  <circle cx="32" cy="11" r="3.2" fill="url(#scale)"/>
+  <!-- beam -->
+  <rect x="11" y="19" width="42" height="3.2" rx="1.6" fill="url(#scale)"/>
+  <!-- left hangers + pan -->
+  <path d="M11 20.5 L5.5 30 M11 20.5 L16.5 30" stroke="url(#scale)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M3.5 30 Q11 39 18.5 30 Z" fill="url(#scale)"/>
+  <!-- right hangers + pan -->
+  <path d="M53 20.5 L47.5 30 M53 20.5 L58.5 30" stroke="url(#scale)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M45.5 30 Q53 39 60.5 30 Z" fill="url(#scale)"/>
 </svg>

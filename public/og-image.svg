@@ -1,0 +1,71 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset="1" stop-color="#1A0F33"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.32" cy="0.42" r="0.6">
+      <stop offset="0" stop-color="#6366F1" stop-opacity="0.40"/>
+      <stop offset="1" stop-color="#6366F1" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#818CF8"/>
+      <stop offset="0.5" stop-color="#A855F7"/>
+      <stop offset="1" stop-color="#EC4899"/>
+    </linearGradient>
+    <linearGradient id="scale" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#818CF8"/>
+      <stop offset="0.5" stop-color="#A855F7"/>
+      <stop offset="1" stop-color="#EC4899"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1E1B4B"/>
+      <stop offset="1" stop-color="#2E1065"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- logo -->
+  <g transform="translate(120,150) scale(7)">
+    <rect x="30.3" y="12" width="3.4" height="36" rx="1.7" fill="url(#scale)"/>
+    <path d="M21 48 h22 l-5 8 h-12 z" fill="url(#scale)"/>
+    <circle cx="32" cy="11" r="3.2" fill="url(#scale)"/>
+    <rect x="11" y="19" width="42" height="3.2" rx="1.6" fill="url(#scale)"/>
+    <path d="M11 20.5 L5.5 30 M11 20.5 L16.5 30" stroke="url(#scale)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M3.5 30 Q11 39 18.5 30 Z" fill="url(#scale)"/>
+    <path d="M53 20.5 L47.5 30 M53 20.5 L58.5 30" stroke="url(#scale)" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M45.5 30 Q53 39 60.5 30 Z" fill="url(#scale)"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="640" y="250" font-size="84" font-weight="900" fill="url(#brand)" letter-spacing="1">Meezan</text>
+  <text x="640" y="300" font-size="30" font-weight="700" fill="#C7D2FE">منصة تعلم المحاسبة — Meezan Accounting</text>
+
+  <!-- tagline -->
+  <text x="640" y="345" font-size="26" font-weight="500" fill="#94A3B8">Learn accounting by doing — journals, IFRS, taxes &amp; AI tutor.</text>
+
+  <!-- feature chips -->
+  <g font-size="22" font-weight="700" fill="#E9D5FF">
+    <rect x="640" y="395" width="250" height="48" rx="24" fill="url(#chip)" stroke="#7C3AED" stroke-opacity="0.5"/>
+    <text x="765" y="425" text-anchor="middle">32 Learning Stages</text>
+
+    <rect x="910" y="395" width="250" height="48" rx="24" fill="url(#chip)" stroke="#7C3AED" stroke-opacity="0.5"/>
+    <text x="1035" y="425" text-anchor="middle">Journal Entry Lab</text>
+
+    <rect x="640" y="455" width="210" height="48" rx="24" fill="url(#chip)" stroke="#7C3AED" stroke-opacity="0.5"/>
+    <text x="745" y="485" text-anchor="middle">IFRS / IAS</text>
+
+    <rect x="870" y="455" width="230" height="48" rx="24" fill="url(#chip)" stroke="#7C3AED" stroke-opacity="0.5"/>
+    <text x="985" y="485" text-anchor="middle">Tax Guide 2026</text>
+
+    <rect x="640" y="515" width="180" height="48" rx="24" fill="url(#chip)" stroke="#7C3AED" stroke-opacity="0.5"/>
+    <text x="730" y="545" text-anchor="middle">AI Tutor</text>
+
+    <rect x="830" y="515" width="270" height="48" rx="24" fill="url(#chip)" stroke="#7C3AED" stroke-opacity="0.5"/>
+    <text x="965" y="545" text-anchor="middle">SOCPA Exam Simulator</text>
+  </g>
+
+  <text x="640" y="600" font-size="20" font-weight="600" fill="#64748B">meezan — Accounting, made practical.</text>
+</svg>
