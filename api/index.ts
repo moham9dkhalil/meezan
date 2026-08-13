@@ -339,9 +339,11 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
       || "عذراً، لم أستطع توليد إجابة في الوقت الحالي.";
     return res.json({ reply });
   } catch (error: any) {
-    console.error("Gemini API Error:", error);
+    console.error("Gemini API Error:", error?.message, error?.stack);
     return res.status(500).json({
       error: "Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„ØªÙˆØ§ØµÙ„ Ù…Ø¹ Ù…Ø³Ø§Ø¹Ø¯ Ù…ÙŠØ²Ø§Ù† Ø§Ù„Ø°ÙƒÙŠ. Ø­Ø§ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰.",
+      detail: String(error?.message || error),
+      hasKey: Boolean(process.env.GEMINI_API_KEY),
     });
   }
 });
