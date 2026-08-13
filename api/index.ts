@@ -1,6 +1,5 @@
 ﻿import express from "express";
 import crypto from "crypto";
-import { GoogleGenAI } from "@google/genai";
 import { get as blobGet, put as blobPut } from "@vercel/blob";
 import { getSupabaseServer, isSupabaseConfigured } from "./lib/supabaseServer";
 
@@ -200,6 +199,42 @@ app.post("/api/reviews", reviewLimiter, async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // Gemini AI Assistant
+// We call the Gemini REST API directly with the built-in fetch (available on
+// Node 18+, which is what the serverless runtime uses). The @google/genai SDK
+// requires Node >= 20 and would crash module load there, so we avoid it.
+// ---------------------------------------------------------------------------
+async function generateGeminiText(
+  contents: any,
+  systemInstruction: string,
+  temperature: number
+): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY غير متوفر في البيئة.");
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const payload = {
+    contents:
+      typeof contents === "string"
+        ? [{ role: "user", parts: [{ text: contents }] }]
+        : contents,
+    systemInstruction: { parts: [{ text: systemInstruction }] },
+    generationConfig: { temperature },
+  };
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!resp.ok) {
+    const detail = await resp.text().catch(() => "");
+    throw new Error(`Gemini HTTP ${resp.status}: ${detail.slice(0, 300)}`);
+  }
+  const data = await resp.json();
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  return parts.map((p: any) => p.text || "").join("");
+}
+
+// ---------------------------------------------------------------------------
+// Gemini AI Assistant
 // ---------------------------------------------------------------------------
 app.post("/api/chat", geminiLimiter, async (req, res) => {
   try {
@@ -218,15 +253,6 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
         error: "Ù…ÙØªØ§Ø­ GEMINI_API_KEY ØºÙŠØ± Ù…ØªÙˆÙØ± ÙÙŠ Ø§Ù„Ø¨ÙŠØ¦Ø©.",
       });
     }
-
-    const ai = new GoogleGenAI({
-      apiKey,
-      httpOptions: {
-        headers: {
-          "User-Agent": "aistudio-build",
-        },
-      },
-    });
 
     let personaInstruction = `Ø£Ù†Øª "Ù…Ø³Ø§Ø¹Ø¯ Ù…ÙŠØ²Ø§Ù†"ØŒ Ù…Ø¹Ù„Ù… ÙˆØ®Ø¨ÙŠØ± Ù…Ø­ØªØ±Ù ÙÙŠ Ø¹Ù„Ù… Ø§Ù„Ù…Ø­Ø§Ø³Ø¨Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆÙ‚Ø±Ø§Ø¡Ø© Ø§Ù„ÙÙˆØ§ØªÙŠØ± ÙˆØ§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠØ© Ø¨Ø§Ù„Ù„ØºØ© Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©.`;
 
@@ -290,16 +316,8 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
       parts: currentParts,
     });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents,
-      config: {
-        systemInstruction,
-        temperature: 0.7,
-      },
-    });
-
-    const reply = response.text || "Ø¹Ø°Ø±Ø§Ù‹ØŒ Ù„Ù… Ø£Ø³ØªØ·Ø¹ ØªÙˆÙ„ÙŠØ¯ Ø¥Ø¬Ø§Ø¨Ø© ÙÙŠ Ø§Ù„ÙˆÙ‚Øª Ø§Ù„Ø­Ø§Ù„ÙŠ.";
+    const reply = (await generateGeminiText(contents, systemInstruction, 0.7))
+      || "عذراً، لم أستطع توليد إجابة في الوقت الحالي.";
     return res.json({ reply });
   } catch (error: any) {
     console.error("Gemini API Error:", error);
@@ -328,15 +346,6 @@ app.post("/api/explain-journal", geminiLimiter, async (req, res) => {
       });
     }
 
-    const ai = new GoogleGenAI({
-      apiKey,
-      httpOptions: {
-        headers: {
-          "User-Agent": "aistudio-build",
-        },
-      },
-    });
-
     const entryDetailsStr = JSON.stringify(entry, null, 2);
 
     const prompt = `Ù‚Ù… Ø¨ØªØ­Ù„ÙŠÙ„ Ø§Ù„Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ Ø§Ù„Ù…Ø­ÙÙˆØ¸ Ø§Ù„ØªØ§Ù„ÙŠ Ø¨Ø´ÙƒÙ„ ØªÙØµÙŠÙ„ÙŠ ÙˆØ´Ø±Ø­ Ø§Ù„Ù…Ù†Ø·Ù‚ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ Ù„Ù„Ù…ØªØ¹Ù„Ù…:
@@ -354,16 +363,8 @@ ${entryDetailsStr}
     const systemInstruction = `Ø£Ù†Øª "Ù…Ø³Ø§Ø¹Ø¯ Ù…ÙŠØ²Ø§Ù† Ø§Ù„Ø®Ø¨ÙŠØ± Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ"ØŒ Ù…Ø¹Ù„Ù… Ù…Ø­Ø§Ø³Ø¨Ø© Ù…ØªØ®ØµØµ ÙˆÙ…ØªÙ…Ø±Ø³.
 ØªØ³Ø§Ø¹Ø¯ Ø§Ù„Ø·Ù„Ø§Ø¨ ÙˆØ§Ù„Ù…ØªØ¹Ù„Ù…ÙŠÙ† Ø¹Ù„Ù‰ ÙÙ‡Ù… Ø§Ù„Ù…Ù†Ø·Ù‚ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ Ø§Ù„Ø¹Ù…ÙŠÙ‚ Ù„Ù„Ù‚ÙŠÙˆØ¯ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠØ© ÙˆØªØ·Ø¨ÙŠÙ‚ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø²Ø¯ÙˆØ¬ ÙˆÙ…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ù…Ø­Ø§Ø³Ø¨Ø© (IFRS/GAAP) Ø¨Ø£Ø³Ù„ÙˆØ¨ Ù…Ù…ØªØ¹ØŒ Ù…Ø´Ø¬Ø¹ØŒ ÙˆØ§ÙÙŠØŒ ÙˆÙ…Ù†Ø³Ù‚ Ø¨Ù†Ù‚Ø§Ø· ÙˆØ§Ø¶Ø­Ø© Ø¬Ø¯Ø§Ù‹.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        systemInstruction,
-        temperature: 0.5,
-      },
-    });
-
-    const explanation = response.text || "Ù„Ù… ÙŠØªÙ… Ø§Ù„ØªÙˆØµÙ„ Ù„Ø´Ø±Ø­ Ù…Ù†Ø§Ø³Ø¨ Ù„Ù„Ù‚ÙŠØ¯.";
+    const explanation = (await generateGeminiText(prompt, systemInstruction, 0.5))
+      || "Ù„Ù… ÙŠØªÙ… Ø§Ù„ØªÙˆØµÙ„ Ù„Ø´Ø±Ø­ Ù…Ù†Ø§Ø³Ø¨ Ù„Ù„Ù‚ÙŠØ¯.";
     return res.json({ explanation });
   } catch (error: any) {
     console.error("Gemini Journal Explanation Error:", error);
