@@ -122,34 +122,8 @@ html.light body, body.light {
 }
 
 /* 1. All Dark Container Background Replacements in Light Mode -> Pure White Cards */
-html.light .bg-\[\#080c1c\],
-html.light .bg-\[\#0b1120\],
-html.light .bg-\[\#0d1424\],
-html.light .bg-\[\#101a30\],
-html.light .bg-\[\#0a0f1d\],
-html.light .bg-\[\#050b18\],
-html.light .bg-\[\#090d16\],
-html.light .bg-\[\#0b1329\],
-html.light .bg-\[\#070b19\],
-html.light .bg-\[\#0e1628\],
-html.light .bg-\[\#0f172a\],
-html.light .bg-\[\#1e293b\],
-html.light .bg-\[\#182238\],
-html.light .bg-\[\#151d30\],
-html.light .bg-\[\#1a233a\],
-html.light .bg-\[\#0c1222\],
-html.light .bg-\[\#0f182e\],
-html.light .bg-\[\#1e1b4b\],
-html.light .bg-\[\#020617\],
-html.light .bg-\[\#030712\],
-html.light .bg-\[\#0d172a\],
-html.light .bg-\[\#111827\],
-html.light .bg-\[\#131c31\],
-html.light .bg-\[\#141e33\],
-html.light .bg-\[\#162036\],
-html.light .bg-\[\#172554\],
-html.light .bg-\[\#101828\],
-html.light .bg-\[\#1d2939\],
+html.light [class*="bg-\[\#"]:not(button):not(a):not(span),
+html.light section[class*="bg-\[\#"],
 html.light .bg-slate-950,
 html.light .bg-slate-900,
 html.light .bg-slate-850,
@@ -180,7 +154,28 @@ html.light .bg-black {
   box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.05);
 }
 
-/* 2. Sub-containers & Translucent Fills -> Bright Soft Indigo / Slate */
+/* 2. Inner Buttons with Custom Dark Hexes -> Light Pastel Cards */
+html.light button[class*="bg-\[\#"],
+html.light button[class*="bg-slate-9"],
+html.light button[class*="bg-slate-8"],
+html.light button[class*="bg-zinc-9"],
+html.light button[class*="bg-indigo-9"] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+html.light button[class*="bg-\[\#"]:hover,
+html.light button[class*="bg-slate-9"]:hover,
+html.light button[class*="bg-slate-8"]:hover,
+html.light button[class*="bg-zinc-9"]:hover,
+html.light button[class*="bg-indigo-9"]:hover {
+  background-color: #eef2ff !important;
+  border-color: #c7d2fe !important;
+  color: #4f46e5 !important;
+}
+
+/* 3. Sub-containers & Translucent Fills -> Bright Soft Indigo / Slate */
 html.light [class*="bg-slate-900/"],
 html.light [class*="bg-slate-800/"],
 html.light [class*="bg-slate-950/"],
@@ -205,17 +200,8 @@ html.light .bg-white\/30 {
   color: #334155 !important;
 }
 
-/* 3. Dark Gradient Container Overrides -> Bright Soft Pastel Gradients */
-html.light div[class*="bg-gradient-to"][class*="from-slate-9"],
-html.light div[class*="bg-gradient-to"][class*="from-slate-8"],
-html.light div[class*="bg-gradient-to"][class*="from-slate-950"],
-html.light div[class*="bg-gradient-to"][class*="from-gray-9"],
-html.light div[class*="bg-gradient-to"][class*="from-zinc-9"],
-html.light div[class*="bg-gradient-to"][class*="from-indigo-9"],
-html.light div[class*="bg-gradient-to"][class*="from-purple-9"],
-html.light div[class*="bg-gradient-to"][class*="from-[#0"],
-html.light div[class*="bg-gradient-to"][class*="from-[#1"],
-html.light div[class*="bg-gradient-to"][class*="from-black"] {
+/* 4. Universal Light Mode Gradient Container Overrides -> Bright Soft Pastel Cards */
+html.light div[class*="bg-gradient-to"]:not(button):not(a):not([class*="from-amber"]):not([class*="from-emerald"]):not([class*="from-green"]):not([class*="from-rose"]):not([class*="from-pink"]):not([class*="from-indigo-600"]):not([class*="from-purple-600"]) {
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
   border-color: #e2e8f0 !important;
   color: #334155 !important;
