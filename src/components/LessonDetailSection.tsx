@@ -1401,7 +1401,7 @@ export function LessonDetailSection({
                   </span>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                <h2 className="unit-title text-2xl sm:text-3xl font-black leading-tight">
                   {lesson.title}
                 </h2>
               </div>
@@ -2592,7 +2592,7 @@ export function LessonDetailSection({
                     <Sparkles className="w-4 h-4" />
                     <span>محتوى الدرس بوضع التركيز المباشر</span>
                   </span>
-                  <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+                  <h1 className="unit-title text-2xl sm:text-3xl font-black leading-tight">
                     {lesson.title}
                   </h1>
                 </div>
