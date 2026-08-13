@@ -22,6 +22,52 @@
     --pink: #ec4899;
     --red: #ef4444;
     --orange: #ff8040;
+
+    /* Unified light card surface tokens (applied app-wide in html.light rules) */
+    --br-surface: linear-gradient(160deg, #ffffff, #f6f9ff);
+    --br-border: rgba(99, 102, 241, 0.16);
+    --br-border-strong: rgba(99, 102, 241, 0.25);
+    --br-tint: rgba(99, 102, 241, 0.09);
+    --br-text: #334155;
+    --br-text-muted: #64748b;
+    --br-brand: #4f46e5;
+    --br-brand-soft: #818cf8;
+    --txt-indigo: #4f46e5;
+    --txt-purple: #7c3aed;
+    --txt-amber: #b45309;
+    --txt-emerald: #047857;
+    --txt-rose: #be123c;
+    --txt-cyan: #0e7490;
+
+    /* Golden rules tokens */
+    --gold-500: #f59e0b;
+    --gold-400: #fbbf24;
+    --gold-300: #fcd34d;
+    --gold-grad: linear-gradient(135deg, #f59e0b, #fbbf24);
+    --gold-dark-bg: linear-gradient(135deg, rgba(120, 85, 10, 0.55), rgba(180, 130, 20, 0.42));
+    --gold-dark-border: rgba(202, 138, 4, 0.45);
+    --gold-dark-item: rgba(0, 0, 0, 0.28);
+    --gold-dark-item-hover: rgba(0, 0, 0, 0.18);
+    --gold-dark-head: #fde68a;
+    --gold-dark-text: #f7f3e8;
+    --gold-light-bg: linear-gradient(135deg, #fffbeb, #fef3c7);
+    --gold-light-border: rgba(217, 119, 6, 0.30);
+    --gold-light-border-strong: rgba(217, 119, 6, 0.55);
+    --gold-light-item: rgba(255, 255, 255, 0.72);
+    --gold-light-head: #b45309;
+    --gold-light-text: #78350f;
+
+    /* Typing caret tokens */
+    --caret-bg: linear-gradient(180deg, #fcd34d, #f59e0b);
+    --caret-glow-full: 0 0 6px rgba(245, 158, 11, 0.9), 0 0 12px rgba(251, 191, 36, 0.55);
+    --caret-glow-dim: 0 0 3px rgba(245, 158, 11, 0.4);
+    --live-green: rgba(16, 185, 129, 0.45);
+
+    /* Stage node pulse tokens (colored halo, not flat blink) */
+    --node-indigo: 99, 102, 241;
+    --node-violet: 139, 92, 246;
+    --node-gold: 245, 158, 11;
+    --node-gold-light: 251, 191, 36;
   }
 
   html {
@@ -769,7 +815,7 @@ html.light .bg-ambient-gradient {
 html.light [class*="bg-\[\#"]:not(button):not(a):not(span),
 html.light section[class*="bg-\[\#"],
 html.light .glass-panel {
-  background: linear-gradient(160deg, #ffffff 0%, #f7f9ff 55%, #f4f8ff 100%) !important;
+  background: var(--br-surface) !important;
   transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.4s ease, border-color 0.4s ease;
   animation: lmRise 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
@@ -780,7 +826,7 @@ html.light .glass-panel:hover {
   transform: translateY(-6px);
   box-shadow: 0 22px 48px -16px rgba(99, 102, 241, 0.30),
     0 8px 22px -10px rgba(236, 72, 153, 0.20);
-  border-color: rgba(129, 140, 248, 0.55) !important;
+  border-color: var(--br-brand-soft) !important;
 }
 @keyframes lmRise {
   from { opacity: 0; transform: translateY(26px); }
@@ -840,6 +886,133 @@ html.light .animate-pulse-aura { animation: lmAura 4s ease-in-out infinite; }
   50% { box-shadow: 0 0 36px rgba(168, 85, 247, 0.34), 0 0 54px rgba(236, 72, 153, 0.22); }
 }
 
+/* 8. Glowing typing caret — replaces flat animate-pulse blocks site-wide */
+.typing-caret {
+  display: inline-block;
+  width: 3px;
+  height: 1.15em;
+  margin-right: 3px;
+  border-radius: 9999px;
+  background: var(--caret-bg);
+  box-shadow: var(--caret-glow-full);
+  vertical-align: middle;
+  animation: caretGlow 1.05s ease-in-out infinite;
+}
+@keyframes caretGlow {
+  0%, 100% { opacity: 1; box-shadow: var(--caret-glow-full); }
+  50% { opacity: 0.35; box-shadow: var(--caret-glow-dim); }
+}
+/* Softer glow pulse for the many small "live" indicator dots across the app */
+.live-dot-glow { animation: liveDotGlow 1.6s ease-in-out infinite; }
+@keyframes liveDotGlow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--live-green); }
+  50% { box-shadow: 0 0 0 4px transparent; }
+}
+
+/* Stage node glow — soft expanding halo instead of flat opacity blink */
+.node-glow { animation: nodeGlow 1.8s ease-in-out infinite; }
+@keyframes nodeGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--node-indigo), 0.55), 0 0 22px rgba(var(--node-indigo), 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 9px rgba(var(--node-indigo), 0), 0 0 34px rgba(var(--node-violet), 0.75);
+  }
+}
+.node-glow-gold { animation: nodeGlowGold 1.8s ease-in-out infinite; }
+@keyframes nodeGlowGold {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--node-gold), 0.55), 0 0 22px rgba(var(--node-gold), 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 9px rgba(var(--node-gold), 0), 0 0 34px rgba(var(--node-gold-light), 0.75);
+  }
+}
+
+/* 9. Golden Rules section — warm gold palette fitting "القواعد الذهبية" (dark mode) */
+.golden-rules {
+  background: var(--gold-dark-bg);
+  border: 1px solid var(--gold-dark-border);
+}
+.golden-rules .gr-glow { background: rgba(245, 158, 11, 0.18); }
+.golden-rules .gr-head { color: var(--gold-dark-head); }
+.golden-rules .gr-icon {
+  background: var(--gold-grad);
+  box-shadow: 0 8px 22px -6px rgba(245, 158, 11, 0.5);
+}
+.golden-rules .gr-num {
+  background: var(--gold-grad);
+  color: #422006;
+  box-shadow: 0 4px 10px -2px rgba(245, 158, 11, 0.45);
+}
+.golden-rules .gr-item {
+  background: var(--gold-dark-item);
+  border: 1px solid rgba(202, 138, 4, 0.30);
+  color: var(--gold-dark-text);
+}
+.golden-rules .gr-item:hover {
+  background: var(--gold-dark-item-hover);
+  border-color: rgba(251, 191, 36, 0.55);
+}
+/* Light mode — calm cream/gold surface, warm readable text */
+html.light .golden-rules {
+  background: var(--gold-light-bg);
+  border: 1px solid var(--gold-light-border);
+  box-shadow: 0 14px 34px -14px rgba(217, 119, 6, 0.28);
+}
+html.light .golden-rules .gr-head { color: var(--gold-light-head); }
+html.light .golden-rules .gr-item {
+  background: var(--gold-light-item);
+  border: 1px solid rgba(217, 119, 6, 0.22);
+  color: var(--gold-light-text);
+}
+html.light .golden-rules .gr-item:hover {
+  background: #ffffff;
+  border-color: var(--gold-light-border-strong);
+}
+
+/* 10. Unified card & chip recolor — one calm light surface across the whole app (colors only) */
+html.light [class*="bg-white/5"]:not([class*="hover:bg-white/5"]),
+html.light [class*="bg-white/10"]:not([class*="hover:bg-white/10"]),
+html.light [class*="bg-white/\[0"] {
+  background: var(--br-surface) !important;
+}
+html.light [class*="bg-black/"]:not(button):not(a):not([class*="hover:bg-black/"]),
+html.light [class*="bg-slate-900"]:not(button):not(a),
+html.light [class*="bg-slate-800"]:not(button):not(a) {
+  background: var(--br-surface) !important;
+}
+html.light [class*="bg-indigo-950/"],
+html.light [class*="bg-purple-950/"],
+html.light [class*="bg-rose-950/"],
+html.light [class*="bg-emerald-950/"] {
+  background: var(--br-tint) !important;
+}
+html.light [class*="border-white/5"],
+html.light [class*="border-white/10"],
+html.light [class*="border-white/15"] { border-color: var(--br-border) !important; }
+html.light [class*="border-white/20"] { border-color: var(--br-border-strong) !important; }
+html.light [class*="border-slate-700"],
+html.light [class*="border-slate-800"] { border-color: var(--br-border-strong) !important; }
+html.light [class*="text-slate-200"],
+html.light [class*="text-slate-300"],
+html.light [class*="text-gray-200"] { color: var(--br-text) !important; }
+html.light [class*="text-slate-400"] { color: var(--br-text-muted) !important; }
+html.light [class*="text-indigo-200"] { color: var(--txt-indigo) !important; }
+html.light [class*="text-purple-200"] { color: var(--txt-purple) !important; }
+html.light [class*="text-amber-200"],
+html.light [class*="text-amber-300"] { color: var(--txt-amber) !important; }
+html.light [class*="text-emerald-200"],
+html.light [class*="text-emerald-300"] { color: var(--txt-emerald) !important; }
+html.light [class*="text-rose-200"],
+html.light [class*="text-rose-300"] { color: var(--txt-rose) !important; }
+html.light [class*="text-cyan-200"],
+html.light [class*="text-cyan-300"] { color: var(--txt-cyan) !important; }
+html.light [class*="bg-white/5"][class*="text-white"],
+html.light [class*="bg-white/10"][class*="text-white"],
+html.light [class*="bg-slate-900"][class*="text-white"] { color: var(--br-text) !important; }
+html.light [class*="bg-black/"][class*="text-white"]:not(button):not(a) { color: var(--br-text) !important; }
+
 /* 7. Universal hover highlight — every interactive element reacts with brand colour */
 html.light a,
 html.light button,
@@ -860,9 +1033,9 @@ html.light [class*="hover:bg-"]:hover,
 html.light [class*="hover:text-"]:hover {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16),
     0 8px 22px -10px rgba(99, 102, 241, 0.30) !important;
-  border-color: rgba(129, 140, 248, 0.55) !important;
+  border-color: var(--br-brand-soft) !important;
 }
-html.light a:hover { color: #4f46e5 !important; }
+html.light a:hover { color: var(--br-brand) !important; }
 
 /* Accessibility — respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {

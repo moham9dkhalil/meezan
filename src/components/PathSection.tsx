@@ -677,7 +677,7 @@ export function PathSection({ onOpenStage, onOpenFlashcards, appLanguage = "ar" 
                           className={`w-14 h-14 rounded-full border-4 flex items-center justify-center font-black text-lg transition-all cursor-pointer shadow-2xl hover:scale-110 ${
                             completed
                               ? "bg-emerald-500 border-emerald-300 text-white shadow-emerald-500/50"
-                              : "bg-indigo-600 border-indigo-300 text-white shadow-indigo-600/50 animate-pulse"
+                              : "bg-gradient-to-br from-indigo-500 to-purple-500 border-indigo-300 text-white node-glow"
                           }`}
                         >
                           {completed ? "✓" : st.id}

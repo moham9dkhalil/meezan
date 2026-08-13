@@ -1634,7 +1634,7 @@ export function LessonDetailSection({
                   <div className="whitespace-pre-wrap leading-relaxed text-gray-100">
                     <AnnotatedText text={typedBody} />
                     {activeTypingSection === "body" && (
-                      <span className="inline-block w-2.5 h-5 mr-1 bg-indigo-400 animate-pulse align-middle rounded-sm shadow-md shadow-indigo-400/50" />
+                        <span className="typing-caret" />
                     )}
                   </div>
                 </div>
@@ -1644,25 +1644,30 @@ export function LessonDetailSection({
 
                 {/* Golden Key Rules */}
                 {lesson.keys && lesson.keys.length > 0 && (typedKeys.some((k) => k.length > 0) || !isTyping) && (
-                  <div className="bg-gradient-to-br from-indigo-950/60 to-purple-950/40 border border-indigo-500/30 p-5 rounded-2xl space-y-3 shadow-lg animate-fadeIn">
-                    <h3 className="font-black text-sm text-indigo-200 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-indigo-400" />
+                  <div className="golden-rules rounded-2xl p-5 space-y-4 shadow-lg animate-fadeIn relative overflow-hidden animate-pulse-aura">
+                    <div className="gr-glow absolute -top-12 -left-12 w-40 h-40 rounded-full blur-3xl pointer-events-none" />
+                    <h3 className="gr-head font-black text-sm flex items-center gap-2 relative">
+                      <span className="gr-icon w-8 h-8 rounded-xl flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-white" />
+                      </span>
                       <span>النقاط المحاسبية والقواعد الذهبية:</span>
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 relative">
                       {lesson.keys.map((_, idx) => {
                         const textVal = typedKeys[idx] || "";
                         if (!textVal && isTyping && activeTypingSection === "body") return null;
                         return (
                           <div
                             key={idx}
-                            className="p-3 rounded-xl bg-black/30 border border-indigo-500/20 text-xs text-gray-200 font-semibold flex items-start gap-2 animate-fadeIn"
+                            className="gr-item group p-3.5 rounded-xl text-xs font-semibold flex items-start gap-2.5 animate-fadeIn transition-all hover:-translate-y-0.5"
                           >
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                            <span>
+                            <span className="gr-num shrink-0 w-6 h-6 rounded-full text-[10px] font-black flex items-center justify-center">
+                              {idx + 1}
+                            </span>
+                            <span className="flex-1">
                               <AnnotatedText text={textVal} />
                               {activeTypingSection === "keys" && activeKeyIdx === idx && (
-                                <span className="inline-block w-2 h-4 mr-1 bg-purple-400 animate-pulse align-middle rounded-sm" />
+                                <span className="typing-caret" />
                               )}
                             </span>
                           </div>
@@ -1688,7 +1693,7 @@ export function LessonDetailSection({
                     <pre className="text-xs sm:text-sm text-amber-100 font-mono leading-relaxed whitespace-pre-wrap bg-[#080c1c] p-4 rounded-xl border border-amber-500/20 shadow-inner">
                       {typedExText}
                       {activeTypingSection === "exText" && (
-                        <span className="inline-block w-2 h-4 mr-1 bg-amber-400 animate-pulse align-middle rounded-sm" />
+                        <span className="typing-caret" />
                       )}
                     </pre>
                   </div>
@@ -2616,7 +2621,7 @@ export function LessonDetailSection({
               <div className="whitespace-pre-wrap leading-relaxed">
                 <AnnotatedText text={typedBody} />
                 {activeTypingSection === "body" && (
-                  <span className="inline-block w-2.5 h-5 mr-1 bg-amber-400 animate-pulse align-middle rounded-sm shadow-md" />
+                  <span className="typing-caret" />
                 )}
               </div>
 
@@ -2625,22 +2630,27 @@ export function LessonDetailSection({
 
               {/* Key Points */}
               {lesson.keys && lesson.keys.length > 0 && (typedKeys.some((k) => k.length > 0) || !isTyping) && (
-                <div className="bg-gradient-to-br from-indigo-950/60 to-purple-950/40 border border-indigo-500/30 p-5 rounded-2xl space-y-3 shadow-lg">
-                  <h3 className="font-black text-sm text-indigo-200 flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-indigo-400" />
+                <div className="golden-rules rounded-2xl p-5 space-y-4 shadow-lg relative overflow-hidden animate-pulse-aura">
+                  <div className="gr-glow absolute -top-12 -left-12 w-40 h-40 rounded-full blur-3xl pointer-events-none" />
+                  <h3 className="gr-head font-black text-sm flex items-center gap-2 relative">
+                    <span className="gr-icon w-8 h-8 rounded-xl flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-white" />
+                    </span>
                     <span>النقاط والقواعد الذهبية:</span>
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 relative">
                     {lesson.keys.map((_, idx) => {
                       const textVal = typedKeys[idx] || "";
                       if (!textVal && isTyping && activeTypingSection === "body") return null;
                       return (
                         <div
                           key={idx}
-                          className="p-3.5 rounded-xl bg-black/40 border border-indigo-500/30 text-xs sm:text-sm text-gray-200 font-semibold flex items-start gap-2"
+                          className="gr-item group p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-start gap-2.5 transition-all hover:-translate-y-0.5"
                         >
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                          <span>
+                          <span className="gr-num shrink-0 w-6 h-6 rounded-full text-[10px] font-black flex items-center justify-center">
+                            {idx + 1}
+                          </span>
+                          <span className="flex-1">
                             <AnnotatedText text={textVal} />
                           </span>
                         </div>

@@ -511,7 +511,7 @@ export function LearningRoadmapChart({ onOpenStage, completedLessons: propComple
                 <div className="flex items-center justify-between text-xs text-slate-400 font-bold px-2">
                   <span>البداية: القيد المزدوج (مـ1)</span>
                   <span className="text-emerald-400 font-black flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block animate-ping" />
+                    <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block live-dot-glow" />
                     المسار الأخضر المتصل = مراحل تم إنجازها
                   </span>
                   <span>الهدف: الاحتراف الشامل (مـ50)</span>
@@ -531,20 +531,20 @@ export function LearningRoadmapChart({ onOpenStage, completedLessons: propComple
                         onMouseLeave={() => setHoveredStage(null)}
                         className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer relative ${
                           isDone
-                            ? "bg-emerald-950/40 border-emerald-500/60 text-emerald-300 shadow-md shadow-emerald-500/10 hover:scale-105"
+                            ? "bg-emerald-100/80 border-emerald-500/60 text-emerald-700 shadow-md shadow-emerald-500/10 hover:scale-105"
                             : isNext
-                            ? "bg-amber-950/50 border-amber-400 text-amber-200 ring-2 ring-amber-400/50 animate-pulse hover:scale-105"
-                            : "bg-slate-900/60 border-slate-800 text-slate-500 opacity-60 hover:opacity-100 hover:border-slate-600"
+                            ? "bg-gradient-to-br from-amber-400 to-orange-500 border-amber-300 text-white node-glow-gold hover:scale-105"
+                            : "bg-slate-100 border-slate-300 text-slate-400 opacity-70 hover:opacity-100 hover:border-slate-400"
                         }`}
                       >
                         <span className="text-xs">{stg.icon || "📚"}</span>
                         <span className="text-[10px] font-black">{stg.id}</span>
                         {isDone ? (
-                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                         ) : isNext ? (
-                          <Play className="w-3 h-3 text-amber-400 fill-amber-400" />
+                          <Play className="w-3 h-3 text-white fill-white" />
                         ) : (
-                          <Lock className="w-3 h-3 text-slate-600" />
+                          <Lock className="w-3 h-3 text-slate-400" />
                         )}
                       </button>
                     );
