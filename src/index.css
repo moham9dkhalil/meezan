@@ -110,18 +110,18 @@ html.light, body.light, [data-theme="light"] {
   --card: #ffffff;
   --card-2: #ffffff;
   --line: #e2e8f0;
-  --text: #0f172a;
-  --muted: #334155;
+  --text: #334155;
+  --muted: #475569;
   --dim: #64748b;
   color-scheme: light;
 }
 
 html.light body, body.light {
   background-color: #f8fafc !important;
-  color: #0f172a !important;
+  color: #334155 !important;
 }
 
-/* 1. All Dark Container Background Replacements in Light Mode */
+/* 1. All Dark Container Background Replacements in Light Mode -> Pure White Cards */
 html.light .bg-\[\#080c1c\],
 html.light .bg-\[\#0b1120\],
 html.light .bg-\[\#0d1424\],
@@ -175,12 +175,12 @@ html.light .bg-purple-900,
 html.light .bg-blue-950,
 html.light .bg-black {
   background-color: #ffffff !important;
-  color: #0f172a !important;
+  color: #334155 !important;
   border-color: #e2e8f0 !important;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.05);
 }
 
-/* 2. Sub-containers & Translucent Dark Fills in Light Mode */
+/* 2. Sub-containers & Translucent Fills -> Bright Soft Indigo / Slate */
 html.light [class*="bg-slate-900/"],
 html.light [class*="bg-slate-800/"],
 html.light [class*="bg-slate-950/"],
@@ -194,18 +194,18 @@ html.light [class*="bg-indigo-900/"],
 html.light [class*="bg-purple-950/"],
 html.light .bg-white\/5,
 html.light .bg-white\/10 {
-  background-color: #f1f5f9 !important;
+  background-color: #f8fafc !important;
   border-color: #e2e8f0 !important;
-  color: #0f172a !important;
+  color: #334155 !important;
 }
 
 html.light .bg-white\/20,
 html.light .bg-white\/30 {
-  background-color: #e2e8f0 !important;
-  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
 }
 
-/* 3. Dark Gradient Container Overrides in Light Mode (excluding solid buttons) */
+/* 3. Dark Gradient Container Overrides -> Bright Soft Pastel Gradients */
 html.light div[class*="bg-gradient-to"][class*="from-slate-9"],
 html.light div[class*="bg-gradient-to"][class*="from-slate-8"],
 html.light div[class*="bg-gradient-to"][class*="from-slate-950"],
@@ -218,10 +218,10 @@ html.light div[class*="bg-gradient-to"][class*="from-[#1"],
 html.light div[class*="bg-gradient-to"][class*="from-black"] {
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
   border-color: #e2e8f0 !important;
-  color: #0f172a !important;
+  color: #334155 !important;
 }
 
-/* 4. Hover States Adaptation in Light Mode */
+/* 4. Hover States Adaptation -> Soft Bright Indigo Hover */
 html.light [class*="hover:bg-slate-"]:hover,
 html.light [class*="hover:bg-gray-"]:hover,
 html.light [class*="hover:bg-zinc-"]:hover,
@@ -230,85 +230,85 @@ html.light [class*="hover:bg-indigo-950"]:hover,
 html.light [class*="hover:bg-black"]:hover,
 html.light [class*="hover:bg-white\/5"]:hover,
 html.light [class*="hover:bg-white\/10"]:hover {
-  background-color: #e0e7ff !important;
-  color: #3730a3 !important;
+  background-color: #eef2ff !important;
+  color: #4f46e5 !important;
 }
 
-/* 5. Modals & Backdrop Blur Overlay in Light Mode */
+/* 5. Modals & Airy Bright Backdrop Blur Overlay */
 html.light .bg-black\/40,
 html.light .bg-black\/50,
 html.light .bg-black\/60,
 html.light .bg-black\/70,
 html.light .bg-black\/80,
 html.light .bg-black\/90 {
-  background-color: rgba(15, 23, 42, 0.45) !important;
+  background-color: rgba(148, 163, 184, 0.35) !important;
   backdrop-filter: blur(8px);
 }
 
-/* 6. Light mode header, nav, and fixed bars */
+/* 6. Light Mode Header, Navbar, and Fixed Bars */
 html.light header,
 html.light nav,
 html.light .glass-nav {
-  background-color: rgba(255, 255, 255, 0.94) !important;
+  background-color: rgba(255, 255, 255, 0.98) !important;
   border-color: #e2e8f0 !important;
-  color: #0f172a !important;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+  color: #334155 !important;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.05) !important;
 }
 
 /* Light mode Glass Panels */
 html.light .glass-panel {
-  background: rgba(255, 255, 255, 0.94) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
   border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05) !important;
+  box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.05) !important;
 }
 
 /* Light mode Ambient Background Glow */
 html.light .bg-ambient-gradient {
   background:
-    radial-gradient(600px 400px at 85% -5%, rgba(99, 102, 241, 0.08), transparent 60%),
-    radial-gradient(500px 400px at 5% 15%, rgba(236, 72, 153, 0.06), transparent 60%),
-    radial-gradient(700px 500px at 50% 100%, rgba(16, 185, 129, 0.05), transparent 60%) !important;
+    radial-gradient(600px 400px at 85% -5%, rgba(99, 102, 241, 0.12), transparent 60%),
+    radial-gradient(500px 400px at 5% 15%, rgba(236, 72, 153, 0.08), transparent 60%),
+    radial-gradient(700px 500px at 50% 100%, rgba(16, 185, 129, 0.08), transparent 60%) !important;
 }
 
 /* ==========================================================================
-   LIGHT MODE TYPOGRAPHY & TEXT COLOR ADAPTATIONS
+   LIGHT MODE TYPOGRAPHY & TEXT COLOR ADAPTATIONS (VIBRANT & CHEERFUL)
    ========================================================================== */
 
-/* Plain Headings */
+/* Plain Headings -> Soft Slate-800 */
 html.light h1:not([class*="text-transparent"]),
 html.light h2:not([class*="text-transparent"]),
 html.light h3:not([class*="text-transparent"]),
 html.light h4:not([class*="text-transparent"]),
 html.light h5:not([class*="text-transparent"]),
 html.light h6:not([class*="text-transparent"]) {
-  color: #0f172a !important;
+  color: #1e293b !important;
 }
 
-/* Multi-tone Text Gradients in Light Mode */
+/* Multi-tone Text Gradients in Light Mode -> Bright Colorful Pop! */
 html.light .from-white,
 html.light [class*="from-white"] {
-  --tw-gradient-from: #0f172a !important;
+  --tw-gradient-from: #4f46e5 !important;
 }
 
 html.light .via-slate-100,
 html.light .via-slate-200,
 html.light .via-indigo-100,
 html.light .via-indigo-200 {
-  --tw-gradient-via: #4338ca !important;
+  --tw-gradient-via: #7c3aed !important;
 }
 
 html.light .to-slate-300,
 html.light .to-slate-400,
 html.light .to-slate-500,
 html.light .to-indigo-300 {
-  --tw-gradient-to: #6b21a8 !important;
+  --tw-gradient-to: #ec4899 !important;
 }
 
-/* Plain white text inside containers mapping to dark slate */
+/* Plain white text inside containers mapping to smooth slate */
 html.light div.text-white:not(button):not([class*="bg-gradient"]):not([class*="bg-indigo-600"]):not([class*="bg-emerald-600"]):not([class*="bg-purple-600"]):not([class*="bg-rose-600"]),
 html.light span.text-white:not(button):not([class*="bg-gradient"]):not([class*="bg-indigo-600"]):not([class*="bg-emerald-600"]):not([class*="bg-purple-600"]):not([class*="bg-rose-600"]),
 html.light p.text-white:not(button):not([class*="bg-gradient"]) {
-  color: #0f172a !important;
+  color: #334155 !important;
 }
 
 /* Body and muted text mapping */
@@ -322,7 +322,7 @@ html.light .text-gray-300,
 html.light .text-zinc-100,
 html.light .text-zinc-200,
 html.light .text-zinc-300 {
-  color: #334155 !important;
+  color: #475569 !important;
 }
 
 html.light .text-slate-400,
@@ -333,36 +333,36 @@ html.light .text-zinc-400 {
 
 html.light .text-slate-500,
 html.light .text-gray-500 {
-  color: #475569 !important;
+  color: #64748b !important;
 }
 
-/* High contrast colored text in Light Mode */
+/* Bright Vibrant Colored Text in Light Mode */
 html.light .text-indigo-100,
 html.light .text-indigo-200,
 html.light .text-indigo-300,
 html.light .text-indigo-400 {
-  color: #4338ca !important;
+  color: #4f46e5 !important;
 }
 
 html.light .text-purple-100,
 html.light .text-purple-200,
 html.light .text-purple-300,
 html.light .text-purple-400 {
-  color: #6b21a8 !important;
+  color: #7c3aed !important;
 }
 
 html.light .text-emerald-100,
 html.light .text-emerald-200,
 html.light .text-emerald-300,
 html.light .text-emerald-400 {
-  color: #047857 !important;
+  color: #059669 !important;
 }
 
 html.light .text-amber-100,
 html.light .text-amber-200,
 html.light .text-amber-300,
 html.light .text-amber-400 {
-  color: #b45309 !important;
+  color: #d97706 !important;
 }
 
 html.light .text-pink-100,
@@ -371,7 +371,7 @@ html.light .text-pink-300,
 html.light .text-pink-400,
 html.light .text-rose-300,
 html.light .text-rose-400 {
-  color: #be123c !important;
+  color: #e11d48 !important;
 }
 
 html.light .text-cyan-100,
@@ -380,7 +380,7 @@ html.light .text-cyan-300,
 html.light .text-cyan-400,
 html.light .text-sky-300,
 html.light .text-sky-400 {
-  color: #0369a1 !important;
+  color: #0284c7 !important;
 }
 
 /* Solid Buttons & Badges Protection in Light Mode */
@@ -414,20 +414,20 @@ html.light a[class*="bg-gradient-to"] * {
   color: #ffffff !important;
 }
 
-/* Translucent Soft Badges & Pills in Light Mode */
+/* Translucent Soft Badges & Pills in Light Mode (Bright Pastel & Cheerful) */
 html.light .bg-indigo-500\/10,
 html.light .bg-indigo-500\/20,
 html.light .bg-indigo-600\/10,
 html.light .bg-indigo-600\/20 {
   background-color: #e0e7ff !important;
-  color: #3730a3 !important;
+  color: #4338ca !important;
   border-color: #c7d2fe !important;
 }
 html.light .bg-indigo-500\/10 *,
 html.light .bg-indigo-500\/20 *,
 html.light .bg-indigo-600\/10 *,
 html.light .bg-indigo-600\/20 * {
-  color: #3730a3 !important;
+  color: #4338ca !important;
 }
 
 html.light .bg-emerald-500\/10,
@@ -435,14 +435,14 @@ html.light .bg-emerald-500\/20,
 html.light .bg-emerald-600\/10,
 html.light .bg-emerald-600\/20 {
   background-color: #d1fae5 !important;
-  color: #065f46 !important;
+  color: #047857 !important;
   border-color: #a7f3d0 !important;
 }
 html.light .bg-emerald-500\/10 *,
 html.light .bg-emerald-500\/20 *,
 html.light .bg-emerald-600\/10 *,
 html.light .bg-emerald-600\/20 * {
-  color: #065f46 !important;
+  color: #047857 !important;
 }
 
 html.light .bg-amber-500\/10,
@@ -450,14 +450,14 @@ html.light .bg-amber-500\/20,
 html.light .bg-amber-600\/10,
 html.light .bg-amber-600\/20 {
   background-color: #fef3c7 !important;
-  color: #92400e !important;
+  color: #b45309 !important;
   border-color: #fde68a !important;
 }
 html.light .bg-amber-500\/10 *,
 html.light .bg-amber-500\/20 *,
 html.light .bg-amber-600\/10 *,
 html.light .bg-amber-600\/20 * {
-  color: #92400e !important;
+  color: #b45309 !important;
 }
 
 html.light .bg-purple-500\/10,
@@ -480,12 +480,12 @@ html.light .bg-rose-500\/20,
 html.light .bg-pink-500\/10,
 html.light .bg-pink-500\/20 {
   background-color: #ffe4e6 !important;
-  color: #9f1239 !important;
+  color: #be123c !important;
   border-color: #fecdd3 !important;
 }
 html.light .bg-rose-500\/10 *,
 html.light .bg-rose-500\/20 * {
-  color: #9f1239 !important;
+  color: #be123c !important;
 }
 
 /* Borders in Light Mode */
