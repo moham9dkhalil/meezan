@@ -1,19 +1,29 @@
-import { createClient } from "@supabase/supabase-js";
+// Lazy Supabase server client. Imported dynamically inside the endpoints that
+// need it so a missing/failing @supabase/supabase-js install can never crash the
+// whole serverless function (which would otherwise take /api/health, /api/chat,
+// etc. down with FUNCTION_INVOCATION_FAILED).
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+let client: any = null;
+let attempted = false;
 
-export const supabaseServer = createClient(
-  SUPABASE_URL || "http://localhost:54321",
-  SUPABASE_SERVICE_ROLE_KEY || "service-role-key",
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
+export async function getSupabaseServer(): Promise<any | null> {
+  if (attempted) return client;
+  attempted = true;
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  try {
+    const mod = await import("@supabase/supabase-js");
+    client = mod.createClient(url, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    return client;
+  } catch (e) {
+    console.error("Supabase server client init failed:", e);
+    return null;
   }
-);
+}
 
 export function isSupabaseConfigured(): boolean {
-  return Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY);
+  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 }

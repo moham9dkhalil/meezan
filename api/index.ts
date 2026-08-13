@@ -1,59 +1,59 @@
-import express from "express";
+﻿import express from "express";
 import crypto from "crypto";
 import { GoogleGenAI } from "@google/genai";
 import { get as blobGet, put as blobPut } from "@vercel/blob";
-import { supabaseServer, isSupabaseConfigured } from "./lib/supabaseServer";
+import { getSupabaseServer, isSupabaseConfigured } from "./lib/supabaseServer";
 
-// Seed reviews — kept inline because Vercel only packs the api/ folder into the
+// Seed reviews â€” kept inline because Vercel only packs the api/ folder into the
 // lambda; any import reaching outside it (e.g. ../src/...) fails at runtime.
 const INITIAL_REVIEWS = [
   {
     id: "r1",
     stars: 5,
-    name: "أحمد السيد",
-    role: "طالب محاسبة — جامعة القاهرة",
-    text: "صراحة، ميزان غيّر فهمي للمحاسبة تماماً. كنت دايمًا أتخوف من القيود والتسويات، لكن الشرح بالعربي والتطبيق العملي بالمعمل خلّاني أستوعب في أسبوعين أكثر من ترم جامعي كامل.",
-    createdAt: "منذ يومين"
+    name: "Ø£Ø­Ù…Ø¯ Ø§Ù„Ø³ÙŠØ¯",
+    role: "Ø·Ø§Ù„Ø¨ Ù…Ø­Ø§Ø³Ø¨Ø© â€” Ø¬Ø§Ù…Ø¹Ø© Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©",
+    text: "ØµØ±Ø§Ø­Ø©ØŒ Ù…ÙŠØ²Ø§Ù† ØºÙŠÙ‘Ø± ÙÙ‡Ù…ÙŠ Ù„Ù„Ù…Ø­Ø§Ø³Ø¨Ø© ØªÙ…Ø§Ù…Ø§Ù‹. ÙƒÙ†Øª Ø¯Ø§ÙŠÙ…Ù‹Ø§ Ø£ØªØ®ÙˆÙ Ù…Ù† Ø§Ù„Ù‚ÙŠÙˆØ¯ ÙˆØ§Ù„ØªØ³ÙˆÙŠØ§ØªØŒ Ù„ÙƒÙ† Ø§Ù„Ø´Ø±Ø­ Ø¨Ø§Ù„Ø¹Ø±Ø¨ÙŠ ÙˆØ§Ù„ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„Ø¹Ù…Ù„ÙŠ Ø¨Ø§Ù„Ù…Ø¹Ù…Ù„ Ø®Ù„Ù‘Ø§Ù†ÙŠ Ø£Ø³ØªÙˆØ¹Ø¨ ÙÙŠ Ø£Ø³Ø¨ÙˆØ¹ÙŠÙ† Ø£ÙƒØ«Ø± Ù…Ù† ØªØ±Ù… Ø¬Ø§Ù…Ø¹ÙŠ ÙƒØ§Ù…Ù„.",
+    createdAt: "Ù…Ù†Ø° ÙŠÙˆÙ…ÙŠÙ†"
   },
   {
     id: "r2",
     stars: 5,
-    name: "سارة الحربي",
-    role: "محاسبة حديثة التخرج — الرياض",
-    text: "معمل القيود هي الميزة الأفضل بالنسبة لي! بتطبّق القيد بنفسك وتشوف التوازن والصحة فوراً. ده خلّاني أتغلب على عقدة المدين والدائن بسهولة شديدة.",
-    createdAt: "منذ 4 أيام"
+    name: "Ø³Ø§Ø±Ø© Ø§Ù„Ø­Ø±Ø¨ÙŠ",
+    role: "Ù…Ø­Ø§Ø³Ø¨Ø© Ø­Ø¯ÙŠØ«Ø© Ø§Ù„ØªØ®Ø±Ø¬ â€” Ø§Ù„Ø±ÙŠØ§Ø¶",
+    text: "Ù…Ø¹Ù…Ù„ Ø§Ù„Ù‚ÙŠÙˆØ¯ Ù‡ÙŠ Ø§Ù„Ù…ÙŠØ²Ø© Ø§Ù„Ø£ÙØ¶Ù„ Ø¨Ø§Ù„Ù†Ø³Ø¨Ø© Ù„ÙŠ! Ø¨ØªØ·Ø¨Ù‘Ù‚ Ø§Ù„Ù‚ÙŠØ¯ Ø¨Ù†ÙØ³Ùƒ ÙˆØªØ´ÙˆÙ Ø§Ù„ØªÙˆØ§Ø²Ù† ÙˆØ§Ù„ØµØ­Ø© ÙÙˆØ±Ø§Ù‹. Ø¯Ù‡ Ø®Ù„Ù‘Ø§Ù†ÙŠ Ø£ØªØºÙ„Ø¨ Ø¹Ù„Ù‰ Ø¹Ù‚Ø¯Ø© Ø§Ù„Ù…Ø¯ÙŠÙ† ÙˆØ§Ù„Ø¯Ø§Ø¦Ù† Ø¨Ø³Ù‡ÙˆÙ„Ø© Ø´Ø¯ÙŠØ¯Ø©.",
+    createdAt: "Ù…Ù†Ø° 4 Ø£ÙŠØ§Ù…"
   },
   {
     id: "r3",
     stars: 5,
-    name: "محمد العلي",
-    role: "محاسب مالي — الخبر",
-    text: "كنت محتاج أتجهز لشهادة CMA ولقيت في ميزان كورس كامل بمستوى عالي جدًا ومساعد AI بيفسرلي المعايير المعقدة فوراً باللغة العربية. تطبيق 10/10.",
-    createdAt: "منذ أسبوع"
+    name: "Ù…Ø­Ù…Ø¯ Ø§Ù„Ø¹Ù„ÙŠ",
+    role: "Ù…Ø­Ø§Ø³Ø¨ Ù…Ø§Ù„ÙŠ â€” Ø§Ù„Ø®Ø¨Ø±",
+    text: "ÙƒÙ†Øª Ù…Ø­ØªØ§Ø¬ Ø£ØªØ¬Ù‡Ø² Ù„Ø´Ù‡Ø§Ø¯Ø© CMA ÙˆÙ„Ù‚ÙŠØª ÙÙŠ Ù…ÙŠØ²Ø§Ù† ÙƒÙˆØ±Ø³ ÙƒØ§Ù…Ù„ Ø¨Ù…Ø³ØªÙˆÙ‰ Ø¹Ø§Ù„ÙŠ Ø¬Ø¯Ù‹Ø§ ÙˆÙ…Ø³Ø§Ø¹Ø¯ AI Ø¨ÙŠÙØ³Ø±Ù„ÙŠ Ø§Ù„Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ù…Ø¹Ù‚Ø¯Ø© ÙÙˆØ±Ø§Ù‹ Ø¨Ø§Ù„Ù„ØºØ© Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©. ØªØ·Ø¨ÙŠÙ‚ 10/10.",
+    createdAt: "Ù…Ù†Ø° Ø£Ø³Ø¨ÙˆØ¹"
   },
   {
     id: "r4",
     stars: 5,
-    name: "نورة الفهد",
-    role: "محاسبة — شركة المراعي",
-    text: "بطاقات المصطلحات المحاسبية دي كنز حقيقي. كل يوم براجع 10 بطاقات بالإنجليزية والعربية في طريقي للعمل، ومستواي تحسن بشكل ملحوظ.",
-    createdAt: "منذ أسبوعين"
+    name: "Ù†ÙˆØ±Ø© Ø§Ù„ÙÙ‡Ø¯",
+    role: "Ù…Ø­Ø§Ø³Ø¨Ø© â€” Ø´Ø±ÙƒØ© Ø§Ù„Ù…Ø±Ø§Ø¹ÙŠ",
+    text: "Ø¨Ø·Ø§Ù‚Ø§Øª Ø§Ù„Ù…ØµØ·Ù„Ø­Ø§Øª Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠØ© Ø¯ÙŠ ÙƒÙ†Ø² Ø­Ù‚ÙŠÙ‚ÙŠ. ÙƒÙ„ ÙŠÙˆÙ… Ø¨Ø±Ø§Ø¬Ø¹ 10 Ø¨Ø·Ø§Ù‚Ø§Øª Ø¨Ø§Ù„Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠØ© ÙˆØ§Ù„Ø¹Ø±Ø¨ÙŠØ© ÙÙŠ Ø·Ø±ÙŠÙ‚ÙŠ Ù„Ù„Ø¹Ù…Ù„ØŒ ÙˆÙ…Ø³ØªÙˆØ§ÙŠ ØªØ­Ø³Ù† Ø¨Ø´ÙƒÙ„ Ù…Ù„Ø­ÙˆØ¸.",
+    createdAt: "Ù…Ù†Ø° Ø£Ø³Ø¨ÙˆØ¹ÙŠÙ†"
   },
   {
     id: "r5",
     stars: 4,
-    name: "يوسف باحارث",
-    role: "محاسب — جدة",
-    text: "تطبيق ممتااااز بجد، والتحفيز بالنجوم والإنجازات خلاني ملتزم بالتعلم يومياً. بانتظار إضافة المزيد من حالات معالجة الزكاة والضريبة.",
-    createdAt: "منذ 3 أسابيع"
+    name: "ÙŠÙˆØ³Ù Ø¨Ø§Ø­Ø§Ø±Ø«",
+    role: "Ù…Ø­Ø§Ø³Ø¨ â€” Ø¬Ø¯Ø©",
+    text: "ØªØ·Ø¨ÙŠÙ‚ Ù…Ù…ØªØ§Ø§Ø§Ø§Ø² Ø¨Ø¬Ø¯ØŒ ÙˆØ§Ù„ØªØ­ÙÙŠØ² Ø¨Ø§Ù„Ù†Ø¬ÙˆÙ… ÙˆØ§Ù„Ø¥Ù†Ø¬Ø§Ø²Ø§Øª Ø®Ù„Ø§Ù†ÙŠ Ù…Ù„ØªØ²Ù… Ø¨Ø§Ù„ØªØ¹Ù„Ù… ÙŠÙˆÙ…ÙŠØ§Ù‹. Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø²ÙŠØ¯ Ù…Ù† Ø­Ø§Ù„Ø§Øª Ù…Ø¹Ø§Ù„Ø¬Ø© Ø§Ù„Ø²ÙƒØ§Ø© ÙˆØ§Ù„Ø¶Ø±ÙŠØ¨Ø©.",
+    createdAt: "Ù…Ù†Ø° 3 Ø£Ø³Ø§Ø¨ÙŠØ¹"
   },
   {
     id: "r6",
     stars: 5,
-    name: "خالد القحطاني",
-    role: "مهندس تحول للمحاسبة — الظهران",
-    text: "أنا خريج هندسة وبحول لمجال المحاسبة، ميزان جعل الرحلة ممتعة وسلسة جداً. التدرج في الـ 32 مرحلة منظّم للغاية والاختبارات بتثبت المعلومة.",
-    createdAt: "منذ شهر"
+    name: "Ø®Ø§Ù„Ø¯ Ø§Ù„Ù‚Ø­Ø·Ø§Ù†ÙŠ",
+    role: "Ù…Ù‡Ù†Ø¯Ø³ ØªØ­ÙˆÙ„ Ù„Ù„Ù…Ø­Ø§Ø³Ø¨Ø© â€” Ø§Ù„Ø¸Ù‡Ø±Ø§Ù†",
+    text: "Ø£Ù†Ø§ Ø®Ø±ÙŠØ¬ Ù‡Ù†Ø¯Ø³Ø© ÙˆØ¨Ø­ÙˆÙ„ Ù„Ù…Ø¬Ø§Ù„ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨Ø©ØŒ Ù…ÙŠØ²Ø§Ù† Ø¬Ø¹Ù„ Ø§Ù„Ø±Ø­Ù„Ø© Ù…Ù…ØªØ¹Ø© ÙˆØ³Ù„Ø³Ø© Ø¬Ø¯Ø§Ù‹. Ø§Ù„ØªØ¯Ø±Ø¬ ÙÙŠ Ø§Ù„Ù€ 32 Ù…Ø±Ø­Ù„Ø© Ù…Ù†Ø¸Ù‘Ù… Ù„Ù„ØºØ§ÙŠØ© ÙˆØ§Ù„Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª Ø¨ØªØ«Ø¨Øª Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø©.",
+    createdAt: "Ù…Ù†Ø° Ø´Ù‡Ø±"
   }
 ];
 
@@ -74,7 +74,7 @@ const rateLimiter = (windowMs: number, maxRequests: number) => {
     entry.count += 1;
     if (entry.count > maxRequests) {
       return res.status(429).json({
-        error: "محاولات كثيرة. يرجى الانتظار قليلاً قبل المحاولة مرة أخرى.",
+        error: "Ù…Ø­Ø§ÙˆÙ„Ø§Øª ÙƒØ«ÙŠØ±Ø©. ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø± Ù‚Ù„ÙŠÙ„Ø§Ù‹ Ù‚Ø¨Ù„ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø© Ù…Ø±Ø© Ø£Ø®Ø±Ù‰.",
       });
     }
     return next();
@@ -144,27 +144,27 @@ const MAX_IMAGE_BASE64_LEN = 14_000_000; // ~10MB file encoded as base64
 const MAX_JOURNAL_ENTRY_JSON_LEN = 250_000;
 
 function aiPayloadError(body: any): string | null {
-  if (!body || typeof body !== "object") return "البيانات غير صالحة.";
+  if (!body || typeof body !== "object") return "Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª ØºÙŠØ± ØµØ§Ù„Ø­Ø©.";
   const message = typeof body.message === "string" ? body.message.trim() : "";
-  if (message.length > MAX_TEXT_CHARS) return "الرسالة طويلة جداً. يرجى تقصيرها وإعادة المحاولة.";
+  if (message.length > MAX_TEXT_CHARS) return "Ø§Ù„Ø±Ø³Ø§Ù„Ø© Ø·ÙˆÙŠÙ„Ø© Ø¬Ø¯Ø§Ù‹. ÙŠØ±Ø¬Ù‰ ØªÙ‚ØµÙŠØ±Ù‡Ø§ ÙˆØ¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©.";
   if (Array.isArray(body.history)) {
-    if (body.history.length > MAX_HISTORY_TURNS) return "سجل المحادثة كبير جداً. ابدأ محادثة جديدة.";
+    if (body.history.length > MAX_HISTORY_TURNS) return "Ø³Ø¬Ù„ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© ÙƒØ¨ÙŠØ± Ø¬Ø¯Ø§Ù‹. Ø§Ø¨Ø¯Ø£ Ù…Ø­Ø§Ø¯Ø«Ø© Ø¬Ø¯ÙŠØ¯Ø©.";
     for (const h of body.history) {
       const t = h?.text || "";
       const img = h?.image?.data || "";
       if ((typeof t === "string" && t.length > MAX_TEXT_CHARS) || (typeof img === "string" && img.length > MAX_IMAGE_BASE64_LEN)) {
-        return "أحد عناصر سجل المحادثة يتجاوز الحد المسموح.";
+        return "Ø£Ø­Ø¯ Ø¹Ù†Ø§ØµØ± Ø³Ø¬Ù„ Ø§Ù„Ù…Ø­Ø§Ø¯Ø«Ø© ÙŠØªØ¬Ø§ÙˆØ² Ø§Ù„Ø­Ø¯ Ø§Ù„Ù…Ø³Ù…ÙˆØ­.";
       }
     }
   }
   const imgData = typeof body.image?.data === "string" ? body.image.data : "";
-  if (imgData.length > MAX_IMAGE_BASE64_LEN) return "حجم الصورة يتجاوز الحد المسموح (10 ميجابايت).";
+  if (imgData.length > MAX_IMAGE_BASE64_LEN) return "Ø­Ø¬Ù… Ø§Ù„ØµÙˆØ±Ø© ÙŠØªØ¬Ø§ÙˆØ² Ø§Ù„Ø­Ø¯ Ø§Ù„Ù…Ø³Ù…ÙˆØ­ (10 Ù…ÙŠØ¬Ø§Ø¨Ø§ÙŠØª).";
   if (body.entry !== undefined) {
     try {
       const size = JSON.stringify(body.entry)?.length || 0;
-      if (size > MAX_JOURNAL_ENTRY_JSON_LEN) return "تفاصيل القيد كبيرة جداً.";
+      if (size > MAX_JOURNAL_ENTRY_JSON_LEN) return "ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ù‚ÙŠØ¯ ÙƒØ¨ÙŠØ±Ø© Ø¬Ø¯Ø§Ù‹.";
     } catch {
-      return "تفاصيل القيد غير صالحة.";
+      return "ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ù‚ÙŠØ¯ ØºÙŠØ± ØµØ§Ù„Ø­Ø©.";
     }
   }
   return null;
@@ -180,16 +180,16 @@ app.get("/api/reviews", async (_req, res) => {
 app.post("/api/reviews", reviewLimiter, async (req, res) => {
   const { name, role, text, stars } = req.body || {};
   if (!name || !text || !String(name).trim() || !String(text).trim()) {
-    return res.status(400).json({ error: "الاسم والرأي مطلوبان" });
+    return res.status(400).json({ error: "Ø§Ù„Ø§Ø³Ù… ÙˆØ§Ù„Ø±Ø£ÙŠ Ù…Ø·Ù„ÙˆØ¨Ø§Ù†" });
   }
   const starCount = Math.min(5, Math.max(1, parseInt(stars, 10) || 5));
   const newRev = {
     id: Date.now().toString(),
     stars: starCount,
     name: String(name).trim().slice(0, 80),
-    role: String(role || "متعلم في ميزان").trim().slice(0, 120),
+    role: String(role || "Ù…ØªØ¹Ù„Ù… ÙÙŠ Ù…ÙŠØ²Ø§Ù†").trim().slice(0, 120),
     text: String(text).trim().slice(0, 1000),
-    createdAt: "الآن",
+    createdAt: "Ø§Ù„Ø¢Ù†",
     submittedAt: new Date().toISOString(),
   };
   const reviews = await loadReviews();
@@ -209,13 +209,13 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
     }
     const { message, history, persona, image } = req.body;
     if (!message && !image) {
-      return res.status(400).json({ error: "الرسالة أو الصورة مطلوب إرسالها" });
+      return res.status(400).json({ error: "Ø§Ù„Ø±Ø³Ø§Ù„Ø© Ø£Ùˆ Ø§Ù„ØµÙˆØ±Ø© Ù…Ø·Ù„ÙˆØ¨ Ø¥Ø±Ø³Ø§Ù„Ù‡Ø§" });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({
-        error: "مفتاح GEMINI_API_KEY غير متوفر في البيئة.",
+        error: "Ù…ÙØªØ§Ø­ GEMINI_API_KEY ØºÙŠØ± Ù…ØªÙˆÙØ± ÙÙŠ Ø§Ù„Ø¨ÙŠØ¦Ø©.",
       });
     }
 
@@ -228,25 +228,25 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
       },
     });
 
-    let personaInstruction = `أنت "مساعد ميزان"، معلم وخبير محترف في علم المحاسبة المالية وقراءة الفواتير والمستندات المحاسبية باللغة العربية.`;
+    let personaInstruction = `Ø£Ù†Øª "Ù…Ø³Ø§Ø¹Ø¯ Ù…ÙŠØ²Ø§Ù†"ØŒ Ù…Ø¹Ù„Ù… ÙˆØ®Ø¨ÙŠØ± Ù…Ø­ØªØ±Ù ÙÙŠ Ø¹Ù„Ù… Ø§Ù„Ù…Ø­Ø§Ø³Ø¨Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆÙ‚Ø±Ø§Ø¡Ø© Ø§Ù„ÙÙˆØ§ØªÙŠØ± ÙˆØ§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠØ© Ø¨Ø§Ù„Ù„ØºØ© Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©.`;
 
     if (persona === "ifrs") {
-      personaInstruction = `أنت "مستشار معايير IFRS الدولية"، خبير متخصص في المعايير المحاسبية الدولية (IFRS/IAS). قم بإجابة الأسئلة وتحليل المستندات مع ربطها برقم المعيار المعني (مثل IFRS 15, IFRS 16, IAS 16) وإعطاء أمثلة معالجة قيود بالجنيه/الريال.`;
+      personaInstruction = `Ø£Ù†Øª "Ù…Ø³ØªØ´Ø§Ø± Ù…Ø¹Ø§ÙŠÙŠØ± IFRS Ø§Ù„Ø¯ÙˆÙ„ÙŠØ©"ØŒ Ø®Ø¨ÙŠØ± Ù…ØªØ®ØµØµ ÙÙŠ Ø§Ù„Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠØ© Ø§Ù„Ø¯ÙˆÙ„ÙŠØ© (IFRS/IAS). Ù‚Ù… Ø¨Ø¥Ø¬Ø§Ø¨Ø© Ø§Ù„Ø£Ø³Ø¦Ù„Ø© ÙˆØªØ­Ù„ÙŠÙ„ Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª Ù…Ø¹ Ø±Ø¨Ø·Ù‡Ø§ Ø¨Ø±Ù‚Ù… Ø§Ù„Ù…Ø¹ÙŠØ§Ø± Ø§Ù„Ù…Ø¹Ù†ÙŠ (Ù…Ø«Ù„ IFRS 15, IFRS 16, IAS 16) ÙˆØ¥Ø¹Ø·Ø§Ø¡ Ø£Ù…Ø«Ù„Ø© Ù…Ø¹Ø§Ù„Ø¬Ø© Ù‚ÙŠÙˆØ¯ Ø¨Ø§Ù„Ø¬Ù†ÙŠÙ‡/Ø§Ù„Ø±ÙŠØ§Ù„.`;
     } else if (persona === "socpa") {
-      personaInstruction = `أنت "مدرب زمالة SOCPA & CMA"، أستاذ متخصص في إعداد الطلاب لاختبارات الهيئة السعودية للمراجعين والمحاسبين (SOCPA) واختبار المالي المعتمد (CMA). قم بتزويد الطالب بتمارين خيارات متعددة مع الشرح والتفسير والحل الرياضي والمحاسبي المنهجي.`;
+      personaInstruction = `Ø£Ù†Øª "Ù…Ø¯Ø±Ø¨ Ø²Ù…Ø§Ù„Ø© SOCPA & CMA"ØŒ Ø£Ø³ØªØ§Ø° Ù…ØªØ®ØµØµ ÙÙŠ Ø¥Ø¹Ø¯Ø§Ø¯ Ø§Ù„Ø·Ù„Ø§Ø¨ Ù„Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª Ø§Ù„Ù‡ÙŠØ¦Ø© Ø§Ù„Ø³Ø¹ÙˆØ¯ÙŠØ© Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹ÙŠÙ† ÙˆØ§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠÙ† (SOCPA) ÙˆØ§Ø®ØªØ¨Ø§Ø± Ø§Ù„Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø¹ØªÙ…Ø¯ (CMA). Ù‚Ù… Ø¨ØªØ²ÙˆÙŠØ¯ Ø§Ù„Ø·Ø§Ù„Ø¨ Ø¨ØªÙ…Ø§Ø±ÙŠÙ† Ø®ÙŠØ§Ø±Ø§Øª Ù…ØªØ¹Ø¯Ø¯Ø© Ù…Ø¹ Ø§Ù„Ø´Ø±Ø­ ÙˆØ§Ù„ØªÙØ³ÙŠØ± ÙˆØ§Ù„Ø­Ù„ Ø§Ù„Ø±ÙŠØ§Ø¶ÙŠ ÙˆØ§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ Ø§Ù„Ù…Ù†Ù‡Ø¬ÙŠ.`;
     } else if (persona === "odoo") {
-      personaInstruction = `أنت "خبير نظم Odoo ERP والميكنة المحاسبية"، متمرس في توجيه القيود اليومية، دفاتر اليومية (Journal Entries)، دليل الحسابات (Chart of Accounts)، وقراءة الفواتير لإنشاء قيود Odoo v17.`;
+      personaInstruction = `Ø£Ù†Øª "Ø®Ø¨ÙŠØ± Ù†Ø¸Ù… Odoo ERP ÙˆØ§Ù„Ù…ÙŠÙƒÙ†Ø© Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠØ©"ØŒ Ù…ØªÙ…Ø±Ø³ ÙÙŠ ØªÙˆØ¬ÙŠÙ‡ Ø§Ù„Ù‚ÙŠÙˆØ¯ Ø§Ù„ÙŠÙˆÙ…ÙŠØ©ØŒ Ø¯ÙØ§ØªØ± Ø§Ù„ÙŠÙˆÙ…ÙŠØ© (Journal Entries)ØŒ Ø¯Ù„ÙŠÙ„ Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª (Chart of Accounts)ØŒ ÙˆÙ‚Ø±Ø§Ø¡Ø© Ø§Ù„ÙÙˆØ§ØªÙŠØ± Ù„Ø¥Ù†Ø´Ø§Ø¡ Ù‚ÙŠÙˆØ¯ Odoo v17.`;
     } else if (persona === "analysis") {
-      personaInstruction = `أنت "محلل مالي خبير"، متخصص في تحليل القوائم المالية، النسب المالية (Ratios)، التدفقات النقدية، وقراءة المستندات والتقارير المالية للشركات بأسلوب احترافي ورسومي.`;
+      personaInstruction = `Ø£Ù†Øª "Ù…Ø­Ù„Ù„ Ù…Ø§Ù„ÙŠ Ø®Ø¨ÙŠØ±"ØŒ Ù…ØªØ®ØµØµ ÙÙŠ ØªØ­Ù„ÙŠÙ„ Ø§Ù„Ù‚ÙˆØ§Ø¦Ù… Ø§Ù„Ù…Ø§Ù„ÙŠØ©ØŒ Ø§Ù„Ù†Ø³Ø¨ Ø§Ù„Ù…Ø§Ù„ÙŠØ© (Ratios)ØŒ Ø§Ù„ØªØ¯ÙÙ‚Ø§Øª Ø§Ù„Ù†Ù‚Ø¯ÙŠØ©ØŒ ÙˆÙ‚Ø±Ø§Ø¡Ø© Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª ÙˆØ§Ù„ØªÙ‚Ø§Ø±ÙŠØ± Ø§Ù„Ù…Ø§Ù„ÙŠØ© Ù„Ù„Ø´Ø±ÙƒØ§Øª Ø¨Ø£Ø³Ù„ÙˆØ¨ Ø§Ø­ØªØ±Ø§ÙÙŠ ÙˆØ±Ø³ÙˆÙ…ÙŠ.`;
     }
 
     const systemInstruction = `${personaInstruction}
-مهمتك إجابة أسئلة الطلاب والمتعلمين وتحليل أي مستندات أو فواتير أو صور مرفقة بأسلوب مبسط، وافي، مشجع وواضح جداً باللغة العربية.
-إذا أرفق المستخدم صورة (مثل فاتورة، إيصال، أو قائمة مالية)، قم بقراءة بياناتها بدقة واستخراج المبالغ والتاريخ وأسماء الأطراف والتوجيه المحاسبي الصحيح.
-عند إعطاء قيود محاسبية، واصل استخدام الصيغ القياسية المنظمة مثل:
-[من حـ/ اسم الحساب] - (مدين)
-[إلى حـ/ اسم الحساب] - (دائن)
-اجعل ردودك منسقة بأسلوب نظيف مع نقاط واضحة ورؤوس أقلام سهلة القراءة.`;
+Ù…Ù‡Ù…ØªÙƒ Ø¥Ø¬Ø§Ø¨Ø© Ø£Ø³Ø¦Ù„Ø© Ø§Ù„Ø·Ù„Ø§Ø¨ ÙˆØ§Ù„Ù…ØªØ¹Ù„Ù…ÙŠÙ† ÙˆØªØ­Ù„ÙŠÙ„ Ø£ÙŠ Ù…Ø³ØªÙ†Ø¯Ø§Øª Ø£Ùˆ ÙÙˆØ§ØªÙŠØ± Ø£Ùˆ ØµÙˆØ± Ù…Ø±ÙÙ‚Ø© Ø¨Ø£Ø³Ù„ÙˆØ¨ Ù…Ø¨Ø³Ø·ØŒ ÙˆØ§ÙÙŠØŒ Ù…Ø´Ø¬Ø¹ ÙˆÙˆØ§Ø¶Ø­ Ø¬Ø¯Ø§Ù‹ Ø¨Ø§Ù„Ù„ØºØ© Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©.
+Ø¥Ø°Ø§ Ø£Ø±ÙÙ‚ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ØµÙˆØ±Ø© (Ù…Ø«Ù„ ÙØ§ØªÙˆØ±Ø©ØŒ Ø¥ÙŠØµØ§Ù„ØŒ Ø£Ùˆ Ù‚Ø§Ø¦Ù…Ø© Ù…Ø§Ù„ÙŠØ©)ØŒ Ù‚Ù… Ø¨Ù‚Ø±Ø§Ø¡Ø© Ø¨ÙŠØ§Ù†Ø§ØªÙ‡Ø§ Ø¨Ø¯Ù‚Ø© ÙˆØ§Ø³ØªØ®Ø±Ø§Ø¬ Ø§Ù„Ù…Ø¨Ø§Ù„Øº ÙˆØ§Ù„ØªØ§Ø±ÙŠØ® ÙˆØ£Ø³Ù…Ø§Ø¡ Ø§Ù„Ø£Ø·Ø±Ø§Ù ÙˆØ§Ù„ØªÙˆØ¬ÙŠÙ‡ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ Ø§Ù„ØµØ­ÙŠØ­.
+Ø¹Ù†Ø¯ Ø¥Ø¹Ø·Ø§Ø¡ Ù‚ÙŠÙˆØ¯ Ù…Ø­Ø§Ø³Ø¨ÙŠØ©ØŒ ÙˆØ§ØµÙ„ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„ØµÙŠØº Ø§Ù„Ù‚ÙŠØ§Ø³ÙŠØ© Ø§Ù„Ù…Ù†Ø¸Ù…Ø© Ù…Ø«Ù„:
+[Ù…Ù† Ø­Ù€/ Ø§Ø³Ù… Ø§Ù„Ø­Ø³Ø§Ø¨] - (Ù…Ø¯ÙŠÙ†)
+[Ø¥Ù„Ù‰ Ø­Ù€/ Ø§Ø³Ù… Ø§Ù„Ø­Ø³Ø§Ø¨] - (Ø¯Ø§Ø¦Ù†)
+Ø§Ø¬Ø¹Ù„ Ø±Ø¯ÙˆØ¯Ùƒ Ù…Ù†Ø³Ù‚Ø© Ø¨Ø£Ø³Ù„ÙˆØ¨ Ù†Ø¸ÙŠÙ Ù…Ø¹ Ù†Ù‚Ø§Ø· ÙˆØ§Ø¶Ø­Ø© ÙˆØ±Ø¤ÙˆØ³ Ø£Ù‚Ù„Ø§Ù… Ø³Ù‡Ù„Ø© Ø§Ù„Ù‚Ø±Ø§Ø¡Ø©.`;
 
     let contents: any[] = [];
     if (Array.isArray(history) && history.length > 0) {
@@ -272,7 +272,7 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
     }
 
     const currentParts: any[] = [];
-    const userTextPrompt = message || "يرجى تحليل ودراسة هذه الصورة أو المستند المحاسبي وتوجيهه محاسبياً واستخراج قيود اليومية التفصيلية الممكنة.";
+    const userTextPrompt = message || "ÙŠØ±Ø¬Ù‰ ØªØ­Ù„ÙŠÙ„ ÙˆØ¯Ø±Ø§Ø³Ø© Ù‡Ø°Ù‡ Ø§Ù„ØµÙˆØ±Ø© Ø£Ùˆ Ø§Ù„Ù…Ø³ØªÙ†Ø¯ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ ÙˆØªÙˆØ¬ÙŠÙ‡Ù‡ Ù…Ø­Ø§Ø³Ø¨ÙŠØ§Ù‹ ÙˆØ§Ø³ØªØ®Ø±Ø§Ø¬ Ù‚ÙŠÙˆØ¯ Ø§Ù„ÙŠÙˆÙ…ÙŠØ© Ø§Ù„ØªÙØµÙŠÙ„ÙŠØ© Ø§Ù„Ù…Ù…ÙƒÙ†Ø©.";
     currentParts.push({ text: userTextPrompt });
 
     if (image && image.data) {
@@ -291,7 +291,7 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
     });
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: "gemini-2.5-flash",
       contents,
       config: {
         systemInstruction,
@@ -299,12 +299,12 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
       },
     });
 
-    const reply = response.text || "عذراً، لم أستطع توليد إجابة في الوقت الحالي.";
+    const reply = response.text || "Ø¹Ø°Ø±Ø§Ù‹ØŒ Ù„Ù… Ø£Ø³ØªØ·Ø¹ ØªÙˆÙ„ÙŠØ¯ Ø¥Ø¬Ø§Ø¨Ø© ÙÙŠ Ø§Ù„ÙˆÙ‚Øª Ø§Ù„Ø­Ø§Ù„ÙŠ.";
     return res.json({ reply });
   } catch (error: any) {
     console.error("Gemini API Error:", error);
     return res.status(500).json({
-      error: "حدث خطأ أثناء التواصل مع مساعد ميزان الذكي. حاول مرة أخرى.",
+      error: "Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø§Ù„ØªÙˆØ§ØµÙ„ Ù…Ø¹ Ù…Ø³Ø§Ø¹Ø¯ Ù…ÙŠØ²Ø§Ù† Ø§Ù„Ø°ÙƒÙŠ. Ø­Ø§ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰.",
     });
   }
 });
@@ -318,13 +318,13 @@ app.post("/api/explain-journal", geminiLimiter, async (req, res) => {
     }
     const { entry } = req.body;
     if (!entry) {
-      return res.status(400).json({ error: "تفاصيل القيد المحاسبي مطلوبة" });
+      return res.status(400).json({ error: "ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ Ù…Ø·Ù„ÙˆØ¨Ø©" });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({
-        error: "مفتاح GEMINI_API_KEY غير متوفر في البيئة.",
+        error: "Ù…ÙØªØ§Ø­ GEMINI_API_KEY ØºÙŠØ± Ù…ØªÙˆÙØ± ÙÙŠ Ø§Ù„Ø¨ÙŠØ¦Ø©.",
       });
     }
 
@@ -339,23 +339,23 @@ app.post("/api/explain-journal", geminiLimiter, async (req, res) => {
 
     const entryDetailsStr = JSON.stringify(entry, null, 2);
 
-    const prompt = `قم بتحليل القيد المحاسبي المحفوظ التالي بشكل تفصيلي وشرح المنطق المحاسبي للمتعلم:
+    const prompt = `Ù‚Ù… Ø¨ØªØ­Ù„ÙŠÙ„ Ø§Ù„Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ Ø§Ù„Ù…Ø­ÙÙˆØ¸ Ø§Ù„ØªØ§Ù„ÙŠ Ø¨Ø´ÙƒÙ„ ØªÙØµÙŠÙ„ÙŠ ÙˆØ´Ø±Ø­ Ø§Ù„Ù…Ù†Ø·Ù‚ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ Ù„Ù„Ù…ØªØ¹Ù„Ù…:
 
-بيانات القيد:
+Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù‚ÙŠØ¯:
 ${entryDetailsStr}
 
-يرجى تقديم الشرح باللغة العربية بالهيكل التالي:
-1. 🎯 **فكرة العملية المالية (motive/transaction)**: ما هو الحدث الاقتصادي أو المعاملة المالية التي يعبر عنها هذا القيد بأسلوب حيوي وسهل.
-2. 🔴 **تحليل جانب المدين (Debit Side)**: لماذا تم جعل هذه الحسابات مدينة؟ (طبيعتها، زيادة/نقص، أصل/مصروف).
-3. 🟢 **تحليل جانب الدائن (Credit Side)**: لماذا تم جعل هذه الحسابات دائنة؟ (طبيعتها، زيادة/نقص، التزام/إيراد/حقوق ملكية).
-4. 📊 **التأثير على القوائم المالية**: التأثير الدقيق على الميزانية العمومية (المركز المالي) وقائمة الدخل.
-5. 💡 **نصيحة محاسبية ذهبية للمتعلم**: كيفية تذكر ومعالجة هذا القيد في الامتحانات والواقع العملي دون الوقوع في أخطاء شائعة.`;
+ÙŠØ±Ø¬Ù‰ ØªÙ‚Ø¯ÙŠÙ… Ø§Ù„Ø´Ø±Ø­ Ø¨Ø§Ù„Ù„ØºØ© Ø§Ù„Ø¹Ø±Ø¨ÙŠØ© Ø¨Ø§Ù„Ù‡ÙŠÙƒÙ„ Ø§Ù„ØªØ§Ù„ÙŠ:
+1. ðŸŽ¯ **ÙÙƒØ±Ø© Ø§Ù„Ø¹Ù…Ù„ÙŠØ© Ø§Ù„Ù…Ø§Ù„ÙŠØ© (motive/transaction)**: Ù…Ø§ Ù‡Ùˆ Ø§Ù„Ø­Ø¯Ø« Ø§Ù„Ø§Ù‚ØªØµØ§Ø¯ÙŠ Ø£Ùˆ Ø§Ù„Ù…Ø¹Ø§Ù…Ù„Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ© Ø§Ù„ØªÙŠ ÙŠØ¹Ø¨Ø± Ø¹Ù†Ù‡Ø§ Ù‡Ø°Ø§ Ø§Ù„Ù‚ÙŠØ¯ Ø¨Ø£Ø³Ù„ÙˆØ¨ Ø­ÙŠÙˆÙŠ ÙˆØ³Ù‡Ù„.
+2. ðŸ”´ **ØªØ­Ù„ÙŠÙ„ Ø¬Ø§Ù†Ø¨ Ø§Ù„Ù…Ø¯ÙŠÙ† (Debit Side)**: Ù„Ù…Ø§Ø°Ø§ ØªÙ… Ø¬Ø¹Ù„ Ù‡Ø°Ù‡ Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª Ù…Ø¯ÙŠÙ†Ø©ØŸ (Ø·Ø¨ÙŠØ¹ØªÙ‡Ø§ØŒ Ø²ÙŠØ§Ø¯Ø©/Ù†Ù‚ØµØŒ Ø£ØµÙ„/Ù…ØµØ±ÙˆÙ).
+3. ðŸŸ¢ **ØªØ­Ù„ÙŠÙ„ Ø¬Ø§Ù†Ø¨ Ø§Ù„Ø¯Ø§Ø¦Ù† (Credit Side)**: Ù„Ù…Ø§Ø°Ø§ ØªÙ… Ø¬Ø¹Ù„ Ù‡Ø°Ù‡ Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª Ø¯Ø§Ø¦Ù†Ø©ØŸ (Ø·Ø¨ÙŠØ¹ØªÙ‡Ø§ØŒ Ø²ÙŠØ§Ø¯Ø©/Ù†Ù‚ØµØŒ Ø§Ù„ØªØ²Ø§Ù…/Ø¥ÙŠØ±Ø§Ø¯/Ø­Ù‚ÙˆÙ‚ Ù…Ù„ÙƒÙŠØ©).
+4. ðŸ“Š **Ø§Ù„ØªØ£Ø«ÙŠØ± Ø¹Ù„Ù‰ Ø§Ù„Ù‚ÙˆØ§Ø¦Ù… Ø§Ù„Ù…Ø§Ù„ÙŠØ©**: Ø§Ù„ØªØ£Ø«ÙŠØ± Ø§Ù„Ø¯Ù‚ÙŠÙ‚ Ø¹Ù„Ù‰ Ø§Ù„Ù…ÙŠØ²Ø§Ù†ÙŠØ© Ø§Ù„Ø¹Ù…ÙˆÙ…ÙŠØ© (Ø§Ù„Ù…Ø±ÙƒØ² Ø§Ù„Ù…Ø§Ù„ÙŠ) ÙˆÙ‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø¯Ø®Ù„.
+5. ðŸ’¡ **Ù†ØµÙŠØ­Ø© Ù…Ø­Ø§Ø³Ø¨ÙŠØ© Ø°Ù‡Ø¨ÙŠØ© Ù„Ù„Ù…ØªØ¹Ù„Ù…**: ÙƒÙŠÙÙŠØ© ØªØ°ÙƒØ± ÙˆÙ…Ø¹Ø§Ù„Ø¬Ø© Ù‡Ø°Ø§ Ø§Ù„Ù‚ÙŠØ¯ ÙÙŠ Ø§Ù„Ø§Ù…ØªØ­Ø§Ù†Ø§Øª ÙˆØ§Ù„ÙˆØ§Ù‚Ø¹ Ø§Ù„Ø¹Ù…Ù„ÙŠ Ø¯ÙˆÙ† Ø§Ù„ÙˆÙ‚ÙˆØ¹ ÙÙŠ Ø£Ø®Ø·Ø§Ø¡ Ø´Ø§Ø¦Ø¹Ø©.`;
 
-    const systemInstruction = `أنت "مساعد ميزان الخبير المحاسبي"، معلم محاسبة متخصص ومتمرس.
-تساعد الطلاب والمتعلمين على فهم المنطق المحاسبي العميق للقيود المحاسبية وتطبيق قاعدة القيد المزدوج ومعايير المحاسبة (IFRS/GAAP) بأسلوب ممتع، مشجع، وافي، ومنسق بنقاط واضحة جداً.`;
+    const systemInstruction = `Ø£Ù†Øª "Ù…Ø³Ø§Ø¹Ø¯ Ù…ÙŠØ²Ø§Ù† Ø§Ù„Ø®Ø¨ÙŠØ± Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ"ØŒ Ù…Ø¹Ù„Ù… Ù…Ø­Ø§Ø³Ø¨Ø© Ù…ØªØ®ØµØµ ÙˆÙ…ØªÙ…Ø±Ø³.
+ØªØ³Ø§Ø¹Ø¯ Ø§Ù„Ø·Ù„Ø§Ø¨ ÙˆØ§Ù„Ù…ØªØ¹Ù„Ù…ÙŠÙ† Ø¹Ù„Ù‰ ÙÙ‡Ù… Ø§Ù„Ù…Ù†Ø·Ù‚ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ Ø§Ù„Ø¹Ù…ÙŠÙ‚ Ù„Ù„Ù‚ÙŠÙˆØ¯ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠØ© ÙˆØªØ·Ø¨ÙŠÙ‚ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø²Ø¯ÙˆØ¬ ÙˆÙ…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ù…Ø­Ø§Ø³Ø¨Ø© (IFRS/GAAP) Ø¨Ø£Ø³Ù„ÙˆØ¨ Ù…Ù…ØªØ¹ØŒ Ù…Ø´Ø¬Ø¹ØŒ ÙˆØ§ÙÙŠØŒ ÙˆÙ…Ù†Ø³Ù‚ Ø¨Ù†Ù‚Ø§Ø· ÙˆØ§Ø¶Ø­Ø© Ø¬Ø¯Ø§Ù‹.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         systemInstruction,
@@ -363,12 +363,12 @@ ${entryDetailsStr}
       },
     });
 
-    const explanation = response.text || "لم يتم التوصل لشرح مناسب للقيد.";
+    const explanation = response.text || "Ù„Ù… ÙŠØªÙ… Ø§Ù„ØªÙˆØµÙ„ Ù„Ø´Ø±Ø­ Ù…Ù†Ø§Ø³Ø¨ Ù„Ù„Ù‚ÙŠØ¯.";
     return res.json({ explanation });
   } catch (error: any) {
     console.error("Gemini Journal Explanation Error:", error);
     return res.status(500).json({
-      error: "حدث خطأ أثناء تحليل القيد بواسطة الذكاء الاصطناعي. حاول مرة أخرى.",
+      error: "Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ ØªØ­Ù„ÙŠÙ„ Ø§Ù„Ù‚ÙŠØ¯ Ø¨ÙˆØ§Ø³Ø·Ø© Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ. Ø­Ø§ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰.",
     });
   }
 });
@@ -484,15 +484,15 @@ app.post("/api/auth/register", authLimiter, async (req, res) => {
     const cleanEmail = String(email || "").trim().toLowerCase();
     const cleanName = String(name || "").trim().slice(0, 60);
     if (!cleanName || !cleanEmail.includes("@")) {
-      return res.status(400).json({ error: "يرجى إدخال اسم صحيح وبريد إلكتروني صالح." });
+      return res.status(400).json({ error: "ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ø³Ù… ØµØ­ÙŠØ­ ÙˆØ¨Ø±ÙŠØ¯ Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ ØµØ§Ù„Ø­." });
     }
     if (!password || String(password).length < 6) {
-      return res.status(400).json({ error: "كلمة المرور يجب أن تكون 6 أحرف/أرقام على الأقل." });
+      return res.status(400).json({ error: "ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† 6 Ø£Ø­Ø±Ù/Ø£Ø±Ù‚Ø§Ù… Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„." });
     }
 
     const users = await loadUsers();
     if (users[cleanEmail]) {
-      return res.status(409).json({ error: "يوجد حساب مسجل بالفعل بهذا البريد الإلكتروني. سجل دخولك مباشرة." });
+      return res.status(409).json({ error: "ÙŠÙˆØ¬Ø¯ Ø­Ø³Ø§Ø¨ Ù…Ø³Ø¬Ù„ Ø¨Ø§Ù„ÙØ¹Ù„ Ø¨Ù‡Ø°Ø§ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ. Ø³Ø¬Ù„ Ø¯Ø®ÙˆÙ„Ùƒ Ù…Ø¨Ø§Ø´Ø±Ø©." });
     }
 
     const salt = crypto.randomBytes(16).toString("hex");
@@ -503,8 +503,8 @@ app.post("/api/auth/register", authLimiter, async (req, res) => {
       id: `usr_${Date.now()}_${crypto.randomBytes(3).toString("hex")}`,
       email: cleanEmail,
       name: cleanName,
-      role: String(role || "محاسب متدرب").slice(0, 80),
-      avatar: String(avatar || "👨‍💼").slice(0, 8),
+      role: String(role || "Ù…Ø­Ø§Ø³Ø¨ Ù…ØªØ¯Ø±Ø¨").slice(0, 80),
+      avatar: String(avatar || "ðŸ‘¨â€ðŸ’¼").slice(0, 8),
       xp: 100,
       streak: 1,
       joinedDate: new Date().toLocaleDateString("ar-SA"),
@@ -519,7 +519,7 @@ app.post("/api/auth/register", authLimiter, async (req, res) => {
     res.json({ token, user: sanitizeUser(newUser) });
   } catch (error: any) {
     console.error("Register error:", error);
-    res.status(500).json({ error: "حدث خطأ أثناء إنشاء الحساب. حاول مرة أخرى." });
+    res.status(500).json({ error: "Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨. Ø­Ø§ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰." });
   }
 });
 
@@ -529,18 +529,18 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
     const { email, password } = req.body || {};
     const cleanEmail = String(email || "").trim().toLowerCase();
     if (!cleanEmail || !password) {
-      return res.status(400).json({ error: "يرجى إدخال البريد الإلكتروني وكلمة المرور." });
+      return res.status(400).json({ error: "ÙŠØ±Ø¬Ù‰ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ ÙˆÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±." });
     }
 
     const users = await loadUsers();
     const user = users[cleanEmail];
     if (!user) {
-      return res.status(401).json({ error: "لا يوجد حساب بهذا البريد الإلكتروني. أنشئ حساباً جديداً أولاً." });
+      return res.status(401).json({ error: "Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø­Ø³Ø§Ø¨ Ø¨Ù‡Ø°Ø§ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ. Ø£Ù†Ø´Ø¦ Ø­Ø³Ø§Ø¨Ø§Ù‹ Ø¬Ø¯ÙŠØ¯Ø§Ù‹ Ø£ÙˆÙ„Ø§Ù‹." });
     }
 
     const hash = await hashPassword(String(password), user.salt);
     if (hash !== user.passwordHash) {
-      return res.status(401).json({ error: "كلمة المرور غير صحيحة. حاول مرة أخرى." });
+      return res.status(401).json({ error: "ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ØºÙŠØ± ØµØ­ÙŠØ­Ø©. Ø­Ø§ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰." });
     }
 
     const token = crypto.randomBytes(24).toString("hex");
@@ -550,27 +550,27 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
     res.json({ token, user: sanitizeUser(user) });
   } catch (error: any) {
     console.error("Login error:", error);
-    res.status(500).json({ error: "حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى." });
+    res.status(500).json({ error: "Ø­Ø¯Ø« Ø®Ø·Ø£ Ø£Ø«Ù†Ø§Ø¡ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„. Ø­Ø§ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰." });
   }
 });
 
 // Get current user from token
 app.get("/api/auth/me", async (req, res) => {
   const token = getBearerToken(req);
-  if (!token) return res.status(401).json({ error: "غير مصرح به." });
+  if (!token) return res.status(401).json({ error: "ØºÙŠØ± Ù…ØµØ±Ø­ Ø¨Ù‡." });
   const users = await loadUsers();
   const user = findUserByToken(users, token);
-  if (!user) return res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+  if (!user) return res.status(401).json({ error: "Ø§Ù†ØªÙ‡Øª ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„Ø¬Ù„Ø³Ø©. Ø³Ø¬Ù„ Ø¯Ø®ÙˆÙ„Ùƒ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰." });
   res.json({ user: sanitizeUser(user) });
 });
 
 // Update profile (name/avatar/role/xp/streak/learningTrack)
 app.patch("/api/auth/profile", async (req, res) => {
   const token = getBearerToken(req);
-  if (!token) return res.status(401).json({ error: "غير مصرح به." });
+  if (!token) return res.status(401).json({ error: "ØºÙŠØ± Ù…ØµØ±Ø­ Ø¨Ù‡." });
   const users = await loadUsers();
   const user = findUserByToken(users, token);
-  if (!user) return res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+  if (!user) return res.status(401).json({ error: "Ø§Ù†ØªÙ‡Øª ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„Ø¬Ù„Ø³Ø©. Ø³Ø¬Ù„ Ø¯Ø®ÙˆÙ„Ùƒ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰." });
 
   const { name, avatar, role, learningTrack } = req.body || {};
   if (typeof req.body?.xp === "number" && Number.isFinite(req.body.xp)) user.xp = Math.max(0, Math.round(req.body.xp));
@@ -590,10 +590,10 @@ const memoryState = new Map<string, any>();
 
 app.get("/api/sync", async (req, res) => {
   const token = getBearerToken(req);
-  if (!token) return res.status(401).json({ error: "غير مصرح به." });
+  if (!token) return res.status(401).json({ error: "ØºÙŠØ± Ù…ØµØ±Ø­ Ø¨Ù‡." });
   const users = await loadUsers();
   const user = findUserByToken(users, token);
-  if (!user) return res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+  if (!user) return res.status(401).json({ error: "Ø§Ù†ØªÙ‡Øª ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„Ø¬Ù„Ø³Ø©. Ø³Ø¬Ù„ Ø¯Ø®ÙˆÙ„Ùƒ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰." });
 
   if (!hasBlobToken()) {
     return res.json({ state: memoryState.get(user.id) || null });
@@ -618,14 +618,14 @@ app.get("/api/sync", async (req, res) => {
 // Save cloud learning state for the logged-in user
 app.put("/api/sync", async (req, res) => {
   const token = getBearerToken(req);
-  if (!token) return res.status(401).json({ error: "غير مصرح به." });
+  if (!token) return res.status(401).json({ error: "ØºÙŠØ± Ù…ØµØ±Ø­ Ø¨Ù‡." });
   const users = await loadUsers();
   const user = findUserByToken(users, token);
-  if (!user) return res.status(401).json({ error: "انتهت صلاحية الجلسة. سجل دخولك مرة أخرى." });
+  if (!user) return res.status(401).json({ error: "Ø§Ù†ØªÙ‡Øª ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„Ø¬Ù„Ø³Ø©. Ø³Ø¬Ù„ Ø¯Ø®ÙˆÙ„Ùƒ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰." });
 
   const state = req.body?.state;
   if (!state || typeof state !== "object") {
-    return res.status(400).json({ error: "بيانات المزامنة غير صالحة." });
+    return res.status(400).json({ error: "Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø²Ø§Ù…Ù†Ø© ØºÙŠØ± ØµØ§Ù„Ø­Ø©." });
   }
 
   const payload = { ...state, savedAt: state.savedAt || new Date().toISOString() };
@@ -697,22 +697,25 @@ app.post("/api/certificates", async (req, res) => {
   const { studentName, trackName, jobTitle } = req.body || {};
   const cleanName = String(studentName || "").trim().slice(0, 80);
   if (!cleanName) {
-    return res.status(400).json({ error: "اسم المتدرب مطلوب" });
+    return res.status(400).json({ error: "Ø§Ø³Ù… Ø§Ù„Ù…ØªØ¯Ø±Ø¨ Ù…Ø·Ù„ÙˆØ¨" });
   }
 
   const id = `MIZAN-${Date.now().toString(36).toUpperCase()}${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
   let ownerEmail: string | undefined;
   const token = getBearerToken(req);
   if (token && isSupabaseConfigured()) {
-    const { data } = await supabaseServer.auth.getUser(token);
-    if (data.user?.email) ownerEmail = data.user.email;
+    const sb = await getSupabaseServer();
+    if (sb) {
+      const { data } = await sb.auth.getUser(token);
+      if (data.user?.email) ownerEmail = data.user.email;
+    }
   }
 
   const record = {
     id,
     studentName: cleanName,
-    jobTitle: String(jobTitle || "محاسب مالي معتمد / مراجع حسابات").trim().slice(0, 120),
-    trackName: String(trackName || "دبلوم المحاسبة المالية والمعايير الدولية (IFRS)").trim().slice(0, 200),
+    jobTitle: String(jobTitle || "Ù…Ø­Ø§Ø³Ø¨ Ù…Ø§Ù„ÙŠ Ù…Ø¹ØªÙ…Ø¯ / Ù…Ø±Ø§Ø¬Ø¹ Ø­Ø³Ø§Ø¨Ø§Øª").trim().slice(0, 120),
+    trackName: String(trackName || "Ø¯Ø¨Ù„ÙˆÙ… Ø§Ù„Ù…Ø­Ø§Ø³Ø¨Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆØ§Ù„Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ø¯ÙˆÙ„ÙŠØ© (IFRS)").trim().slice(0, 200),
     issueDate: new Date().toLocaleDateString("ar-SA"),
     issuedAt: new Date().toISOString(),
     ownerEmail,
@@ -729,12 +732,12 @@ app.post("/api/certificates", async (req, res) => {
 app.get("/api/certificates/:id", async (req, res) => {
   const certId = String(req.params.id || "").trim().slice(0, 64);
   if (!/^MIZAN-[A-Z0-9-]+$/.test(certId)) {
-    return res.status(400).json({ error: "معرف شهادة غير صالح." });
+    return res.status(400).json({ error: "Ù…Ø¹Ø±Ù Ø´Ù‡Ø§Ø¯Ø© ØºÙŠØ± ØµØ§Ù„Ø­." });
   }
   const certs = await loadCerts();
   const cert = certs[certId];
   if (!cert) {
-    return res.status(404).json({ error: "لم يتم العثور على هذه الشهادة في سجل المنصة." });
+    return res.status(404).json({ error: "Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ù‡Ø°Ù‡ Ø§Ù„Ø´Ù‡Ø§Ø¯Ø© ÙÙŠ Ø³Ø¬Ù„ Ø§Ù„Ù…Ù†ØµØ©." });
   }
   res.json({ certificate: cert });
 });
@@ -758,11 +761,11 @@ const CMS_SEEDS: Record<CmsCollection, any[]> = {
   lesson: [
     {
       id: "lesson-seed-1",
-      title: "أساسيات القيد المزدوج",
-      body: "كل عملية مالية تؤثر في حسابين على الأقل: مدين ودائن، ويجب أن تكون المجاميع متوازنة دائماً. مثال: شراء بضاعة نقداً — بضاعة (مدين) / الصندوق (دائن).",
-      category: "مبادئ المحاسبة",
-      reference: "المعيار العام للتشغيل المحاسبي",
-      source: "مصدر المنصة",
+      title: "Ø£Ø³Ø§Ø³ÙŠØ§Øª Ø§Ù„Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø²Ø¯ÙˆØ¬",
+      body: "ÙƒÙ„ Ø¹Ù…Ù„ÙŠØ© Ù…Ø§Ù„ÙŠØ© ØªØ¤Ø«Ø± ÙÙŠ Ø­Ø³Ø§Ø¨ÙŠÙ† Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„: Ù…Ø¯ÙŠÙ† ÙˆØ¯Ø§Ø¦Ù†ØŒ ÙˆÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† Ø§Ù„Ù…Ø¬Ø§Ù…ÙŠØ¹ Ù…ØªÙˆØ§Ø²Ù†Ø© Ø¯Ø§Ø¦Ù…Ø§Ù‹. Ù…Ø«Ø§Ù„: Ø´Ø±Ø§Ø¡ Ø¨Ø¶Ø§Ø¹Ø© Ù†Ù‚Ø¯Ø§Ù‹ â€” Ø¨Ø¶Ø§Ø¹Ø© (Ù…Ø¯ÙŠÙ†) / Ø§Ù„ØµÙ†Ø¯ÙˆÙ‚ (Ø¯Ø§Ø¦Ù†).",
+      category: "Ù…Ø¨Ø§Ø¯Ø¦ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨Ø©",
+      reference: "Ø§Ù„Ù…Ø¹ÙŠØ§Ø± Ø§Ù„Ø¹Ø§Ù… Ù„Ù„ØªØ´ØºÙŠÙ„ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠ",
+      source: "Ù…ØµØ¯Ø± Ø§Ù„Ù…Ù†ØµØ©",
       reviewedBy: "",
       published: true,
       updatedAt: "",
@@ -771,10 +774,10 @@ const CMS_SEEDS: Record<CmsCollection, any[]> = {
   tax: [
     {
       id: "tax-seed-1",
-      title: "الزكاة والضريبة في السعودية 2026",
-      body: "تُفرض الزكاة على الأنشطة الخاضعة بنسبة 2.5%، والضريبة الأساسية 15%. الالتزام يتم عبر الإقرارات الموحدة مع هيئة الزكاة والضريبة والجمارك حسب ميعاد كل نشاط.",
-      category: "الأنظمة السعودية",
-      reference: "هيئة الزكاة والضريبة والجمارك",
+      title: "Ø§Ù„Ø²ÙƒØ§Ø© ÙˆØ§Ù„Ø¶Ø±ÙŠØ¨Ø© ÙÙŠ Ø§Ù„Ø³Ø¹ÙˆØ¯ÙŠØ© 2026",
+      body: "ØªÙÙØ±Ø¶ Ø§Ù„Ø²ÙƒØ§Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù†Ø´Ø·Ø© Ø§Ù„Ø®Ø§Ø¶Ø¹Ø© Ø¨Ù†Ø³Ø¨Ø© 2.5%ØŒ ÙˆØ§Ù„Ø¶Ø±ÙŠØ¨Ø© Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ© 15%. Ø§Ù„Ø§Ù„ØªØ²Ø§Ù… ÙŠØªÙ… Ø¹Ø¨Ø± Ø§Ù„Ø¥Ù‚Ø±Ø§Ø±Ø§Øª Ø§Ù„Ù…ÙˆØ­Ø¯Ø© Ù…Ø¹ Ù‡ÙŠØ¦Ø© Ø§Ù„Ø²ÙƒØ§Ø© ÙˆØ§Ù„Ø¶Ø±ÙŠØ¨Ø© ÙˆØ§Ù„Ø¬Ù…Ø§Ø±Ùƒ Ø­Ø³Ø¨ Ù…ÙŠØ¹Ø§Ø¯ ÙƒÙ„ Ù†Ø´Ø§Ø·.",
+      category: "Ø§Ù„Ø£Ù†Ø¸Ù…Ø© Ø§Ù„Ø³Ø¹ÙˆØ¯ÙŠØ©",
+      reference: "Ù‡ÙŠØ¦Ø© Ø§Ù„Ø²ÙƒØ§Ø© ÙˆØ§Ù„Ø¶Ø±ÙŠØ¨Ø© ÙˆØ§Ù„Ø¬Ù…Ø§Ø±Ùƒ",
       source: "zatca.gov.sa",
       reviewedBy: "",
       published: true,
@@ -784,11 +787,11 @@ const CMS_SEEDS: Record<CmsCollection, any[]> = {
   quiz: [
     {
       id: "quiz-seed-1",
-      title: "سؤال: أنواع الحسابات",
-      body: "أي من الآتية يُعد حساب أصل؟\nأ) الموردون  ب) النقدية  ج) رأس المال  د) الإيرادات\nالإجابة النموذجية: ب) النقدية.",
-      category: "مبادئ المحاسبة",
-      reference: "المنهج الأساسي",
-      source: "مصدر المنصة",
+      title: "Ø³Ø¤Ø§Ù„: Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª",
+      body: "Ø£ÙŠ Ù…Ù† Ø§Ù„Ø¢ØªÙŠØ© ÙŠÙØ¹Ø¯ Ø­Ø³Ø§Ø¨ Ø£ØµÙ„ØŸ\nØ£) Ø§Ù„Ù…ÙˆØ±Ø¯ÙˆÙ†  Ø¨) Ø§Ù„Ù†Ù‚Ø¯ÙŠØ©  Ø¬) Ø±Ø£Ø³ Ø§Ù„Ù…Ø§Ù„  Ø¯) Ø§Ù„Ø¥ÙŠØ±Ø§Ø¯Ø§Øª\nØ§Ù„Ø¥Ø¬Ø§Ø¨Ø© Ø§Ù„Ù†Ù…ÙˆØ°Ø¬ÙŠØ©: Ø¨) Ø§Ù„Ù†Ù‚Ø¯ÙŠØ©.",
+      category: "Ù…Ø¨Ø§Ø¯Ø¦ Ø§Ù„Ù…Ø­Ø§Ø³Ø¨Ø©",
+      reference: "Ø§Ù„Ù…Ù†Ù‡Ø¬ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ",
+      source: "Ù…ØµØ¯Ø± Ø§Ù„Ù…Ù†ØµØ©",
       reviewedBy: "",
       published: true,
       updatedAt: "",
@@ -797,9 +800,9 @@ const CMS_SEEDS: Record<CmsCollection, any[]> = {
   reference: [
     {
       id: "reference-seed-1",
-      title: "دليل المعايير الدولية IFRS",
-      body: "روابط وأسس الاعتراف والقياس الأساسية لكل معيار IFRS/IAS مع ملخصات وارتباط نصي لكل قيد تطبيقي.",
-      category: "المعايير الدولية",
+      title: "Ø¯Ù„ÙŠÙ„ Ø§Ù„Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ø¯ÙˆÙ„ÙŠØ© IFRS",
+      body: "Ø±ÙˆØ§Ø¨Ø· ÙˆØ£Ø³Ø³ Ø§Ù„Ø§Ø¹ØªØ±Ø§Ù ÙˆØ§Ù„Ù‚ÙŠØ§Ø³ Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ© Ù„ÙƒÙ„ Ù…Ø¹ÙŠØ§Ø± IFRS/IAS Ù…Ø¹ Ù…Ù„Ø®ØµØ§Øª ÙˆØ§Ø±ØªØ¨Ø§Ø· Ù†ØµÙŠ Ù„ÙƒÙ„ Ù‚ÙŠØ¯ ØªØ·Ø¨ÙŠÙ‚ÙŠ.",
+      category: "Ø§Ù„Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ø¯ÙˆÙ„ÙŠØ©",
       reference: "IFRS Foundation",
       source: "ifrs.org",
       reviewedBy: "",
@@ -849,21 +852,26 @@ async function saveCms(collection: CmsCollection, items: any[]) {
 async function resolveAdminUser(req: express.Request, res: express.Response): Promise<string | null> {
   const token = getBearerToken(req);
   if (!token) {
-    res.status(401).json({ error: "غير مصرح به. سجل دخولك أولاً." });
+    res.status(401).json({ error: "ØºÙŠØ± Ù…ØµØ±Ø­ Ø¨Ù‡. Ø³Ø¬Ù„ Ø¯Ø®ÙˆÙ„Ùƒ Ø£ÙˆÙ„Ø§Ù‹." });
     return null;
   }
   if (!isSupabaseConfigured()) {
-    res.status(503).json({ error: "إعدادات Supabase غير مضبوطة على الخادم." });
+    res.status(503).json({ error: "Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Supabase ØºÙŠØ± Ù…Ø¶Ø¨ÙˆØ·Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø®Ø§Ø¯Ù…." });
     return null;
   }
-  const { data, error } = await supabaseServer.auth.getUser(token);
+  const sb = await getSupabaseServer();
+  if (!sb) {
+    res.status(503).json({ error: "Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Supabase ØºÙŠØ± Ù…ØªØ§Ø­Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø®Ø§Ø¯Ù…." });
+    return null;
+  }
+  const { data, error } = await sb.auth.getUser(token);
   if (error || !data.user) {
-    res.status(401).json({ error: "جلسة غير صالحة. سجل دخولك مرة أخرى." });
+    res.status(401).json({ error: "Ø¬Ù„Ø³Ø© ØºÙŠØ± ØµØ§Ù„Ø­Ø©. Ø³Ø¬Ù„ Ø¯Ø®ÙˆÙ„Ùƒ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰." });
     return null;
   }
   const email = String(data.user.email || "").trim().toLowerCase();
   if (!isAdminEmail(email)) {
-    res.status(403).json({ error: "ليست لديك صلاحية المشرف." });
+    res.status(403).json({ error: "Ù„ÙŠØ³Øª Ù„Ø¯ÙŠÙƒ ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„Ù…Ø´Ø±Ù." });
     return null;
   }
   return email;
@@ -874,7 +882,9 @@ async function resolveAdminUser(req: express.Request, res: express.Response): Pr
 app.get("/api/admin/check", async (req, res) => {
   const token = getBearerToken(req);
   if (!token || !isSupabaseConfigured()) return res.json({ isAdmin: false });
-  const { data, error } = await supabaseServer.auth.getUser(token);
+  const sb = await getSupabaseServer();
+  if (!sb) return res.json({ isAdmin: false });
+  const { data, error } = await sb.auth.getUser(token);
   if (error || !data.user) return res.json({ isAdmin: false });
   res.json({ isAdmin: isAdminEmail(String(data.user.email || "").trim().toLowerCase()) });
 });
@@ -885,7 +895,7 @@ function sanitizeCmsItem(raw: any, existingId?: string) {
     id: String(raw.id || clean),
     title: String(raw.title || "").trim().slice(0, 200),
     body: String(raw.body || "").trim().slice(0, 20000),
-    category: String(raw.category || "عام").trim().slice(0, 80),
+    category: String(raw.category || "Ø¹Ø§Ù…").trim().slice(0, 80),
     reference: String(raw.reference || "").trim().slice(0, 200),
     source: String(raw.source || "").trim().slice(0, 300),
     reviewedBy: String(raw.reviewedBy || "").trim().slice(0, 120),
@@ -898,7 +908,7 @@ function sanitizeCmsItem(raw: any, existingId?: string) {
 app.get("/api/cms/:collection", async (req, res) => {
   const collection = String(req.params.collection || "").toLowerCase() as CmsCollection;
   if (!(CMS_COLLECTIONS as readonly string[]).includes(collection)) {
-    return res.status(400).json({ error: "مجموعة محتوى غير معروفة." });
+    return res.status(400).json({ error: "Ù…Ø¬Ù…ÙˆØ¹Ø© Ù…Ø­ØªÙˆÙ‰ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙØ©." });
   }
   const seeded = CMS_SEEDS[collection] || [];
   const stored = await loadCms(collection);
@@ -912,7 +922,7 @@ app.get("/api/admin/cms/:collection", async (req, res) => {
   if (!admin) return;
   const collection = String(req.params.collection || "").toLowerCase() as CmsCollection;
   if (!(CMS_COLLECTIONS as readonly string[]).includes(collection)) {
-    return res.status(400).json({ error: "مجموعة محتوى غير معروفة." });
+    return res.status(400).json({ error: "Ù…Ø¬Ù…ÙˆØ¹Ø© Ù…Ø­ØªÙˆÙ‰ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙØ©." });
   }
   const seeded = CMS_SEEDS[collection] || [];
   const stored = await loadCms(collection);
@@ -926,7 +936,7 @@ app.post("/api/admin/cms/:collection", async (req, res) => {
   if (!admin) return;
   const collection = String(req.params.collection || "").toLowerCase() as CmsCollection;
   if (!(CMS_COLLECTIONS as readonly string[]).includes(collection)) {
-    return res.status(400).json({ error: "مجموعة محتوى غير معروفة." });
+    return res.status(400).json({ error: "Ù…Ø¬Ù…ÙˆØ¹Ø© Ù…Ø­ØªÙˆÙ‰ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙØ©." });
   }
   const items = await loadCms(collection);
   const raw = req.body?.item || {};
@@ -945,7 +955,7 @@ app.delete("/api/admin/cms/:collection/:id", async (req, res) => {
   if (!admin) return;
   const collection = String(req.params.collection || "").toLowerCase() as CmsCollection;
   if (!(CMS_COLLECTIONS as readonly string[]).includes(collection)) {
-    return res.status(400).json({ error: "مجموعة محتوى غير معروفة." });
+    return res.status(400).json({ error: "Ù…Ø¬Ù…ÙˆØ¹Ø© Ù…Ø­ØªÙˆÙ‰ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙØ©." });
   }
   const id = String(req.params.id || "").trim();
   const items = await loadCms(collection);
@@ -963,10 +973,10 @@ let memoryFaq: any[] | null = null;
 let memoryTickets: Record<string, any> | null = null;
 
 const FAQ_SEEDS = [
-  { id: "faq-1", question: "كيف أسجل حساباً جديداً؟", answer: "من أيقونة الحساب في الشريط العلوي اختر إنشاء حساب ثم أدخل بريدك وكلمة مرور (6 أحرف على الأقل)." },
-  { id: "faq-2", question: "هل المنصة مجانية؟", answer: "نعم، التعلم الأساسي والمكتبة والاختبارات متاحة مجاناً، وتوجد مسارات احترافية مدفوعة قريباً." },
-  { id: "faq-3", question: "كيف أحصل على شهادتي؟", answer: "بعد إكمال مسار متخصص ستتمكن من توليد شهادة موثّقة برابط تحقق عام من قسم الحساب > الشهادات." },
-  { id: "faq-4", question: "أين يمكنني التبليغ عن خطأ في المحتوى أو اقتراح؟", answer: "استخدم نموذج التبليغ في صفحة الدعم وسيصلك تتبع عبر بريدك أو ارجع لدعم منصتنا." },
+  { id: "faq-1", question: "ÙƒÙŠÙ Ø£Ø³Ø¬Ù„ Ø­Ø³Ø§Ø¨Ø§Ù‹ Ø¬Ø¯ÙŠØ¯Ø§Ù‹ØŸ", answer: "Ù…Ù† Ø£ÙŠÙ‚ÙˆÙ†Ø© Ø§Ù„Ø­Ø³Ø§Ø¨ ÙÙŠ Ø§Ù„Ø´Ø±ÙŠØ· Ø§Ù„Ø¹Ù„ÙˆÙŠ Ø§Ø®ØªØ± Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨ Ø«Ù… Ø£Ø¯Ø®Ù„ Ø¨Ø±ÙŠØ¯Ùƒ ÙˆÙƒÙ„Ù…Ø© Ù…Ø±ÙˆØ± (6 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„)." },
+  { id: "faq-2", question: "Ù‡Ù„ Ø§Ù„Ù…Ù†ØµØ© Ù…Ø¬Ø§Ù†ÙŠØ©ØŸ", answer: "Ù†Ø¹Ù…ØŒ Ø§Ù„ØªØ¹Ù„Ù… Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ ÙˆØ§Ù„Ù…ÙƒØªØ¨Ø© ÙˆØ§Ù„Ø§Ø®ØªØ¨Ø§Ø±Ø§Øª Ù…ØªØ§Ø­Ø© Ù…Ø¬Ø§Ù†Ø§Ù‹ØŒ ÙˆØªÙˆØ¬Ø¯ Ù…Ø³Ø§Ø±Ø§Øª Ø§Ø­ØªØ±Ø§ÙÙŠØ© Ù…Ø¯ÙÙˆØ¹Ø© Ù‚Ø±ÙŠØ¨Ø§Ù‹." },
+  { id: "faq-3", question: "ÙƒÙŠÙ Ø£Ø­ØµÙ„ Ø¹Ù„Ù‰ Ø´Ù‡Ø§Ø¯ØªÙŠØŸ", answer: "Ø¨Ø¹Ø¯ Ø¥ÙƒÙ…Ø§Ù„ Ù…Ø³Ø§Ø± Ù…ØªØ®ØµØµ Ø³ØªØªÙ…ÙƒÙ† Ù…Ù† ØªÙˆÙ„ÙŠØ¯ Ø´Ù‡Ø§Ø¯Ø© Ù…ÙˆØ«Ù‘Ù‚Ø© Ø¨Ø±Ø§Ø¨Ø· ØªØ­Ù‚Ù‚ Ø¹Ø§Ù… Ù…Ù† Ù‚Ø³Ù… Ø§Ù„Ø­Ø³Ø§Ø¨ > Ø§Ù„Ø´Ù‡Ø§Ø¯Ø§Øª." },
+  { id: "faq-4", question: "Ø£ÙŠÙ† ÙŠÙ…ÙƒÙ†Ù†ÙŠ Ø§Ù„ØªØ¨Ù„ÙŠØº Ø¹Ù† Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ù…Ø­ØªÙˆÙ‰ Ø£Ùˆ Ø§Ù‚ØªØ±Ø§Ø­ØŸ", answer: "Ø§Ø³ØªØ®Ø¯Ù… Ù†Ù…ÙˆØ°Ø¬ Ø§Ù„ØªØ¨Ù„ÙŠØº ÙÙŠ ØµÙØ­Ø© Ø§Ù„Ø¯Ø¹Ù… ÙˆØ³ÙŠØµÙ„Ùƒ ØªØªØ¨Ø¹ Ø¹Ø¨Ø± Ø¨Ø±ÙŠØ¯Ùƒ Ø£Ùˆ Ø§Ø±Ø¬Ø¹ Ù„Ø¯Ø¹Ù… Ù…Ù†ØµØªÙ†Ø§." },
 ];
 
 async function loadFaq(): Promise<any[]> {
@@ -1038,7 +1048,7 @@ app.post("/api/support/tickets", rateLimiter(60 * 1000, 10), async (req, res) =>
   const cleanSubject = String(subject || "").trim().slice(0, 200);
   const cleanMessage = String(message || "").trim().slice(0, 8000);
   if (!cleanName || !cleanEmail.includes("@") || !cleanSubject || !cleanMessage) {
-    return res.status(400).json({ error: "يرجى إكمال كافة الحقول المطلوبة." });
+    return res.status(400).json({ error: "ÙŠØ±Ø¬Ù‰ Ø¥ÙƒÙ…Ø§Ù„ ÙƒØ§ÙØ© Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø©." });
   }
 
   const tickets = await loadTickets();
@@ -1049,7 +1059,7 @@ app.post("/api/support/tickets", rateLimiter(60 * 1000, 10), async (req, res) =>
     email: cleanEmail,
     subject: cleanSubject,
     message: cleanMessage,
-    category: String(category || "عام").slice(0, 60),
+    category: String(category || "Ø¹Ø§Ù…").slice(0, 60),
     status: "open",
     createdAt: new Date().toISOString(),
     notes: "",
@@ -1073,7 +1083,7 @@ app.patch("/api/admin/tickets/:id", async (req, res) => {
   const id = String(req.params.id || "").trim();
   const tickets = await loadTickets();
   const ticket = tickets[id];
-  if (!ticket) return res.status(404).json({ error: "التذكرة غير موجودة." });
+  if (!ticket) return res.status(404).json({ error: "Ø§Ù„ØªØ°ÙƒØ±Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø©." });
   if (typeof req.body?.status === "string") ticket.status = String(req.body.status).slice(0, 20);
   if (typeof req.body?.notes === "string") ticket.notes = String(req.body.notes).slice(0, 3000);
   tickets[id] = ticket;
