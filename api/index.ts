@@ -335,8 +335,18 @@ app.post("/api/chat", geminiLimiter, async (req, res) => {
       parts: currentParts,
     });
 
-    const reply = (await generateGeminiText(contents, systemInstruction, 0.7))
-      || "عذراً، لم أستطع توليد إجابة في الوقت الحالي.";
+    console.error("CHAT_REACHED_GEMINI_PATH hasKey=", Boolean(process.env.GEMINI_API_KEY));
+    if (process.env.GEMINI_SKIP === "1") {
+      return res.json({ reply: "STATIC_REPLY_OK" });
+    }
+    let reply: string;
+    try {
+      reply = (await generateGeminiText(contents, systemInstruction, 0.7))
+        || "عذراً، لم أستطع توليد إجابة في الوقت الحالي.";
+    } catch (e: any) {
+      console.error("GEMINI_INNER_ERR", e?.message);
+      reply = "GEMINI_FAILED:" + (e?.message || e);
+    }
     return res.json({ reply });
   } catch (error: any) {
     console.error("Gemini API Error:", error?.message, error?.stack);
