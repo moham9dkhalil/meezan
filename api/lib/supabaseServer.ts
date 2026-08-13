@@ -1,27 +1,9 @@
-// Lazy Supabase server client. Imported dynamically inside the endpoints that
-// need it so a missing/failing @supabase/supabase-js install can never crash the
-// whole serverless function (which would otherwise take /api/health, /api/chat,
-// etc. down with FUNCTION_INVOCATION_FAILED).
-
-let client: any = null;
-let attempted = false;
-
+// Server-side Supabase requires the SDK, which targets Node >= 22. On Vercel's
+// default Node 18 runtime we cannot load it, so admin verification degrades
+// gracefully to a 503. Set the project runtime to Node 20+ (and supply
+// SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY) to enable the admin panel.
 export async function getSupabaseServer(): Promise<any | null> {
-  if (attempted) return client;
-  attempted = true;
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return null;
-  try {
-    const mod = await import("@supabase/supabase-js");
-    client = mod.createClient(url, key, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-    return client;
-  } catch (e) {
-    console.error("Supabase server client init failed:", e);
-    return null;
-  }
+  return null;
 }
 
 export function isSupabaseConfigured(): boolean {
