@@ -1,6 +1,6 @@
 ﻿import express from "express";
 import crypto from "crypto";
-import { get as blobGet, put as blobPut } from "@vercel/blob";
+import { get as blobGet, put as blobPut } from "./lib/blob";
 // @google/genai is imported lazily inside the handlers below so a Node-version
 // mismatch on the serverless runtime can never crash module load (which would
 // take /api/health and every other endpoint down with FUNCTION_INVOCATION_FAILED).
