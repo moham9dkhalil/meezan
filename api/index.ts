@@ -1,6 +1,6 @@
 ﻿import express from "express";
 import crypto from "crypto";
-import { get as blobGet, put as blobPut } from "@vercel/blob";
+import { get as blobGet, put as blobPut } from "./lib/blob";
 import { getSupabaseServer, isSupabaseConfigured } from "./lib/supabaseServer";
 
 // Seed reviews â€” kept inline because Vercel only packs the api/ folder into the
