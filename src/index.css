@@ -121,54 +121,182 @@ html.light body, body.light {
   color: #0f172a !important;
 }
 
-/* Universal Light mode card & panel backgrounds targeting dark hexes & slate backgrounds */
-html.light [class*="bg-[#0"],
-html.light [class*="bg-[#1"],
-html.light [class*="bg-[#2"],
-html.light [class*="bg-slate-9"],
-html.light [class*="bg-slate-8"],
-html.light [class*="bg-gray-9"],
-html.light [class*="bg-gray-8"],
-html.light [class*="bg-zinc-9"] {
+/* Specific Dark Card & Container Replacements in Light Mode */
+html.light .bg-\[\#080c1c\],
+html.light .bg-\[\#0b1120\],
+html.light .bg-\[\#0d1424\],
+html.light .bg-\[\#101a30\],
+html.light .bg-\[\#0a0f1d\],
+html.light .bg-\[\#050b18\],
+html.light .bg-\[\#090d16\],
+html.light .bg-slate-950,
+html.light .bg-slate-900,
+html.light .bg-slate-850,
+html.light .bg-slate-800,
+html.light .bg-gray-950,
+html.light .bg-gray-900,
+html.light .bg-zinc-950,
+html.light .bg-zinc-900,
+html.light .bg-indigo-950 {
   background-color: #ffffff !important;
   color: #0f172a !important;
   border-color: #e2e8f0 !important;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
 }
 
-/* Light mode header, nav, and fixed bars */
+/* Sub-containers & Translucent fills in Light Mode */
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/40,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800\/40,
+html.light .bg-slate-800\/50,
+html.light .bg-slate-800\/30,
+html.light .bg-white\/5,
+html.light .bg-white\/10 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-white\/20 {
+  background-color: #e2e8f0 !important;
+}
+
+/* Modals & Backdrop Blur Overlay */
+html.light .bg-black\/40,
+html.light .bg-black\/50,
+html.light .bg-black\/60,
+html.light .bg-black\/70,
+html.light .bg-black\/80,
+html.light .bg-black\/90 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Light mode header & glass-nav */
 html.light header,
 html.light nav,
 html.light .glass-nav {
-  background-color: rgba(255, 255, 255, 0.96) !important;
+  background-color: rgba(255, 255, 255, 0.94) !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
 }
 
-/* Light mode typography text colors */
+/* Light mode Glass Panels */
+html.light .glass-panel {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.05) !important;
+}
+
+/* Light mode Ambient Background */
+html.light .bg-ambient-gradient {
+  background:
+    radial-gradient(600px 400px at 85% -5%, rgba(99, 102, 241, 0.08), transparent 60%),
+    radial-gradient(500px 400px at 5% 15%, rgba(236, 72, 153, 0.06), transparent 60%),
+    radial-gradient(700px 500px at 50% 100%, rgba(16, 185, 129, 0.05), transparent 60%) !important;
+}
+
+/* ==========================================================================
+   LIGHT MODE TYPOGRAPHY & TEXT COLOR ADAPTATIONS
+   ========================================================================== */
+
+/* Plain Headings */
 html.light h1:not([class*="text-transparent"]),
 html.light h2:not([class*="text-transparent"]),
 html.light h3:not([class*="text-transparent"]),
-html.light h4:not([class*="text-transparent"]) {
+html.light h4:not([class*="text-transparent"]),
+html.light h5:not([class*="text-transparent"]),
+html.light h6:not([class*="text-transparent"]) {
   color: #0f172a !important;
 }
 
+/* Multi-tone Text Gradients in Light Mode */
+html.light .from-white,
+html.light [class*="from-white"] {
+  --tw-gradient-from: #0f172a !important;
+}
+
+html.light .via-slate-100,
+html.light .via-slate-200,
+html.light .via-indigo-100,
+html.light .via-indigo-200 {
+  --tw-gradient-via: #4338ca !important;
+}
+
+html.light .to-slate-300,
+html.light .to-slate-400,
+html.light .to-slate-500,
+html.light .to-indigo-300 {
+  --tw-gradient-to: #6b21a8 !important;
+}
+
+/* Body and muted text mapping */
 html.light p,
 html.light .text-slate-200,
 html.light .text-slate-300,
 html.light .text-gray-200,
-html.light .text-gray-300 {
+html.light .text-gray-300,
+html.light .text-zinc-200,
+html.light .text-zinc-300 {
   color: #334155 !important;
 }
 
 html.light .text-slate-400,
-html.light .text-gray-400 {
+html.light .text-gray-400,
+html.light .text-zinc-400 {
   color: #64748b !important;
 }
 
-/* Preserve solid white text on buttons & gradients in light mode */
-html.light [class*="bg-gradient-to"],
+html.light .text-slate-500,
+html.light .text-gray-500 {
+  color: #475569 !important;
+}
+
+/* High contrast colored text in Light Mode */
+html.light .text-indigo-200,
+html.light .text-indigo-300,
+html.light .text-indigo-400 {
+  color: #4338ca !important;
+}
+
+html.light .text-purple-200,
+html.light .text-purple-300,
+html.light .text-purple-400 {
+  color: #6b21a8 !important;
+}
+
+html.light .text-emerald-200,
+html.light .text-emerald-300,
+html.light .text-emerald-400 {
+  color: #047857 !important;
+}
+
+html.light .text-amber-200,
+html.light .text-amber-300,
+html.light .text-amber-400 {
+  color: #b45309 !important;
+}
+
+html.light .text-pink-200,
+html.light .text-pink-300,
+html.light .text-pink-400,
+html.light .text-rose-300,
+html.light .text-rose-400 {
+  color: #be123c !important;
+}
+
+html.light .text-cyan-200,
+html.light .text-cyan-300,
+html.light .text-cyan-400,
+html.light .text-sky-300,
+html.light .text-sky-400 {
+  color: #0369a1 !important;
+}
+
+/* Solid Buttons & Badges Protection in Light Mode */
 html.light button.bg-indigo-600,
 html.light button.bg-indigo-700,
 html.light button.bg-purple-600,
@@ -177,65 +305,120 @@ html.light button.bg-rose-600,
 html.light .bg-indigo-600,
 html.light .bg-indigo-700,
 html.light .bg-emerald-600,
-html.light .bg-rose-600 {
+html.light .bg-purple-600,
+html.light .bg-rose-600,
+html.light [class*="bg-gradient-to"] {
   color: #ffffff !important;
 }
 
-html.light [class*="bg-gradient-to"] *,
 html.light button.bg-indigo-600 *,
 html.light button.bg-indigo-700 *,
 html.light button.bg-purple-600 *,
 html.light button.bg-emerald-600 *,
-html.light button.bg-rose-600 * {
+html.light button.bg-rose-600 *,
+html.light .bg-indigo-600 *,
+html.light .bg-indigo-700 *,
+html.light .bg-emerald-600 *,
+html.light .bg-purple-600 *,
+html.light .bg-rose-600 *,
+html.light [class*="bg-gradient-to"] * {
   color: #ffffff !important;
 }
 
-/* Light mode badge adaptation */
-html.light [class*="bg-indigo-500/"],
-html.light [class*="bg-indigo-600/"] {
+/* Translucent Soft Badges & Pills in Light Mode */
+html.light .bg-indigo-500\/10,
+html.light .bg-indigo-500\/20,
+html.light .bg-indigo-600\/10,
+html.light .bg-indigo-600\/20 {
   background-color: #e0e7ff !important;
   color: #3730a3 !important;
   border-color: #c7d2fe !important;
 }
-html.light [class*="bg-indigo-500/"] *,
-html.light [class*="bg-indigo-600/"] * {
+html.light .bg-indigo-500\/10 *,
+html.light .bg-indigo-500\/20 *,
+html.light .bg-indigo-600\/10 *,
+html.light .bg-indigo-600\/20 * {
   color: #3730a3 !important;
 }
 
-html.light [class*="bg-emerald-500/"],
-html.light [class*="bg-emerald-600/"] {
+html.light .bg-emerald-500\/10,
+html.light .bg-emerald-500\/20,
+html.light .bg-emerald-600\/10,
+html.light .bg-emerald-600\/20 {
   background-color: #d1fae5 !important;
   color: #065f46 !important;
   border-color: #a7f3d0 !important;
 }
-html.light [class*="bg-emerald-500/"] *,
-html.light [class*="bg-emerald-600/"] * {
+html.light .bg-emerald-500\/10 *,
+html.light .bg-emerald-500\/20 *,
+html.light .bg-emerald-600\/10 *,
+html.light .bg-emerald-600\/20 * {
   color: #065f46 !important;
 }
 
-html.light [class*="bg-amber-500/"],
-html.light [class*="bg-amber-600/"] {
+html.light .bg-amber-500\/10,
+html.light .bg-amber-500\/20,
+html.light .bg-amber-600\/10,
+html.light .bg-amber-600\/20 {
   background-color: #fef3c7 !important;
   color: #92400e !important;
   border-color: #fde68a !important;
 }
-html.light [class*="bg-amber-500/"] *,
-html.light [class*="bg-amber-600/"] * {
+html.light .bg-amber-500\/10 *,
+html.light .bg-amber-500\/20 *,
+html.light .bg-amber-600\/10 *,
+html.light .bg-amber-600\/20 * {
   color: #92400e !important;
 }
 
-html.light [class*="bg-purple-500/"],
-html.light [class*="bg-purple-600/"] {
+html.light .bg-purple-500\/10,
+html.light .bg-purple-500\/20,
+html.light .bg-purple-600\/10,
+html.light .bg-purple-600\/20 {
   background-color: #f3e8ff !important;
   color: #6b21a8 !important;
   border-color: #e9d5ff !important;
 }
-html.light [class*="bg-purple-500/"] *,
-html.light [class*="bg-purple-600/"] * {
+html.light .bg-purple-500\/10 *,
+html.light .bg-purple-500\/20 *,
+html.light .bg-purple-600\/10 *,
+html.light .bg-purple-600\/20 * {
   color: #6b21a8 !important;
 }
 
-/* Light mode form controls */
+html.light .bg-rose-500\/10,
+html.light .bg-rose-500\/20,
+html.light .bg-pink-500\/10,
+html.light .bg-pink-500\/20 {
+  background-color: #ffe4e6 !important;
+  color: #9f1239 !important;
+  border-color: #fecdd3 !important;
+}
+html.light .bg-rose-500\/10 *,
+html.light .bg-rose-500\/20 * {
+  color: #9f1239 !important;
+}
+
+/* Borders in Light Mode */
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20,
+html.light .border-white\/30,
+html.light .border-slate-800,
+html.light .border-slate-700,
+html.light .border-slate-800\/80,
+html.light .border-slate-700\/50,
+html.light .border-slate-800\/50 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .border-indigo-500\/20,
+html.light .border-indigo-500\/30 {
+  border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+/* Form Controls in Light Mode */
 html.light input:not([type="checkbox"]):not([type="radio"]),
 html.light select,
 html.light textarea {
@@ -249,38 +432,14 @@ html.light textarea::placeholder {
   color: #94a3b8 !important;
 }
 
-/* Light mode borders */
-html.light .border-white\/5,
-html.light .border-white\/10,
-html.light .border-white\/15,
-html.light .border-white\/20,
-html.light .border-white\/30 {
-  border-color: #e2e8f0 !important;
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
 }
 
-/* Light mode translucent fills inside cards */
-html.light .bg-white\/5 {
-  background-color: #f1f5f9 !important;
-}
-
-html.light .bg-white\/10 {
-  background-color: #e2e8f0 !important;
-}
-
-html.light .bg-white\/20 {
-  background-color: #cbd5e1 !important;
-}
-
-html.light .bg-black\/40,
-html.light .bg-black\/50,
-html.light .bg-black\/60,
-html.light .bg-black\/70,
-html.light .bg-black\/80 {
-  background-color: rgba(15, 23, 42, 0.65) !important;
-  backdrop-filter: blur(8px);
-}
-
-/* Light mode tables */
+/* Table Headers & Cells in Light Mode */
 html.light thead,
 html.light tfoot,
 html.light th {
@@ -289,23 +448,23 @@ html.light th {
   border-color: #e2e8f0 !important;
 }
 
-/* Light mode ambient background glow */
-html.light .bg-ambient-gradient {
-  background:
-    radial-gradient(600px 400px at 85% -5%, rgba(99, 102, 241, 0.08), transparent 60%),
-    radial-gradient(500px 400px at 5% 15%, rgba(236, 72, 153, 0.06), transparent 60%),
-    radial-gradient(700px 500px at 50% 100%, rgba(16, 185, 129, 0.05), transparent 60%) !important;
+html.light td {
+  border-color: #f1f5f9 !important;
 }
 
-/* Light mode glass panel */
-html.light .glass-panel {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06) !important;
+/* Scrollbar Track & Thumb in Light Mode */
+html.light ::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+  border-radius: 4px;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.6);
 }
 
-/* Light mode top bar readability: dark text + indigo icons inside navbar
-   (excluding gradient and solid-color buttons which must keep white text) */
+/* Top bar readability */
 html.light header button:not([class*="bg-gradient-to"]):not([class*="bg-indigo-600"]):not([class*="bg-indigo-500"]):not([class*="bg-purple-600"]),
 html.light header nav a {
   color: #1e293b !important;

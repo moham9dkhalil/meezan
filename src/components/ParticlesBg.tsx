@@ -232,6 +232,8 @@ export function ParticlesBg() {
       time += 0.015;
       ctx.clearRect(0, 0, width, height);
 
+      const isLight = document.documentElement.classList.contains("light");
+
       // 1. Render Drifting Space Nebulae
       nebulae.forEach((nebula) => {
         nebula.x += nebula.vx;
@@ -241,7 +243,7 @@ export function ParticlesBg() {
         if (nebula.y < -100 || nebula.y > height + 100) nebula.vy *= -1;
 
         const grad = ctx.createRadialGradient(nebula.x, nebula.y, 10, nebula.x, nebula.y, nebula.radius);
-        grad.addColorStop(0, nebula.color);
+        grad.addColorStop(0, isLight ? nebula.color.replace("0.12", "0.06").replace("0.10", "0.05") : nebula.color);
         grad.addColorStop(1, "rgba(0, 0, 0, 0)");
 
         ctx.beginPath();
@@ -257,7 +259,7 @@ export function ParticlesBg() {
 
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fillStyle = s.color;
+        ctx.fillStyle = isLight && s.color === "#ffffff" ? "#6366f1" : s.color;
         ctx.globalAlpha = currentAlpha;
         ctx.fill();
       });
@@ -297,7 +299,7 @@ export function ParticlesBg() {
         // Comet glowing head
         ctx.beginPath();
         ctx.arc(c.x, c.y, 2.2, 0, Math.PI * 2);
-        ctx.fillStyle = "#ffffff";
+        ctx.fillStyle = isLight ? "#6366f1" : "#ffffff";
         ctx.shadowColor = c.color;
         ctx.shadowBlur = 10;
         ctx.fill();
@@ -383,8 +385,8 @@ export function ParticlesBg() {
           const bgWidth = textMetrics.width + 12;
           const bgHeight = item.size + 8;
 
-          // Transparent glass pill in deep space
-          ctx.fillStyle = "rgba(10, 15, 30, 0.55)";
+          // Transparent glass pill in space
+          ctx.fillStyle = isLight ? "rgba(255, 255, 255, 0.9)" : "rgba(10, 15, 30, 0.55)";
           ctx.strokeStyle = item.color;
           ctx.lineWidth = 0.9;
           ctx.globalAlpha = currentOpacity * 0.8;
@@ -395,7 +397,7 @@ export function ParticlesBg() {
           ctx.stroke();
 
           // Text content
-          ctx.fillStyle = "#ffffff";
+          ctx.fillStyle = isLight ? "#0f172a" : "#ffffff";
           ctx.globalAlpha = currentOpacity;
           ctx.fillText(item.content, 0, -0.5);
 
