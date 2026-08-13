@@ -1260,24 +1260,24 @@ export function LessonDetailSection({
   return (
     <section className="py-6 max-w-7xl mx-auto px-4 min-h-[85vh] animate-fadeIn">
       {/* Top Header Bar */}
-      <div className="bg-[#0d1424] border border-white/10 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+      <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 border border-amber-400 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4 shadow-xl shadow-amber-500/30">
         <button
           onClick={onBackToPath}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-extrabold text-xs cursor-pointer transition-all hover:-translate-x-1"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 border border-white/40 text-white font-extrabold text-xs cursor-pointer transition-all hover:-translate-x-1"
         >
-          <ArrowRight className="w-4 h-4 text-indigo-400" />
+          <ArrowRight className="w-4 h-4 text-white" />
           <span>العودة إلى خريطة المراحل</span>
         </button>
 
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-400/40 flex items-center justify-center text-xl shadow-md">
+          <div className="w-10 h-10 rounded-xl bg-white/25 border border-white/40 flex items-center justify-center text-xl shadow-md">
             {stage.icon}
           </div>
           <div>
-            <div className="flex items-center gap-2 text-xs font-black text-indigo-300">
+            <div className="flex items-center gap-2 text-xs font-black text-amber-100">
               <span>مرحلة {stage.id} من {STAGES_DATA.length}</span>
               <span>·</span>
-              <span className="text-gray-400">{stage.levelBadge}</span>
+              <span className="text-white/90">{stage.levelBadge}</span>
             </div>
             <h1 className="text-base sm:text-lg font-black text-white">
               {stage.name}
@@ -1288,9 +1288,9 @@ export function LessonDetailSection({
         {/* Sidebar Toggle for Mobile */}
         <button
           onClick={() => setShowStageSidebar(!showStageSidebar)}
-          className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-200 font-bold text-xs cursor-pointer"
+          className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 border border-amber-300 text-white font-bold text-xs cursor-pointer shadow-md shadow-amber-500/25"
         >
-          <List className="w-4 h-4 text-indigo-400" />
+          <List className="w-4 h-4 text-white" />
           <span>فهرس الوحدات ({stage.lessons.length} وحدة)</span>
         </button>
       </div>
@@ -1306,11 +1306,11 @@ export function LessonDetailSection({
         >
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <h3 className="font-black text-sm text-white flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-indigo-400" />
+              <BookOpen className="w-4 h-4 text-amber-500" />
               <span>وحدات المرحلة ({stage.lessons.length} وحدة)</span>
             </h3>
 
-            <span className="text-[11px] font-bold text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20">
+            <span className="text-[11px] font-bold text-amber-700 bg-amber-500/15 px-2.5 py-1 rounded-full border border-amber-400/40">
               +{stage.xp} XP
             </span>
           </div>
@@ -1331,7 +1331,7 @@ export function LessonDetailSection({
                   }}
                   className={`w-full p-3.5 rounded-2xl text-right transition-all flex items-center justify-between cursor-pointer border ${
                     isCurrent
-                      ? "bg-gradient-to-r from-indigo-600/30 to-purple-600/30 border-indigo-400 text-white shadow-lg shadow-indigo-600/20 font-black"
+                      ? "bg-gradient-to-r from-indigo-500 to-purple-500 border-indigo-400 text-white shadow-lg shadow-indigo-500/25 font-black"
                       : "bg-[#101a30] hover:bg-[#14213d] border-white/5 text-gray-300 font-bold"
                   }`}
                 >
