@@ -108,11 +108,11 @@ export default function App() {
   // Dark / Light Theme State with LocalStorage Persistence
   const [theme, setTheme] = useState<"dark" | "light">(() => {
     try {
-      const saved = localStorage.getItem("meezan_theme");
-      return saved === "light" || saved === "dark" ? saved : "dark";
+      localStorage.getItem("meezan_theme");
     } catch {
-      return "dark";
+      /* ignore */
     }
+    return "light";
   });
 
   useEffect(() => {

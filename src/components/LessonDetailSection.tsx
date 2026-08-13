@@ -592,9 +592,9 @@ export function LessonDetailSection({
   const [readingTheme, setReadingTheme] = useState<ReadingTheme>(() => {
     try {
       const saved = localStorage.getItem("meezan_reading_theme");
-      return (saved as ReadingTheme) || "dark";
+      return (saved as ReadingTheme) || "light";
     } catch {
-      return "dark";
+      return "light";
     }
   });
 
