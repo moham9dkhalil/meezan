@@ -1260,7 +1260,7 @@ export function LessonDetailSection({
   return (
     <section className="py-6 max-w-7xl mx-auto px-4 min-h-[85vh] animate-fadeIn">
       {/* Top Header Bar */}
-      <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 border border-amber-400 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4 shadow-xl shadow-amber-500/30">
+      <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 border border-indigo-500/40 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4 shadow-xl shadow-indigo-600/20">
         <button
           onClick={onBackToPath}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 border border-white/40 text-white font-extrabold text-xs cursor-pointer transition-all hover:-translate-x-1"
@@ -1274,7 +1274,7 @@ export function LessonDetailSection({
             {stage.icon}
           </div>
           <div>
-            <div className="flex items-center gap-2 text-xs font-black text-amber-100">
+            <div className="flex items-center gap-2 text-xs font-black text-indigo-100">
               <span>مرحلة {stage.id} من {STAGES_DATA.length}</span>
               <span>·</span>
               <span className="text-white/90">{stage.levelBadge}</span>
@@ -1288,7 +1288,7 @@ export function LessonDetailSection({
         {/* Sidebar Toggle for Mobile */}
         <button
           onClick={() => setShowStageSidebar(!showStageSidebar)}
-          className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 border border-amber-300 text-white font-bold text-xs cursor-pointer shadow-md shadow-amber-500/25"
+          className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 border border-indigo-400 text-white font-bold text-xs cursor-pointer shadow-md shadow-indigo-600/25"
         >
           <List className="w-4 h-4 text-white" />
           <span>فهرس الوحدات ({stage.lessons.length} وحدة)</span>
