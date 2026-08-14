@@ -180,27 +180,30 @@ html.light ::-webkit-scrollbar-track { background: #faf7ef; }
 html.light ::-webkit-scrollbar-thumb { background: rgba(217,119,6,0.35); }
 html.light ::-webkit-scrollbar-thumb:hover { background: var(--br-brand); }
 
-/* 1. Dark container surfaces -> clean white/soft cards (text resets to slate) */
-html.light [class*="bg-\[\#"]:not(button):not(a):not(span):not([class*="bg-black/"]),
-html.light section[class*="bg-\[\#"]:not(button):not(a):not(span)],
-html.light .bg-slate-950:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-slate-900:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-slate-850:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-slate-800:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-slate-750:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-gray-950:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-gray-900:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-zinc-950:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-zinc-900:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-neutral-950:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-neutral-900:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-indigo-950:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-indigo-900:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-purple-950:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-purple-900:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-blue-950:not([class*="/"]):not(button):not(a):not(span),
-html.light .bg-black:not([class*="/"]):not(button):not(a):not(span) {
-  background: var(--br-surface-flat) !important;
+/* 1. Universal dark container surfaces -> clean white/soft cards (text resets to slate) */
+html.light [class*="bg-\[\#"]:not(button):not([class*="bg-black/"]):not([class*="bg-indigo-600"]):not([class*="bg-indigo-700"]):not([class*="bg-purple-600"]):not([class*="bg-emerald-600"]):not([class*="bg-rose-600"]),
+html.light section[class*="bg-\[\#"]:not(button),
+html.light div[class*="bg-\[\#"]:not(button),
+html.light span[class*="bg-\[\#"]:not(button),
+html.light a[class*="bg-\[\#"]:not(button),
+html.light .bg-slate-950:not([class*="/"]):not(button),
+html.light .bg-slate-900:not([class*="/"]):not(button),
+html.light .bg-slate-850:not([class*="/"]):not(button),
+html.light .bg-slate-800:not([class*="/"]):not(button),
+html.light .bg-slate-750:not([class*="/"]):not(button),
+html.light .bg-gray-950:not([class*="/"]):not(button),
+html.light .bg-gray-900:not([class*="/"]):not(button),
+html.light .bg-zinc-950:not([class*="/"]):not(button),
+html.light .bg-zinc-900:not([class*="/"]):not(button),
+html.light .bg-neutral-950:not([class*="/"]):not(button),
+html.light .bg-neutral-900:not([class*="/"]):not(button),
+html.light .bg-indigo-950:not([class*="/"]):not(button),
+html.light .bg-indigo-900:not([class*="/"]):not(button),
+html.light .bg-purple-950:not([class*="/"]):not(button),
+html.light .bg-purple-900:not([class*="/"]):not(button),
+html.light .bg-blue-950:not([class*="/"]):not(button),
+html.light .bg-black:not([class*="/"]):not(button) {
+  background-color: #ffffff !important;
   color: var(--br-text) !important;
   border-color: var(--br-border) !important;
   box-shadow: 0 4px 20px -2px rgba(180, 83, 9, 0.05);
