@@ -992,6 +992,16 @@ export function AccountingSectorsSection({
     );
   });
 
+  const SECTOR_ICON_STYLES: Record<string, string> = {
+    amber: "bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-amber-500/40",
+    purple: "bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-purple-500/40",
+    emerald: "bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-emerald-500/40",
+    rose: "bg-gradient-to-br from-rose-400 to-pink-500 text-white shadow-rose-500/40",
+    cyan: "bg-gradient-to-br from-cyan-400 to-sky-500 text-white shadow-cyan-500/40",
+    blue: "bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-blue-500/40",
+    indigo: "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/40",
+  };
+
   const handleSectorCardClick = (sectorId: string) => {
     if (onOpenSector) {
       onOpenSector(sectorId);
@@ -1077,7 +1087,7 @@ export function AccountingSectorsSection({
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-900/50 to-slate-800 text-purple-300 group-hover:from-amber-400 group-hover:via-purple-500 group-hover:to-indigo-600 group-hover:text-white shadow-lg transition-all">
+                  <div className={`p-3 rounded-2xl ${SECTOR_ICON_STYLES[sec.color] || SECTOR_ICON_STYLES.blue} shadow-lg transition-all group-hover:scale-110`}>
                     <SectorIcon className="w-6 h-6" />
                   </div>
                   <div>
