@@ -775,7 +775,7 @@ export default function App() {
 
         {activeTab === "terms" && <TermsSection />}
 
-        {activeTab === "trust" && <TrustCenterSection />}
+        {activeTab === "trust" && <TrustCenterSection onSelectTab={handleSelectTab} />}
 
         {activeTab === "profile" && (
           <UserProfileSection
