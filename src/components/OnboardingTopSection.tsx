@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ActiveTab } from "../types";
 import { Language } from "../data/translations";
 import {
@@ -21,6 +22,13 @@ interface OnboardingTopSectionProps {
 
 export function OnboardingTopSection({ onSelectTab, onOpenStage, onOpenSector, appLanguage = "ar" }: OnboardingTopSectionProps) {
   const isEn = appLanguage === "en";
+  const [selectedSector, setSelectedSector] = useState(() => localStorage.getItem("meezan_preferred_sector") || "");
+
+  const selectSector = (sectorId: string) => {
+    localStorage.setItem("meezan_preferred_sector", sectorId);
+    setSelectedSector(sectorId);
+    onOpenSector?.(sectorId);
+  };
 
   return (
     <section className="relative pt-2 pb-4 overflow-hidden">
@@ -91,7 +99,7 @@ export function OnboardingTopSection({ onSelectTab, onOpenStage, onOpenSector, a
               return (
                 <button
                   key={sec.id}
-                  onClick={() => onOpenSector?.(sec.id)}
+                  onClick={() => selectSector(sec.id)}
                   className="p-3.5 rounded-2xl bg-[#130B22] hover:bg-[#1f1137] border border-white/10 hover:border-amber-400/50 transition-all cursor-pointer flex flex-col items-center text-center space-y-2 group shadow-md"
                 >
                   <div className={`p-2.5 rounded-xl bg-white/5 group-hover:scale-110 transition-transform ${sec.color}`}>
@@ -107,6 +115,13 @@ export function OnboardingTopSection({ onSelectTab, onOpenStage, onOpenSector, a
               );
             })}
           </div>
+
+          {selectedSector && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-4">
+              <div><p className="text-sm font-black text-emerald-200">تم حفظ اختيارك لمسارك المهني</p><p className="mt-1 text-xs text-slate-300">سنستخدمه لتقديم التخصص والتمارين المناسبة لك أولًا.</p></div>
+              <button onClick={() => onOpenSector?.(selectedSector)} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-black text-white hover:bg-emerald-600">عرض خريطتي التعليمية</button>
+            </div>
+          )}
         </div>
 
       </div>
