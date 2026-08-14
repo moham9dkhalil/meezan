@@ -97,38 +97,38 @@ export function SectorDetailPanel({
 
   return (
     <>
-<div className="bg-[#120B21] border-2 border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-8 animate-fadeIn">
+<div className="bg-white dark:bg-[#120B21] border-2 border-indigo-100 dark:border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-lg dark:shadow-2xl space-y-8 animate-fadeIn">
   
   {/* Detailed Header Bar */}
-  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6">
+  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-white/10 pb-6">
     <div className="flex items-center gap-4">
       <div className="p-4 rounded-3xl bg-gradient-to-br from-[#714B67] via-[#00A09D] to-indigo-600 text-white shadow-xl shadow-purple-900/50">
         {React.createElement(sector.icon, { className: "w-8 h-8" })}
       </div>
       <div className="space-y-1">
         <div className="flex items-center gap-2">
-          <h3 className="text-xl sm:text-3xl font-black text-white">{sector.name}</h3>
-          <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-black">
+          <h3 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white">{sector.name}</h3>
+          <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-400/30 text-xs font-black">
             {sector.badge}
           </span>
         </div>
-        <p className="text-xs sm:text-sm text-slate-300 font-medium max-w-2xl">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium max-w-2xl">
           {sector.fullOverview}
         </p>
       </div>
     </div>
 
-    <div className="bg-[#1C122E] border border-white/10 rounded-2xl p-4 text-xs space-y-1.5 min-w-[240px]">
-      <div className="text-slate-400 font-bold">متوسط راتب التخصص:</div>
-      <div className="text-base font-black text-emerald-300 font-mono">{sector.averageSalaryRange}</div>
-      <div className="text-[10px] text-slate-400">حسب حجم الشركة والخبرة العملية</div>
+    <div className="bg-slate-50 dark:bg-[#1C122E] border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-xs space-y-1.5 min-w-[240px]">
+      <div className="text-slate-500 dark:text-slate-400 font-bold">متوسط راتب التخصص:</div>
+      <div className="text-base font-black text-emerald-700 dark:text-emerald-300 font-mono">{sector.averageSalaryRange}</div>
+      <div className="text-[10px] text-slate-500 dark:text-slate-400">حسب حجم الشركة والخبرة العملية</div>
     </div>
   </div>
 
   {/* Key Job Roles & Responsibilities Grid */}
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div className="bg-[#1A112C] border border-purple-500/20 rounded-2xl p-5 space-y-3">
-      <h4 className="text-sm font-black text-purple-200 flex items-center gap-2">
+    <div className="bg-slate-50 dark:bg-[#1A112C] border border-indigo-100 dark:border-purple-500/20 rounded-2xl p-5 space-y-3">
+      <h4 className="text-sm font-black text-indigo-800 dark:text-purple-200 flex items-center gap-2">
         <Briefcase className="w-4 h-4 text-purple-400" />
         <span>المسميات الوظيفية المتاحة في هذا القطاع:</span>
       </h4>
@@ -136,7 +136,7 @@ export function SectorDetailPanel({
         {sector.targetRoles.map((role, idx) => (
           <span
             key={idx}
-            className="px-3 py-1.5 rounded-xl bg-purple-500/15 text-purple-200 border border-purple-400/25 text-xs font-bold"
+            className="px-3 py-1.5 rounded-xl bg-indigo-100 text-indigo-700 border border-indigo-200 dark:bg-purple-500/15 dark:text-purple-200 dark:border-purple-400/25 text-xs font-bold"
           >
             💼 {role}
           </span>
@@ -144,12 +144,12 @@ export function SectorDetailPanel({
       </div>
     </div>
 
-    <div className="bg-[#1A112C] border border-purple-500/20 rounded-2xl p-5 space-y-3">
-      <h4 className="text-sm font-black text-emerald-200 flex items-center gap-2">
+    <div className="bg-slate-50 dark:bg-[#1A112C] border border-indigo-100 dark:border-purple-500/20 rounded-2xl p-5 space-y-3">
+      <h4 className="text-sm font-black text-emerald-800 dark:text-emerald-200 flex items-center gap-2">
         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
         <span>أهم المسئوليات اليومية للمحاسب:</span>
       </h4>
-      <ul className="space-y-2 text-xs text-slate-300 font-medium">
+      <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300 font-medium">
         {sector.keyResponsibilities.map((resp, idx) => (
           <li key={idx} className="flex items-start gap-2">
             <span className="text-emerald-400 font-bold">•</span>
@@ -162,12 +162,12 @@ export function SectorDetailPanel({
 
   {/* STEP-BY-STEP ROADMAP STAGES */}
   <div className="space-y-4">
-    <div className="flex items-center justify-between border-b border-white/10 pb-3">
-      <h4 className="text-lg font-black text-white flex items-center gap-2">
+    <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3">
+      <h4 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
         <Layers className="w-5 h-5 text-amber-400" />
         <span>خريطة المراحل والخطوات العملية للاحتراف (Step-by-Step Roadmap):</span>
       </h4>
-      <span className="text-xs text-amber-300 font-bold">
+      <span className="text-xs text-amber-700 dark:text-amber-300 font-bold">
         إجمالي المراحل: {sector.stages.length} مراحل تفاعلية
       </span>
     </div>
@@ -177,29 +177,29 @@ export function SectorDetailPanel({
         <div
           key={stg.number}
           onClick={() => setActiveStageModal({ stage: stg, sector: sector })}
-          className="bg-[#180F2A] border border-white/10 hover:border-amber-400/60 rounded-2xl p-5 space-y-3 transition-all hover:bg-[#1f1337] cursor-pointer group shadow-lg hover:shadow-amber-500/10 hover:scale-[1.01]"
+          className="bg-slate-50 dark:bg-[#180F2A] border border-slate-200 dark:border-white/10 hover:border-amber-300 dark:hover:border-amber-400/60 rounded-2xl p-5 space-y-3 transition-all hover:bg-amber-50 dark:hover:bg-[#1f1337] cursor-pointer group shadow-sm hover:shadow-amber-500/10 hover:scale-[1.01]"
         >
           <div className="flex items-center justify-between">
-            <span className="px-3 py-1 rounded-xl bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-black">
+            <span className="px-3 py-1 rounded-xl bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-400/20 dark:text-amber-300 dark:border-amber-400/30 text-xs font-black">
               المرحلة {stg.number}
             </span>
             <span className="text-xs text-slate-400 font-bold">⏱️ المدة: {stg.duration}</span>
           </div>
 
-          <h5 className="text-sm font-black text-white group-hover:text-amber-300 transition-colors flex items-center justify-between">
+          <h5 className="text-sm font-black text-slate-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors flex items-center justify-between">
             <span>{stg.title}</span>
             <span className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-400/20">
               شرح شامل 📖
             </span>
           </h5>
-          <p className="text-xs text-slate-300 leading-relaxed font-medium line-clamp-2">{stg.description}</p>
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium line-clamp-2">{stg.description}</p>
 
-          <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+          <div className="pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
             <div className="flex flex-wrap gap-1.5">
               {stg.keySkills.slice(0, 3).map((sk, idx) => (
                 <span
                   key={idx}
-                  className="px-2 py-0.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 text-[10px] font-bold"
+                  className="px-2 py-0.5 rounded-lg bg-white text-slate-600 border border-slate-200 dark:bg-white/5 dark:text-slate-300 dark:border-white/10 text-[10px] font-bold"
                 >
                   ⚡ {sk}
                 </span>
@@ -217,14 +217,14 @@ export function SectorDetailPanel({
   </div>
 
   {/* FEATURED SECTOR JOURNAL ENTRY WITH ODOO SIMULATION BUTTON */}
-  <div className="bg-gradient-to-r from-[#1B1130] via-[#24133F] to-[#120B20] border-2 border-emerald-500/40 rounded-3xl p-6 space-y-5 shadow-2xl">
+  <div className="bg-gradient-to-br from-emerald-50 via-white to-teal-50 dark:bg-gradient-to-r dark:from-[#1B1130] dark:via-[#24133F] dark:to-[#120B20] border-2 border-emerald-200 dark:border-emerald-500/40 rounded-3xl p-6 space-y-5 shadow-lg dark:shadow-2xl">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="space-y-1">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-black">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-400/30 text-xs font-black">
           <Calculator className="w-3.5 h-3.5" />
           <span>القيد اليومي المحوري الخاص بقطاع {sector.name}</span>
         </div>
-        <h4 className="text-lg font-black text-white">{sector.featuredEntry.title}</h4>
+        <h4 className="text-lg font-black text-slate-900 dark:text-white">{sector.featuredEntry.title}</h4>
       </div>
 
       <button
@@ -236,12 +236,12 @@ export function SectorDetailPanel({
       </button>
     </div>
 
-    <p className="text-xs text-slate-300 font-medium leading-relaxed">
+    <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
       {sector.featuredEntry.description}
     </p>
 
     {/* Interactive Entry Box Showcase */}
-    <div className="bg-[#0C0617] border border-white/10 rounded-2xl p-4 font-mono text-xs space-y-2">
+    <div className="bg-white dark:bg-[#0C0617] border border-slate-200 dark:border-white/10 rounded-2xl p-4 font-mono text-xs space-y-2 shadow-sm">
       <div className="flex justify-between border-b border-white/10 pb-2 text-slate-400 font-bold font-sans">
         <span>الطرف / الحساب المحاسبي</span>
         <span>النوع / المبلغ</span>
@@ -271,26 +271,26 @@ export function SectorDetailPanel({
 
   {/* CHART OF ACCOUNTS HIGHLIGHTS FOR THIS SECTOR */}
   <div className="space-y-4">
-    <h4 className="text-base font-black text-white flex items-center gap-2">
+    <h4 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
       <BookOpen className="w-5 h-5 text-indigo-400" />
       <span>أبرز حسابات شجرة الحسابات (Chart of Accounts) لقطاع {sector.name}:</span>
     </h4>
 
-    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#0c0717]">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0c0717] shadow-sm">
       <table className="w-full text-right text-xs">
-        <thead className="bg-[#1C122E] text-purple-200 font-black">
+        <thead className="bg-indigo-50 text-indigo-800 dark:bg-[#1C122E] dark:text-purple-200 font-black">
           <tr>
             <th className="p-3">رمز الحساب (Code)</th>
             <th className="p-3">اسم الحساب (Account Name)</th>
             <th className="p-3">الفئة المحاسبية</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/5 text-slate-200 font-bold">
+        <tbody className="divide-y divide-slate-100 dark:divide-white/5 text-slate-700 dark:text-slate-200 font-bold">
           {sector.coaHighlights.map((acc, idx) => (
             <tr key={idx} className="hover:bg-purple-500/10 transition-colors">
-              <td className="p-3 font-mono text-purple-300">{acc.code}</td>
-              <td className="p-3 text-white">{acc.name}</td>
-              <td className="p-3 text-slate-400">{acc.category}</td>
+              <td className="p-3 font-mono text-indigo-700 dark:text-purple-300">{acc.code}</td>
+              <td className="p-3 text-slate-900 dark:text-white">{acc.name}</td>
+              <td className="p-3 text-slate-500 dark:text-slate-400">{acc.category}</td>
             </tr>
           ))}
         </tbody>

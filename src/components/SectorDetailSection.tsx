@@ -60,25 +60,25 @@ export function SectorDetailSection({
       id: "odooJournal",
       label: isEn ? "Odoo Journal Simulator" : "محاكي أودو Odoo التفاعلي",
       icon: Play,
-      color: "text-emerald-300 bg-emerald-500/10 border-emerald-400/30"
+      color: "text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-400/30"
     },
     {
       id: "lab",
       label: isEn ? "Journal Entry Lab" : "معمل القيود المحاسبية",
       icon: Calculator,
-      color: "text-indigo-300 bg-indigo-500/10 border-indigo-400/30"
+      color: "text-indigo-700 bg-indigo-50 border-indigo-200 dark:text-indigo-300 dark:bg-indigo-500/10 dark:border-indigo-400/30"
     },
     {
       id: "courses",
       label: isEn ? "Professional Courses" : "كورسات الشهادات المهنية",
       icon: BookOpen,
-      color: "text-amber-300 bg-amber-500/10 border-amber-400/30"
+      color: "text-amber-800 bg-amber-50 border-amber-200 dark:text-amber-300 dark:bg-amber-500/10 dark:border-amber-400/30"
     },
     {
       id: "taxGuide",
       label: isEn ? "Tax Guide" : "الدليل الضريبي المصري",
       icon: FileText,
-      color: "text-rose-300 bg-rose-500/10 border-rose-400/30"
+      color: "text-rose-700 bg-rose-50 border-rose-200 dark:text-rose-300 dark:bg-rose-500/10 dark:border-rose-400/30"
     }
   ];
 
@@ -99,7 +99,7 @@ export function SectorDetailSection({
         <div className="flex items-center gap-2">
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#160D28] hover:bg-[#1f1337] border border-white/15 hover:border-purple-400/50 text-white text-xs font-black transition-all cursor-pointer shadow-lg"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white hover:bg-slate-50 dark:bg-[#160D28] dark:hover:bg-[#1f1337] border border-slate-200 dark:border-white/15 hover:border-indigo-300 dark:hover:border-purple-400/50 text-slate-800 dark:text-white text-xs font-black transition-all cursor-pointer shadow-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>{isEn ? "All Accounting Sectors" : "كل تخصصات المحاسبة"}</span>
@@ -117,7 +117,7 @@ export function SectorDetailSection({
         <div className="flex items-center gap-2">
           <button
             onClick={() => onChangeSector?.(prevSector.id)}
-            className="inline-flex items-center gap-1 px-3.5 py-2.5 rounded-2xl bg-[#160D28] hover:bg-[#1f1337] border border-white/15 hover:border-amber-400/50 text-slate-300 hover:text-amber-300 text-xs font-bold transition-all cursor-pointer shadow-lg"
+            className="inline-flex items-center gap-1 px-3.5 py-2.5 rounded-2xl bg-white hover:bg-amber-50 dark:bg-[#160D28] dark:hover:bg-[#1f1337] border border-slate-200 dark:border-white/15 hover:border-amber-300 dark:hover:border-amber-400/50 text-slate-600 dark:text-slate-300 hover:text-amber-700 dark:hover:text-amber-300 text-xs font-bold transition-all cursor-pointer shadow-sm"
           >
             <ChevronRight className="w-4 h-4" />
             <span className="hidden sm:inline">{prevSector.name}</span>
@@ -125,7 +125,7 @@ export function SectorDetailSection({
 
           <button
             onClick={() => onChangeSector?.(nextSector.id)}
-            className="inline-flex items-center gap-1 px-3.5 py-2.5 rounded-2xl bg-[#160D28] hover:bg-[#1f1337] border border-white/15 hover:border-amber-400/50 text-slate-300 hover:text-amber-300 text-xs font-bold transition-all cursor-pointer shadow-lg"
+            className="inline-flex items-center gap-1 px-3.5 py-2.5 rounded-2xl bg-white hover:bg-amber-50 dark:bg-[#160D28] dark:hover:bg-[#1f1337] border border-slate-200 dark:border-white/15 hover:border-amber-300 dark:hover:border-amber-400/50 text-slate-600 dark:text-slate-300 hover:text-amber-700 dark:hover:text-amber-300 text-xs font-bold transition-all cursor-pointer shadow-sm"
           >
             <span className="hidden sm:inline">{nextSector.name}</span>
             <ChevronLeft className="w-4 h-4" />
@@ -134,9 +134,9 @@ export function SectorDetailSection({
       </div>
 
       {/* Sector Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#1A102F] via-[#2A1647] to-[#120B20] border-2 border-amber-500/30 p-6 sm:p-8 shadow-2xl space-y-6">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-50 via-white to-amber-50 dark:bg-gradient-to-r dark:from-[#1A102F] dark:via-[#2A1647] dark:to-[#120B20] border-2 border-indigo-100 dark:border-amber-500/30 p-6 sm:p-8 shadow-lg dark:shadow-2xl space-y-6">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-400/10 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-400/10 dark:bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center gap-6">
           <div className={`p-5 rounded-3xl ${SECTOR_ICON_STYLES[sector.color] || SECTOR_ICON_STYLES.blue} shadow-2xl shrink-0`}>
@@ -145,63 +145,63 @@ export function SectorDetailSection({
 
           <div className="space-y-3 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 text-xs font-black">
+              <span className="px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-400/40 text-xs font-black">
                 {sector.badge}
               </span>
-              <span className="px-3 py-1.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 text-[11px] font-bold">
+              <span className="px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-400/30 text-[11px] font-bold">
                 {sector.stages.length} {isEn ? "Stages" : "مراحل تدريبية"}
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white leading-tight">
               {sector.name}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 font-medium">{sector.nameEn}</p>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-300 font-medium">{sector.nameEn}</p>
 
-            <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-3xl">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-3xl">
               {sector.fullOverview}
             </p>
           </div>
 
-          <div className="bg-[#1C122E] border border-white/10 rounded-2xl p-4 text-xs space-y-1.5 min-w-[240px] lg:min-w-[260px]">
-            <div className="text-slate-400 font-bold flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="bg-white/80 dark:bg-[#1C122E] border border-slate-200 dark:border-white/10 rounded-2xl p-4 text-xs space-y-1.5 min-w-[240px] lg:min-w-[260px] shadow-sm">
+            <div className="text-slate-500 dark:text-slate-400 font-bold flex items-center gap-1.5">
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
               <span>{isEn ? "Average Salary Range:" : "متوسط راتب التخصص:"}</span>
             </div>
-            <div className="text-base font-black text-emerald-300 font-mono">{sector.averageSalaryRange}</div>
+            <div className="text-base font-black text-emerald-700 dark:text-emerald-300 font-mono">{sector.averageSalaryRange}</div>
             <div className="text-[10px] text-slate-400">حسب حجم الشركة والخبرة العملية</div>
           </div>
         </div>
       </div>
 
       {/* Skills Distribution */}
-      <div className="bg-[#120B21] border-2 border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
-          <h2 className="text-lg font-black text-white flex items-center gap-2">
+      <div className="bg-white dark:bg-[#120B21] border-2 border-indigo-100 dark:border-purple-500/30 rounded-3xl p-6 sm:p-8 shadow-lg dark:shadow-2xl space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-white/10 pb-4">
+          <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-amber-400" />
             <span>{isEn ? "Core Skills You Will Master" : "المهارات الأساسية التي ستتقنها في هذا التخصص"}</span>
           </h2>
-          <span className="text-xs text-purple-300 font-bold">
+          <span className="text-xs text-indigo-600 dark:text-purple-300 font-bold">
             {isEn ? `${skills.length} key skills` : `${skills.length} مهارات محورية`}
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {skills.map((sk, idx) => (
-            <div key={idx} className="bg-[#1A112C] border border-purple-500/20 rounded-2xl p-4 space-y-2">
+            <div key={idx} className="bg-slate-50 dark:bg-[#1A112C] border border-indigo-100 dark:border-purple-500/20 rounded-2xl p-4 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-black text-white">{sk.skill}</span>
-                <span className="px-2 py-0.5 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-400/30 text-[10px] font-black font-mono">
+                <span className="text-xs font-black text-slate-800 dark:text-white">{sk.skill}</span>
+                <span className="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-400/30 text-[10px] font-black font-mono">
                   {sk.percentage}%
                 </span>
               </div>
-              <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+              <div className="h-2 rounded-full bg-slate-200 dark:bg-white/5 overflow-hidden">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-amber-400 via-purple-500 to-indigo-500"
                   style={{ width: `${sk.percentage}%` }}
                 />
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed font-medium">{sk.description}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">{sk.description}</p>
             </div>
           ))}
         </div>
@@ -209,8 +209,8 @@ export function SectorDetailSection({
 
       {/* Quick Related Content Links */}
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-xs font-black text-slate-300 flex items-center gap-1.5">
-          <Layers className="w-4 h-4 text-indigo-400" />
+        <span className="text-xs font-black text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+          <Layers className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
           <span>{isEn ? "Related Content:" : "محتوى مرتبط بهذا التخصص:"}</span>
         </span>
         {quickLinks.map((ql) => {
@@ -237,8 +237,8 @@ export function SectorDetailSection({
       />
 
       {/* Other Sectors Quick Switch */}
-      <div className="bg-[#120B21] border border-white/10 rounded-3xl p-5 space-y-3">
-        <h4 className="text-sm font-black text-white flex items-center gap-2">
+      <div className="bg-white dark:bg-[#120B21] border border-slate-200 dark:border-white/10 rounded-3xl p-5 space-y-3 shadow-sm">
+        <h4 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
           <Briefcase className="w-4 h-4 text-amber-400" />
           <span>{isEn ? "Browse Other Sectors" : "استكشف تخصصات أخرى"}</span>
         </h4>
@@ -251,8 +251,8 @@ export function SectorDetailSection({
                 onClick={() => onChangeSector?.(s.id)}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[11px] font-bold transition-all cursor-pointer ${
                   s.id === sector.id
-                    ? "bg-amber-500/20 text-amber-300 border-amber-400/40"
-                    : "bg-[#1A112C] text-slate-300 border-white/10 hover:border-purple-400/40 hover:text-white"
+                    ? "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-400/40"
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-700 dark:bg-[#1A112C] dark:text-slate-300 dark:border-white/10 dark:hover:border-purple-400/40 dark:hover:text-white"
                 }`}
               >
                 <span className={`w-6 h-6 rounded-lg ${SECTOR_ICON_STYLES[s.color] || SECTOR_ICON_STYLES.blue} flex items-center justify-center shrink-0`}>

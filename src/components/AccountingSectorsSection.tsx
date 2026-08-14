@@ -1027,22 +1027,22 @@ export function AccountingSectorsSection({
       />
 
       {/* SECTION HEADER BANNER */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#1A102F] via-[#2A1647] to-[#120B20] border-2 border-indigo-500/30 p-6 sm:p-8 shadow-2xl space-y-6">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-50 via-white to-sky-50 dark:bg-gradient-to-r dark:from-[#1A102F] dark:via-[#2A1647] dark:to-[#120B20] border-2 border-indigo-100 dark:border-indigo-500/30 p-6 sm:p-8 shadow-lg dark:shadow-2xl space-y-6">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-400/10 dark:bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-sky-400/10 dark:bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-wrap items-center justify-between gap-6">
           <div className="space-y-3 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-purple-500/20 to-indigo-500/20 border border-amber-400/40 text-amber-300 text-xs font-black shadow-md">
-              <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-100 via-violet-100 to-indigo-100 dark:from-amber-500/20 dark:via-purple-500/20 dark:to-indigo-500/20 border border-amber-200 dark:border-amber-400/40 text-amber-800 dark:text-amber-300 text-xs font-black shadow-sm">
+              <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-300 animate-spin" />
               <span>{isEn ? "Specialized Accounting Career Paths" : "خرائط التخصص والمسارات القطاعية المحاسبية"}</span>
             </div>
 
-            <h2 className="text-2xl sm:text-4xl font-black text-white leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white leading-tight">
               {isEn ? "In Which Sector Do You Want to Work?" : "في أي مجال محاسبي تخطط للعمل؟ 🎯"}
             </h2>
 
-            <p className="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
               اختر القطاع أو المجال الذي ترغب في الاحتراف فيه (مثل المقاولات، المصانع والتكاليف، المطاعم، العقارات، التكنولوجيا، أو الضرائب) ليقوم محرك ميزان الذكي بإصدار شاشة معلومات وتفاصيل كاملة مع القيود وشجرة الحسابات!
             </p>
           </div>
@@ -1050,7 +1050,7 @@ export function AccountingSectorsSection({
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
             <button
               onClick={() => onSelectTab("odooJournal")}
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-[#714B67] to-[#00A09D] hover:opacity-90 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xl shadow-purple-900/40 transition-all cursor-pointer hover:scale-105"
+              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 dark:from-[#714B67] dark:to-[#00A09D] hover:opacity-90 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 dark:shadow-purple-900/40 transition-all cursor-pointer hover:scale-105"
             >
               <Play className="w-4 h-4 text-emerald-300" />
               <span>فتح محاكي أودو التفاعلي 🚀</span>
@@ -1059,29 +1059,29 @@ export function AccountingSectorsSection({
         </div>
 
         {/* SEARCH & SECTOR QUICK FILTER BAR */}
-        <div className="relative z-10 pt-2 border-t border-white/10 flex flex-col sm:flex-row items-center gap-3">
+        <div className="relative z-10 pt-2 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center gap-3">
           <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-3 pointer-events-none" />
+            <Search className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute right-3.5 top-3 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ابحث عن قطاع (مثلاً: المقاولات، المطاعم، التكاليف)..."
-              className="w-full bg-[#0e081c] border border-white/15 rounded-2xl pr-10 pl-4 py-2.5 text-xs text-white placeholder-slate-400 outline-none focus:border-indigo-400"
+              className="w-full bg-white dark:bg-[#0e081c] border border-slate-200 dark:border-white/15 rounded-2xl pr-10 pl-4 py-2.5 text-xs text-slate-800 dark:text-white placeholder-slate-400 outline-none focus:border-indigo-400 shadow-sm"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute left-3 top-3 text-slate-400 hover:text-white text-xs font-bold"
+                className="absolute left-3 top-3 text-slate-400 hover:text-slate-700 dark:hover:text-white text-xs font-bold"
               >
                 ✕
               </button>
             )}
           </div>
 
-          <div className="text-xs text-slate-300 font-bold flex items-center gap-2 mr-auto">
+          <div className="text-xs text-slate-600 dark:text-slate-300 font-bold flex items-center gap-2 mr-auto">
             <span>عدد القطاعات المتوفرة:</span>
-            <span className="px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 font-mono border border-indigo-400/30">
+            <span className="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 font-mono border border-indigo-200 dark:border-indigo-400/30">
               {ACCOUNTING_SECTORS.length} قطاعات احترافية
             </span>
           </div>
