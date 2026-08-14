@@ -1058,16 +1058,44 @@ html.light [class*="bg-slate-900"][class*="text-white"] { color: var(--br-text) 
 html.light [class*="bg-black/"][class*="text-white"]:not(button):not(a) { color: var(--br-text) !important; }
 
 /* 7. Universal hover highlight — every interactive element reacts with brand colour */
-html.light a,
-html.light button,
-html.light [role="button"],
-html.light .cursor-pointer,
-html.light li[class*="hover:"],
-html.light [class*="hover:bg-"],
-html.light [class*="hover:text-"] {
-  transition: background-color 0.25s ease, color 0.25s ease,
-    border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+html.light a:hover { color: var(--br-brand) !important; }
+
+/* ==========================================================================
+   LIGHT MODE EYE-COMFORT — turn OFF busy motion & bright glows so the
+   day theme is calm and easy on the eyes. Only gentle essentials stay.
+   ========================================================================== */
+
+/* Stop the animated ambient backdrop — flat, very light neutral instead */
+html.light .bg-ambient-gradient {
+  background:
+    radial-gradient(1100px 600px at 90% -12%, rgba(99, 102, 241, 0.05), transparent 60%),
+    radial-gradient(900px 540px at 10% 8%, rgba(16, 185, 129, 0.04), transparent 60%),
+    radial-gradient(1100px 620px at 50% 96%, rgba(245, 158, 11, 0.04), transparent 60%) !important;
+  background-size: auto !important;
+  animation: none !important;
 }
+
+/* Kill all decorative motion site-wide in light mode (rises, button shifts, auras, glows) */
+html.light * {
+  animation: none !important;
+  transition: background-color 0.14s ease, color 0.14s ease,
+    border-color 0.14s ease, box-shadow 0.14s ease, transform 0.08s ease !important;
+}
+
+/* Re-enable only the gentle essentials — slow, soft, non-distracting */
+html.light .unit-title {
+  animation: unitTitleFlow 14s linear infinite, unitTitlePulse 7s ease-in-out infinite !important;
+}
+html.light .typing-caret {
+  animation: lmCaretPulse 1.6s ease-in-out infinite !important;
+  box-shadow: 0 0 2px rgba(245, 158, 11, 0.30) !important;
+}
+@keyframes lmCaretPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+/* Soft, single-tone hover halo instead of the bright 3-ring glow */
 html.light a:hover,
 html.light button:hover,
 html.light [role="button"]:hover,
@@ -1075,7 +1103,7 @@ html.light .cursor-pointer:hover,
 html.light li[class*="hover:"]:hover,
 html.light [class*="hover:bg-"]:hover,
 html.light [class*="hover:text-"]:hover {
-  box-shadow: 0 8px 18px -12px rgba(59, 130, 246, 0.35) !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12), 0 4px 12px -8px rgba(59, 130, 246, 0.25) !important;
   border-color: var(--br-brand-soft) !important;
 }
 html.light a:hover { color: var(--br-brand) !important; }
