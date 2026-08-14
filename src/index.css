@@ -917,6 +917,33 @@ html.light .golden-rules .gr-item:hover {
   min-width: 0 !important;
 }
 
+/* Final light-mode text safety net: no white text on light surfaces.
+   Primary and gradient actions keep white text for accessible contrast. */
+html.light :is(.text-white, [class*="text-white/"], [class*="text-white"]):not([class*="text-transparent"]),
+html.light [style*="color: white"],
+html.light [style*="color:white"],
+html.light [style*="color: #fff"],
+html.light [style*="color:#fff"] {
+  color: #0f172a !important;
+}
+
+html.light :is(
+  button.bg-indigo-600, button.bg-indigo-700, button.bg-blue-600, button.bg-blue-700,
+  button.bg-purple-600, button.bg-emerald-600, button.bg-rose-600,
+  a.bg-indigo-600, a.bg-indigo-700, a.bg-blue-600, a.bg-blue-700,
+  a.bg-purple-600, a.bg-emerald-600, a.bg-rose-600,
+  button[class*="bg-gradient-to"], a[class*="bg-gradient-to"]
+),
+html.light :is(
+  button.bg-indigo-600, button.bg-indigo-700, button.bg-blue-600, button.bg-blue-700,
+  button.bg-purple-600, button.bg-emerald-600, button.bg-rose-600,
+  a.bg-indigo-600, a.bg-indigo-700, a.bg-blue-600, a.bg-blue-700,
+  a.bg-purple-600, a.bg-emerald-600, a.bg-rose-600,
+  button[class*="bg-gradient-to"], a[class*="bg-gradient-to"]
+) *:not([class*="text-transparent"]) {
+  color: #ffffff !important;
+}
+
 
 /* ==========================================================================
    5. REDUCED MOTION
