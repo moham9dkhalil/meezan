@@ -39,6 +39,16 @@ import {
   Copy
 } from "lucide-react";
 
+export const SECTOR_ICON_STYLES: Record<string, string> = {
+  amber: "bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-amber-500/40",
+  purple: "bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-purple-500/40",
+  emerald: "bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-emerald-500/40",
+  rose: "bg-gradient-to-br from-rose-400 to-pink-500 text-white shadow-rose-500/40",
+  cyan: "bg-gradient-to-br from-cyan-400 to-sky-500 text-white shadow-cyan-500/40",
+  blue: "bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-blue-500/40",
+  indigo: "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/40",
+};
+
 export interface SectorRoadmap {
   id: string;
   name: string;
@@ -991,16 +1001,6 @@ export function AccountingSectorsSection({
       s.shortDesc.toLowerCase().includes(q)
     );
   });
-
-  const SECTOR_ICON_STYLES: Record<string, string> = {
-    amber: "bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-amber-500/40",
-    purple: "bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-purple-500/40",
-    emerald: "bg-gradient-to-br from-emerald-400 to-teal-500 text-white shadow-emerald-500/40",
-    rose: "bg-gradient-to-br from-rose-400 to-pink-500 text-white shadow-rose-500/40",
-    cyan: "bg-gradient-to-br from-cyan-400 to-sky-500 text-white shadow-cyan-500/40",
-    blue: "bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-blue-500/40",
-    indigo: "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/40",
-  };
 
   const handleSectorCardClick = (sectorId: string) => {
     if (onOpenSector) {

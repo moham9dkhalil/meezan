@@ -3,6 +3,7 @@ import { Language } from "../data/translations";
 import {
   ACCOUNTING_SECTORS,
   getSectorSkillDistribution,
+  SECTOR_ICON_STYLES,
   SectorRoadmap
 } from "./AccountingSectorsSection";
 import { SectorDetailPanel } from "./SectorDetailPanel";
@@ -113,7 +114,7 @@ export function SectorDetailSection({
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center gap-6">
-          <div className="p-5 rounded-3xl bg-gradient-to-br from-amber-400 via-purple-500 to-indigo-600 text-white shadow-2xl shadow-purple-900/50 shrink-0">
+          <div className={`p-5 rounded-3xl ${SECTOR_ICON_STYLES[sector.color] || SECTOR_ICON_STYLES.blue} shadow-2xl shrink-0`}>
             <SectorIcon className="w-12 h-12" />
           </div>
 
@@ -229,7 +230,9 @@ export function SectorDetailSection({
                     : "bg-[#1A112C] text-slate-300 border-white/10 hover:border-purple-400/40 hover:text-white"
                 }`}
               >
-                <sIcon className="w-3.5 h-3.5" />
+                <span className={`w-6 h-6 rounded-lg ${SECTOR_ICON_STYLES[s.color] || SECTOR_ICON_STYLES.blue} flex items-center justify-center shrink-0`}>
+                  <sIcon className="w-3.5 h-3.5 text-white" />
+                </span>
                 <span>{s.name}</span>
               </button>
             );
