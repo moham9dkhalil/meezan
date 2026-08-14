@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { ActiveTab } from "../types";
 import { Language } from "../data/translations";
 import {
@@ -7,6 +8,7 @@ import {
   SectorRoadmap
 } from "./AccountingSectorsSection";
 import { SectorDetailPanel } from "./SectorDetailPanel";
+import { SectorInfoModal } from "./SectorInfoModal";
 import {
   ArrowLeft,
   Sparkles,
@@ -18,7 +20,8 @@ import {
   BookOpen,
   FileText,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Info
 } from "lucide-react";
 
 interface SectorDetailSectionProps {
@@ -39,6 +42,8 @@ export function SectorDetailSection({
   appLanguage = "ar"
 }: SectorDetailSectionProps) {
   const isEn = appLanguage === "en";
+  const [showInfoModal, setShowInfoModal] = useState(false);
+
   const sector =
     ACCOUNTING_SECTORS.find((s) => s.id === sectorId) || ACCOUNTING_SECTORS[0];
 
@@ -79,15 +84,35 @@ export function SectorDetailSection({
 
   return (
     <section className="space-y-6 animate-fadeIn pb-12 relative">
+      {/* DEDICATED SECTOR INFO MODAL */}
+      <SectorInfoModal
+        sector={sector}
+        isOpen={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+        onSelectTab={onSelectTab}
+        onOpenOdooWithEntry={onOpenOdooWithEntry}
+        isEn={isEn}
+      />
+
       {/* Top Navigation Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#160D28] hover:bg-[#1f1337] border border-white/15 hover:border-purple-400/50 text-white text-xs font-black transition-all cursor-pointer shadow-lg"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>{isEn ? "All Accounting Sectors" : "كل تخصصات المحاسبة"}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onBack}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#160D28] hover:bg-[#1f1337] border border-white/15 hover:border-purple-400/50 text-white text-xs font-black transition-all cursor-pointer shadow-lg"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>{isEn ? "All Accounting Sectors" : "كل تخصصات المحاسبة"}</span>
+          </button>
+
+          <button
+            onClick={() => setShowInfoModal(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black transition-all cursor-pointer shadow-lg"
+          >
+            <Info className="w-4 h-4" />
+            <span>شاشة المعلومات ℹ️</span>
+          </button>
+        </div>
 
         <div className="flex items-center gap-2">
           <button

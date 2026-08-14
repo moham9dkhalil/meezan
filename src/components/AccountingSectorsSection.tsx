@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ActiveTab } from "../types";
 import { Language } from "../data/translations";
+import { SectorInfoModal } from "./SectorInfoModal";
 import {
   Building2,
   Factory,
@@ -36,7 +37,8 @@ import {
   X,
   AlertTriangle,
   FileCheck,
-  Copy
+  Copy,
+  Info
 } from "lucide-react";
 
 export const SECTOR_ICON_STYLES: Record<string, string> = {
@@ -992,6 +994,7 @@ export function AccountingSectorsSection({
 
   const [selectedSectorId, setSelectedSectorId] = useState<string>("contracting");
   const [searchQuery, setSearchQuery] = useState("");
+  const [infoModalSector, setInfoModalSector] = useState<SectorRoadmap | null>(null);
 
   const filteredSectors = ACCOUNTING_SECTORS.filter((s) => {
     const q = searchQuery.toLowerCase().trim();
@@ -1012,6 +1015,17 @@ export function AccountingSectorsSection({
 
   return (
     <section className="space-y-8 animate-fadeIn pb-12">
+      {/* DEDICATED SPECIALIZATION INFO MODAL */}
+      <SectorInfoModal
+        sector={infoModalSector}
+        isOpen={!!infoModalSector}
+        onClose={() => setInfoModalSector(null)}
+        onSelectTab={onSelectTab}
+        onOpenOdooWithEntry={onOpenOdooWithEntry}
+        onNavigateToFullDetail={onOpenSector}
+        isEn={isEn}
+      />
+
       {/* SECTION HEADER BANNER */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#1A102F] via-[#2A1647] to-[#120B20] border-2 border-indigo-500/30 p-6 sm:p-8 shadow-2xl space-y-6">
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -1029,7 +1043,7 @@ export function AccountingSectorsSection({
             </h2>
 
             <p className="text-slate-300 text-xs sm:text-sm font-medium leading-relaxed">
-              اختر القطاع أو المجال الذي ترغب في الاحتراف فيه (مثل المقاولات، المصانع والتكاليف، المطاعم، العقارات، التكنولوجيا، أو الضرائب) ليقوم محرك ميزان الذكي بإصدار خريطة تعلم مخصصة مع القيود اليومية الاحترافية وشجرة الحسابات للقطاع!
+              اختر القطاع أو المجال الذي ترغب في الاحتراف فيه (مثل المقاولات، المصانع والتكاليف، المطاعم، العقارات، التكنولوجيا، أو الضرائب) ليقوم محرك ميزان الذكي بإصدار شاشة معلومات وتفاصيل كاملة مع القيود وشجرة الحسابات!
             </p>
           </div>
 
@@ -1080,35 +1094,51 @@ export function AccountingSectorsSection({
           const SectorIcon = sec.icon;
 
           return (
-            <button
+            <div
               key={sec.id}
-              onClick={() => handleSectorCardClick(sec.id)}
-              className="relative overflow-hidden rounded-3xl p-5 border-2 border-white/10 bg-[#130B21] hover:border-purple-500/50 hover:bg-[#1a0e2e] hover:scale-[1.02] transition-all cursor-pointer space-y-3 flex flex-col justify-between text-right group shadow-lg hover:shadow-purple-950"
+              className="relative overflow-hidden rounded-3xl p-5 border-2 border-slate-200 dark:border-white/10 bg-white dark:bg-[#130B21] hover:border-purple-500/50 hover:shadow-xl transition-all space-y-4 flex flex-col justify-between text-right group shadow-sm"
             >
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <div className={`p-3 rounded-2xl ${SECTOR_ICON_STYLES[sec.color] || SECTOR_ICON_STYLES.blue} shadow-lg transition-all group-hover:scale-110`}>
-                    <SectorIcon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-black text-white leading-snug">{sec.name}</h3>
-                    <p className="text-[10px] text-slate-400 font-medium">{sec.nameEn}</p>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-3 rounded-2xl ${SECTOR_ICON_STYLES[sec.color] || SECTOR_ICON_STYLES.blue} shadow-lg transition-all group-hover:scale-110 shrink-0`}>
+                      <SectorIcon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 dark:text-white leading-snug">{sec.name}</h3>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{sec.nameEn}</p>
+                    </div>
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed font-medium">
+                <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed font-medium">
                   {sec.shortDesc}
                 </p>
+
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 text-[11px] font-bold">
+                  <span>{sec.badge}</span>
+                </div>
               </div>
 
-              <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-bold">
-                <span className="text-amber-300">{sec.badge}</span>
-                <span className="flex items-center gap-1 text-purple-300 group-hover:text-amber-300">
-                  <span>فتح صفحة التخصص</span>
+              {/* ACTION BUTTONS FOR EACH SECTOR */}
+              <div className="pt-3 border-t border-slate-200 dark:border-white/10 flex items-center justify-between gap-2">
+                <button
+                  onClick={() => setInfoModalSector(sec)}
+                  className="flex-1 py-2 px-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 border border-indigo-200 dark:border-indigo-500/40 text-indigo-700 dark:text-indigo-300 text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                  <span>شاشة المعلومات ℹ️</span>
+                </button>
+
+                <button
+                  onClick={() => handleSectorCardClick(sec.id)}
+                  className="py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black transition-all cursor-pointer flex items-center justify-center gap-1 shadow-md"
+                  title="تصفح الخريطة الكاملة"
+                >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                </span>
+                </button>
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
