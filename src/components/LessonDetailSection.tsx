@@ -1259,27 +1259,27 @@ export function LessonDetailSection({
 
   return (
     <section className="py-6 max-w-7xl mx-auto px-4 min-h-[85vh] animate-fadeIn">
-      {/* Top Header Bar */}
-      <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 border border-indigo-500/40 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4 shadow-xl shadow-indigo-600/20">
+      {/* Top Header Bar — Glassmorphism Container */}
+      <div className="glass-panel backdrop-blur-xl bg-white/85 dark:bg-slate-900/80 border border-slate-200/90 dark:border-indigo-500/30 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4 shadow-lg shadow-indigo-500/5 dark:shadow-none transition-all">
         <button
           onClick={onBackToPath}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 border border-white/40 text-white font-extrabold text-xs cursor-pointer transition-all hover:-translate-x-1"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/80 border border-indigo-200 dark:border-indigo-500/40 text-indigo-600 dark:text-indigo-300 font-extrabold text-xs cursor-pointer transition-all hover:-translate-x-1 shadow-sm"
         >
-          <ArrowRight className="w-4 h-4 text-white" />
+          <ArrowRight className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
           <span>العودة إلى خريطة المراحل</span>
         </button>
 
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/25 border border-white/40 flex items-center justify-center text-xl shadow-md">
+          <div className="w-10 h-10 rounded-xl bg-indigo-100/70 dark:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-500/40 flex items-center justify-center text-xl shadow-sm">
             {stage.icon}
           </div>
           <div>
-            <div className="flex items-center gap-2 text-xs font-black text-indigo-100">
+            <div className="flex items-center gap-2 text-xs font-black text-indigo-600 dark:text-indigo-300">
               <span>مرحلة {stage.id} من {STAGES_DATA.length}</span>
               <span>·</span>
-              <span className="text-white/90">{stage.levelBadge}</span>
+              <span className="px-2 py-0.5 rounded-md bg-indigo-100/80 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-[11px] font-bold">{stage.levelBadge}</span>
             </div>
-            <h1 className="text-base sm:text-lg font-black text-white">
+            <h1 className="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-0.5">
               {stage.name}
             </h1>
           </div>
@@ -1288,7 +1288,7 @@ export function LessonDetailSection({
         {/* Sidebar Toggle for Mobile */}
         <button
           onClick={() => setShowStageSidebar(!showStageSidebar)}
-          className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 border border-indigo-400 text-white font-bold text-xs cursor-pointer shadow-md shadow-indigo-600/25"
+          className="lg:hidden flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs cursor-pointer shadow-md shadow-indigo-600/25"
         >
           <List className="w-4 h-4 text-white" />
           <span>فهرس الوحدات ({stage.lessons.length} وحدة)</span>
