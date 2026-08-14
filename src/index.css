@@ -25,15 +25,15 @@
 
     /* Unified light card surface tokens (applied app-wide in html.light rules) */
     --br-surface: linear-gradient(160deg, #ffffff, #f6f9ff);
-    --br-border: rgba(99, 102, 241, 0.16);
-    --br-border-strong: rgba(99, 102, 241, 0.25);
-    --br-tint: rgba(99, 102, 241, 0.09);
+    --br-border: rgba(59, 130, 246, 0.16);
+    --br-border-strong: rgba(59, 130, 246, 0.25);
+    --br-tint: rgba(59, 130, 246, 0.08);
     --br-text: #334155;
     --br-text-muted: #64748b;
-    --br-brand: #4f46e5;
-    --br-brand-soft: #818cf8;
-    --txt-indigo: #4f46e5;
-    --txt-purple: #7c3aed;
+    --br-brand: #2563eb;
+    --br-brand-soft: #3effd4;
+    --txt-indigo: #1d4ed8;
+    --txt-purple: #0f766e;
     --txt-amber: #b45309;
     --txt-emerald: #047857;
     --txt-rose: #be123c;
@@ -197,7 +197,7 @@ html.light .bg-black {
   background-color: #ffffff !important;
   color: #334155 !important;
   border-color: #e2e8f0 !important;
-  box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.05);
+  box-shadow: 0 4px 20px -2px rgba(59, 130, 246, 0.05);
 }
 
 /* 2. Inner Buttons with Custom Dark Hexes -> Light Pastel Cards */
@@ -218,7 +218,7 @@ html.light button[class*="bg-zinc-9"]:hover,
 html.light button[class*="bg-indigo-9"]:hover {
   background-color: #eef2ff !important;
   border-color: #c7d2fe !important;
-  color: #4f46e5 !important;
+  color: #2563eb !important;
 }
 
 /* 3. Sub-containers & Translucent Fills -> Bright Soft Indigo / Slate */
@@ -263,7 +263,7 @@ html.light [class*="hover:bg-black"]:hover,
 html.light [class*="hover:bg-white\/5"]:hover,
 html.light [class*="hover:bg-white\/10"]:hover {
   background-color: #eef2ff !important;
-  color: #4f46e5 !important;
+  color: #2563eb !important;
 }
 
 /* 5. Modals & Airy Bright Backdrop Blur Overlay */
@@ -284,21 +284,21 @@ html.light .glass-nav {
   background-color: rgba(255, 255, 255, 0.98) !important;
   border-color: #e2e8f0 !important;
   color: #334155 !important;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.05) !important;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.05) !important;
 }
 
 /* Light mode Glass Panels */
 html.light .glass-panel {
   background: rgba(255, 255, 255, 0.98) !important;
   border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.05) !important;
+  box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.05) !important;
 }
 
 /* Light mode Ambient Background Glow */
 html.light .bg-ambient-gradient {
   background:
-    radial-gradient(600px 400px at 85% -5%, rgba(99, 102, 241, 0.12), transparent 60%),
-    radial-gradient(500px 400px at 5% 15%, rgba(236, 72, 153, 0.08), transparent 60%),
+    radial-gradient(600px 400px at 85% -5%, rgba(59, 130, 246, 0.14), transparent 60%),
+    radial-gradient(500px 400px at 5% 15%, rgba(62, 255, 212, 0.08), transparent 60%),
     radial-gradient(700px 500px at 50% 100%, rgba(16, 185, 129, 0.08), transparent 60%) !important;
 }
 
@@ -313,27 +313,27 @@ html.light h3:not([class*="text-transparent"]),
 html.light h4:not([class*="text-transparent"]),
 html.light h5:not([class*="text-transparent"]),
 html.light h6:not([class*="text-transparent"]) {
-  color: #1e293b !important;
+  color: #0f172a !important;
 }
 
 /* Multi-tone Text Gradients in Light Mode -> Bright Colorful Pop! */
 html.light .from-white,
 html.light [class*="from-white"] {
-  --tw-gradient-from: #4f46e5 !important;
+  --tw-gradient-from: #2563eb !important;
 }
 
 html.light .via-slate-100,
 html.light .via-slate-200,
 html.light .via-indigo-100,
 html.light .via-indigo-200 {
-  --tw-gradient-via: #7c3aed !important;
+  --tw-gradient-via: #ffd060 !important;
 }
 
 html.light .to-slate-300,
 html.light .to-slate-400,
 html.light .to-slate-500,
 html.light .to-indigo-300 {
-  --tw-gradient-to: #6366f1 !important;
+  --tw-gradient-to: #3effd4 !important;
 }
 
 /* Plain white text inside containers mapping to smooth slate */
@@ -373,14 +373,14 @@ html.light .text-indigo-100,
 html.light .text-indigo-200,
 html.light .text-indigo-300,
 html.light .text-indigo-400 {
-  color: #4f46e5 !important;
+  color: #1d4ed8 !important;
 }
 
 html.light .text-purple-100,
 html.light .text-purple-200,
 html.light .text-purple-300,
 html.light .text-purple-400 {
-  color: #7c3aed !important;
+  color: #0f766e !important;
 }
 
 html.light .text-emerald-100,
@@ -451,15 +451,15 @@ html.light .bg-indigo-500\/10,
 html.light .bg-indigo-500\/20,
 html.light .bg-indigo-600\/10,
 html.light .bg-indigo-600\/20 {
-  background-color: #e0e7ff !important;
-  color: #4338ca !important;
-  border-color: #c7d2fe !important;
+  background-color: #dbeafe !important;
+  color: #1d4ed8 !important;
+  border-color: #93c5fd !important;
 }
 html.light .bg-indigo-500\/10 *,
 html.light .bg-indigo-500\/20 *,
 html.light .bg-indigo-600\/10 *,
 html.light .bg-indigo-600\/20 * {
-  color: #4338ca !important;
+  color: #1d4ed8 !important;
 }
 
 html.light .bg-emerald-500\/10,
@@ -496,15 +496,15 @@ html.light .bg-purple-500\/10,
 html.light .bg-purple-500\/20,
 html.light .bg-purple-600\/10,
 html.light .bg-purple-600\/20 {
-  background-color: #f3e8ff !important;
-  color: #6b21a8 !important;
-  border-color: #e9d5ff !important;
+  background-color: #ccfbf1 !important;
+  color: #0f766e !important;
+  border-color: #5eead4 !important;
 }
 html.light .bg-purple-500\/10 *,
 html.light .bg-purple-500\/20 *,
 html.light .bg-purple-600\/10 *,
 html.light .bg-purple-600\/20 * {
-  color: #6b21a8 !important;
+  color: #0f766e !important;
 }
 
 html.light .bg-rose-500\/10,
@@ -540,7 +540,7 @@ html.light .border-zinc-800 {
 
 html.light .border-indigo-500\/20,
 html.light .border-indigo-500\/30 {
-  border-color: rgba(99, 102, 241, 0.25) !important;
+  border-color: rgba(59, 130, 246, 0.25) !important;
 }
 
 /* Form Controls & Inputs in Light Mode */
@@ -560,8 +560,8 @@ html.light textarea::placeholder {
 html.light input:focus,
 html.light select:focus,
 html.light textarea:focus {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
 }
 
 /* Table Headers & Cells in Light Mode */
@@ -595,18 +595,18 @@ html.light ::-webkit-scrollbar-thumb {
   border-radius: 4px;
 }
 html.light ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.6);
+  background: rgba(59, 130, 246, 0.6);
 }
 
 /* Top bar readability */
 html.light header button:not([class*="bg-gradient-to"]):not([class*="bg-indigo-600"]):not([class*="bg-indigo-500"]):not([class*="bg-purple-600"]),
 html.light header nav a {
-  color: #1e293b !important;
+  color: #0f172a !important;
 }
 
 html.light header button:not([class*="bg-gradient-to"]):not([class*="bg-indigo-600"]):not([class*="bg-indigo-500"]):not([class*="bg-purple-600"]) svg,
 html.light header nav a svg {
-  color: #4f46e5 !important;
+  color: #2563eb !important;
 }
 
 html.light header button.bg-gradient-to-r,
@@ -772,8 +772,8 @@ html.light header .text-amber-200 {
 
 .bg-ambient-gradient {
   background:
-    radial-gradient(600px 400px at 85% -5%, rgba(99, 102, 241, 0.16), transparent 60%),
-    radial-gradient(500px 400px at 5% 15%, rgba(236, 72, 153, 0.10), transparent 60%),
+    radial-gradient(600px 400px at 85% -5%, rgba(59, 130, 246, 0.16), transparent 60%),
+    radial-gradient(500px 400px at 5% 15%, rgba(255, 208, 96, 0.09), transparent 60%),
     radial-gradient(700px 500px at 50% 100%, rgba(16, 185, 129, 0.08), transparent 60%);
 }
 
@@ -799,10 +799,10 @@ html.light header .text-amber-200 {
 /* 1. Animated calm ambient background — single indigo/violet family, low opacity */
 html.light .bg-ambient-gradient {
   background:
-    radial-gradient(760px 560px at 14% 4%, rgba(99, 102, 241, 0.16), transparent 58%),
-    radial-gradient(680px 520px at 86% 8%, rgba(139, 92, 246, 0.12), transparent 58%),
-    radial-gradient(820px 640px at 78% 96%, rgba(99, 102, 241, 0.10), transparent 58%),
-    radial-gradient(600px 520px at 18% 98%, rgba(129, 140, 248, 0.10), transparent 58%);
+    radial-gradient(760px 560px at 14% 4%, rgba(59, 130, 246, 0.16), transparent 58%),
+    radial-gradient(680px 520px at 86% 8%, rgba(62, 255, 212, 0.12), transparent 58%),
+    radial-gradient(820px 640px at 78% 96%, rgba(255, 208, 96, 0.08), transparent 58%),
+    radial-gradient(600px 520px at 18% 98%, rgba(59, 130, 246, 0.06), transparent 58%);
   background-size: 180% 180%;
   animation: lmAmbient 20s ease-in-out infinite;
 }
@@ -824,8 +824,8 @@ html.light [class*="bg-\[\#"]:not(button):not(a):not(span):hover,
 html.light section[class*="bg-\[\#"]:hover,
 html.light .glass-panel:hover {
   transform: translateY(-6px);
-  box-shadow: 0 22px 48px -16px rgba(99, 102, 241, 0.30),
-    0 8px 22px -10px rgba(236, 72, 153, 0.20);
+  box-shadow: 0 22px 48px -16px rgba(59, 130, 246, 0.30),
+    0 8px 22px -10px rgba(62, 255, 212, 0.20);
   border-color: var(--br-brand-soft) !important;
 }
 @keyframes lmRise {
@@ -834,8 +834,8 @@ html.light .glass-panel:hover {
 }
 
 /* 3. Animated gradient shift on primary action buttons */
-html.light button.bg-indigo-600 { background-image: linear-gradient(135deg, #6366f1, #8b5cf6) !important; }
-html.light button.bg-purple-600 { background-image: linear-gradient(135deg, #8b5cf6, #a855f7) !important; }
+html.light button.bg-indigo-600 { background-image: linear-gradient(135deg, #2563eb, #60a5fa) !important; }
+html.light button.bg-purple-600 { background-image: linear-gradient(135deg, #0d9488, #3effd4) !important; }
 html.light button.bg-emerald-600 { background-image: linear-gradient(135deg, #10b981, #14b8a6) !important; }
 html.light button.bg-rose-600 { background-image: linear-gradient(135deg, #f43f5e, #ec4899) !important; }
 html.light button.bg-indigo-600,
@@ -854,7 +854,7 @@ html.light button.bg-rose-600:hover,
 html.light button[class*="bg-gradient-to"]:hover {
   transform: translateY(-2px);
   filter: brightness(1.06);
-  box-shadow: 0 14px 30px -10px rgba(99, 102, 241, 0.55);
+  box-shadow: 0 14px 30px -10px rgba(59, 130, 246, 0.55);
 }
 @keyframes lmBtnShift {
   0%, 100% { background-position: 0% 50%; }
@@ -882,8 +882,8 @@ html.light [class*="bg-clip-text"] {
 /* 6. Soft pulsing aura on highlighted cards */
 html.light .animate-pulse-aura { animation: lmAura 4s ease-in-out infinite; }
 @keyframes lmAura {
-  0%, 100% { box-shadow: 0 0 18px rgba(129, 140, 248, 0.18), 0 0 30px rgba(99, 102, 241, 0.12); }
-  50% { box-shadow: 0 0 36px rgba(168, 85, 247, 0.34), 0 0 54px rgba(236, 72, 153, 0.22); }
+  0%, 100% { box-shadow: 0 0 18px rgba(59, 130, 246, 0.18), 0 0 30px rgba(255, 208, 96, 0.12); }
+  50% { box-shadow: 0 0 36px rgba(62, 255, 212, 0.34), 0 0 54px rgba(255, 208, 96, 0.22); }
 }
 
 /* 8. Glowing typing caret — replaces flat animate-pulse blocks site-wide */
@@ -1071,8 +1071,8 @@ html.light .cursor-pointer:hover,
 html.light li[class*="hover:"]:hover,
 html.light [class*="hover:bg-"]:hover,
 html.light [class*="hover:text-"]:hover {
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16),
-    0 8px 22px -10px rgba(99, 102, 241, 0.30) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16),
+    0 8px 22px -10px rgba(59, 130, 246, 0.30) !important;
   border-color: var(--br-brand-soft) !important;
 }
 html.light a:hover { color: var(--br-brand) !important; }
