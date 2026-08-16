@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
+import apiHandler from "./api/index";
 
 // Gemini via the REST API (fetch is built into Node 18+, no SDK needed).
 async function generateGeminiText(
@@ -257,10 +258,8 @@ ${history && history.length > 0 ? history.map((h: any) => `${h.role === 'user' ?
     }
   });
 
-  // Health check endpoint
-  app.get("/api/health", (_req, res) => {
-    res.json({ status: "ok", app: "Meezan" });
-  });
+  // Mount comprehensive API handler for auth, sync, reviews, cms, certificates, support, etc.
+  app.use(apiHandler);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
@@ -277,9 +276,21 @@ ${history && history.length > 0 ? history.map((h: any) => `${h.role === 'user' ?
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
-  });
+  const listen = (port: number) => {
+    const server = app.listen(port, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${port}`);
+    });
+    server.on("error", (err: any) => {
+      if (err.code === "EADDRINUSE") {
+        console.warn(`Port ${port} is in use, trying ${port + 1}...`);
+        listen(port + 1);
+      } else {
+        console.error("Server error:", err);
+      }
+    });
+  };
+
+  listen(PORT);
 }
 
 startServer();

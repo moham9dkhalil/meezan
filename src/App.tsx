@@ -828,9 +828,9 @@ export default function App() {
             </button>
           </div>
           <p className="text-[11px] text-gray-400">
-            {isEn}
+            {isEn
               ? `All Rights Reserved © ${new Date().getFullYear()} — Built with premium interface quality by Mohammad Khalil`
-              : `جميع الحقوق محفوظة © ${new Date().getFullyear()} — صُممت وبُنيت بأعلى معايير جودة الواجهات على يد محمد خليل`
+              : `جميع الحقوق محفوظة © ${new Date().getFullYear()} — صُممت وبُنيت بأعلى معايير جودة الواجهات على يد محمد خليل`}
           </p>
         </footer>
       )}

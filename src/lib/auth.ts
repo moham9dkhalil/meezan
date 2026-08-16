@@ -3,7 +3,13 @@ import { UserProfile, LearningTrack } from "../types";
 
 const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || "";
 const SUPABASE_ANON_KEY = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || "";
-export const SUPABASE_CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+export const SUPABASE_CONFIGURED = Boolean(
+  SUPABASE_URL &&
+    SUPABASE_ANON_KEY &&
+    !SUPABASE_URL.includes("YOUR-PROJECT") &&
+    !SUPABASE_ANON_KEY.includes("your-supabase") &&
+    !SUPABASE_ANON_KEY.includes("your-anon")
+);
 
 // When the Supabase env vars are absent we fall back to the built-in API auth
 // (handled by the serverless function), so registration works with zero
@@ -50,7 +56,9 @@ function storedApiUser(): UserProfile | null {
 // ---------------------------------------------------------------------------
 let cachedToken: string | null = null;
 supabase.auth.getSession().then(({ data }) => {
-  cachedToken = data.session?.access_token ?? null;
+  cachedToken = data?.session?.access_token ?? null;
+}).catch(() => {
+  cachedToken = null;
 });
 supabase.auth.onAuthStateChange((_event, session) => {
   cachedToken = session?.access_token ?? null;
