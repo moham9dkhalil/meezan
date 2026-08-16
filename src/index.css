@@ -2,14 +2,14 @@
 
 @layer base {
   :root {
-    --bg: #080c1c;
-    --bg-soft: #0b1120;
-    --card: #0d1424;
-    --card-2: #101a30;
-    --line: rgba(255, 255, 255, 0.08);
-    --text: #f3f4f6;
-    --muted: #9ca3af;
-    --dim: #6b7280;
+    --bg: #fafafa;
+    --bg-soft: #f5f5f5;
+    --card: #ffffff;
+    --card-2: #f9fafb;
+    --line: rgba(0, 0, 0, 0.08);
+    --text: #111827;
+    --muted: #6b7280;
+    --dim: #9ca3af;
 
     --indigo: #6366f1;
     --blue: #3b82f6;

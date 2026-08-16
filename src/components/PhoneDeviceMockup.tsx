@@ -198,7 +198,7 @@ export function PhoneDeviceMockup({ onSelectTab, onOpenStage, appName = "تطب�
             <div className="space-y-3 animate-fadeIn">
               {/* Greeting */}
               <div className="px-1">
-                <h4 className="text-sm font-black text-white leading-tight">أهلاً بك، خالد 👋</h4>
+                <h4 className="text-sm font-black text-white leading-tight">أهلاً بك، محمد خليل 👋</h4>
                 <p className="text-[10px] text-slate-400 font-medium">استمر في رحلتك لتصبح محاسباً محترفاً</p>
               </div>
 
@@ -651,7 +651,7 @@ export function PhoneDeviceMockup({ onSelectTab, onOpenStage, appName = "تطب�
                     <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 border-2 border-[#0D1525] flex items-center justify-center text-[7px] font-black text-white">3</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-black text-white">خالد محمد</h4>
+                    <h4 className="text-xs font-black text-white">محمد خليل</h4>
                     <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-[8px] text-amber-400 font-bold">⭐ المستوى ٣ — متوسط</span>
                     <p className="text-[9px] text-slate-400 mt-0.5 truncate">أتعلم المحاسبة على ميزان 📚 طالب ACCA</p>
                   </div>
